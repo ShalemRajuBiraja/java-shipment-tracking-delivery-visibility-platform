@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { createPortal } from "react-dom";
 
 const Modal = ({
   isOpen,
@@ -25,19 +26,21 @@ const Modal = ({
     };
 
     document.addEventListener("keydown", handleEscape);
+
+    const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
 
     return () => {
       document.removeEventListener("keydown", handleEscape);
-      document.body.style.overflow = "";
+      document.body.style.overflow = previousOverflow;
     };
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-[100] flex min-h-screen items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) {
           onClose?.();
@@ -48,7 +51,7 @@ const Modal = ({
       aria-labelledby={title ? "modal-title" : undefined}
     >
       <div
-        className={`w-full ${sizeStyles[size]} rounded-xl bg-white shadow-2xl`}
+        className={`w-full max-w-[calc(100vw-2rem)] ${sizeStyles[size]} rounded-xl bg-white shadow-2xl`}
         onMouseDown={(event) => event.stopPropagation()}
       >
         {(title || showCloseButton) && (
@@ -90,7 +93,8 @@ const Modal = ({
 
         <div className="p-6">{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

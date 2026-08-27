@@ -1,12 +1,12 @@
 import { useState } from "react";
 import Button from "../../../components/ui/Button";
-import vanImage from "../../../assets/images/van.jpg";
+import logo from "../../../assets/images/ship-track-logo.png";
 
 const navItems = [
-  { label: "Home", href: "#home" },
-  { label: "Features", href: "#features" },
-  { label: "Services", href: "#services" },
-  { label: "How It Works", href: "#how-it-works" },
+  { label: "Home", href: "home" },
+  { label: "Features", href: "features" },
+  { label: "Services", href: "services" },
+  { label: "How It Works", href: "how-it-works" },
 ];
 
 const Navbar = () => {
@@ -26,7 +26,7 @@ const Navbar = () => {
         >
          <span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg bg-emerald-600">
           <img
-            src={vanImage}
+            src={logo}
             alt="ShipTrack Pro"
             className="h-full w-full object-cover"
           />

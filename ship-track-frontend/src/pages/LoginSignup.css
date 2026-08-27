@@ -1,0 +1,156 @@
+* {
+  box-sizing: border-box;
+}
+
+.auth-page {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f4f7fb;
+  padding: 20px;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 430px;
+  background: white;
+  padding: 35px;
+  border-radius: 14px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.auth-header h1 {
+  margin: 0 0 8px;
+  color: #1e3a8a;
+  font-size: 30px;
+}
+
+.auth-header p {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.auth-tabs {
+  display: flex;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 25px;
+}
+
+.tab {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 12px;
+  font-size: 16px;
+  cursor: pointer;
+  color: #777;
+}
+
+.tab.active {
+  color: #1e3a8a;
+  font-weight: 600;
+  border-bottom: 3px solid #1e3a8a;
+}
+
+.input-group {
+  margin-bottom: 18px;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 7px;
+  color: #333;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #ccc;
+  border-radius: 7px;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.input-group input:focus {
+  border-color: #1e3a8a;
+}
+
+.input-group input::placeholder {
+  color: #aaa;
+}
+
+.forgot-password {
+  text-align: right;
+  margin-bottom: 20px;
+}
+
+.forgot-password button {
+  border: none;
+  background: transparent;
+  color: #1e3a8a;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.forgot-password button:hover {
+  text-decoration: underline;
+}
+
+.submit-button {
+  width: 100%;
+  padding: 13px;
+  border: none;
+  border-radius: 7px;
+  background: #1e3a8a;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.submit-button:hover {
+  background: #162d6b;
+}
+
+.switch-account {
+  text-align: center;
+  margin-top: 22px;
+}
+
+.switch-account p {
+  display: inline;
+  margin-right: 5px;
+  color: #666;
+  font-size: 14px;
+}
+
+.switch-account button {
+  border: none;
+  background: transparent;
+  color: #1e3a8a;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.switch-account button:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 500px) {
+  .auth-card {
+    padding: 25px 20px;
+  }
+}

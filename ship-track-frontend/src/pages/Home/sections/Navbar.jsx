@@ -1,18 +1,20 @@
 import { useState } from "react";
+import {useNavigate } from "react-router-dom";
 import Button from "../../../components/ui/Button";
 import logo from "../../../assets/images/ship-track-logo.png";
 import LoginModal from "../../Auth/LoginModal";
 
 const navItems = [
-  { label: "Home", href: "home" },
-  { label: "Features", href: "features" },
-  { label: "Services", href: "services" },
-  { label: "How It Works", href: "how-it-works" },
+  { label: "Home", href: "#home" },
+  { label: "Features", href: "#features" },
+  { label: "Services", href: "#services" },
+  { label: "How It Works", href: "#how-it-works" },
 ];
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const navigate = useNavigate();
   const handleNavClick = () => {
     setIsMenuOpen(false);
   };
@@ -53,8 +55,11 @@ const Navbar = () => {
         <div className="hidden items-center gap-3 md:flex">
          <Button variant="ghost" onClick={() => setIsLoginModalOpen(true)} >  Login </Button>
 
-          <Button variant="primary">
-            Sign Up
+         <Button
+            variant="primary"
+            onClick={() => navigate("/register")}
+          >
+            Register
           </Button>
         </div>
 
@@ -123,7 +128,7 @@ const Navbar = () => {
                   variant="primary"
                   className="flex-1"
                 >
-                  Sign Up
+                  Register
                 </Button>
               </div>
             </div>
@@ -132,13 +137,7 @@ const Navbar = () => {
       )}
 
       {/* LOGIN MODAL CONNECTED HERE */}
-      <LoginModal 
-      isOpen={isLoginModalOpen} 
-      onClose={() => setIsLoginModalOpen(false)} onRegister={() => {setIsLoginModalOpen(false);
-
-            // Signup modal will be connected here later.
-      }}
-      />
+     <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
 
     </header>
   );

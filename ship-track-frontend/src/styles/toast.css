@@ -1,0 +1,33 @@
+.Toastify__toast-container {
+  width: 360px;
+  max-width: calc(100vw - 32px);
+}
+
+.Toastify__toast {
+  border-radius: 12px;
+  font-size: 14px;
+  min-height: 52px;
+}
+
+/* Tablet */
+@media (max-width: 768px) {
+  .Toastify__toast-container {
+    width: 340px;
+    max-width: calc(100vw - 24px);
+  }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .Toastify__toast-container {
+    width: calc(100vw - 20px);
+    left: 10px;
+    right: 10px;
+    top: 70px;
+  }
+
+  .Toastify__toast {
+    margin-bottom: 8px;
+    font-size: 13px;
+  }
+}

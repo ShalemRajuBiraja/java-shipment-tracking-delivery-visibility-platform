@@ -2,14 +2,20 @@ import { useState } from "react";
 import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
 import Modal from "../../components/ui/Modal";
-const LoginModal = ({ isOpen, onClose, onRegister }) => {
+import { useNavigate } from "react-router-dom";
+import { loginApi } from "../../services/authService";
+import { toast } from "react-toastify";
+
+const LoginModal = ({ isOpen, onClose }) => {
+
   const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
-
+                                            email: "",
+                                            password: "",
+                                            });
   const [errors, setErrors] = useState({});
+  const navigate = useNavigate();
 
+  // Handle input changes
   const handleChange = (event) => {
     const { name, value } = event.target;
 
@@ -44,32 +50,28 @@ const LoginModal = ({ isOpen, onClose, onRegister }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     if (!validateForm()) {
       return;
     }
+     alert("Login under development!");
+      //  try{
 
-    // TODO: Connect login API endpoint here.
-    // Example:
-    // POST /api/auth/login
+      //     const loginApiresponse = await loginApi(formData);
 
-    console.log("Login data:", {
-      email: formData.email,
-      password: formData.password,
-    });
-  };
-
-  const handleRegister = () => {
-    setFormData({
-      email: "",
-      password: "",
-    });
-
-    setErrors({});
-
-    onRegister?.();
+      //       if(loginApiresponse?.data?.success){
+      //           localStorage.setItem("userData", JSON.stringify(loginApiresponse.data.data.userData));
+      //           localStorage.setItem("token", loginApiresponse.data.data.token)
+      //           navigate("/home");
+      //       }
+      //   }catch(error){
+      //           console.log(error.response.data.message); // see error response in console
+      //           setErrors({...errors, apiError : true});
+      //           toast.error(error.response.data.message);                           
+      //   } 
+  
   };
 
   return (
@@ -127,15 +129,17 @@ const LoginModal = ({ isOpen, onClose, onRegister }) => {
           <p className="text-sm text-slate-500">
             Don't have an account?
           </p>
-
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleRegister}
-            className="mt-3 w-full"
-          >
-            Register
-          </Button>
+                <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                        onClose();
+                        navigate("/register");
+                    }}
+                    className="mt-3 w-full"
+                    >
+                    Register
+                </Button>
         </div>
       </div>
     </Modal>

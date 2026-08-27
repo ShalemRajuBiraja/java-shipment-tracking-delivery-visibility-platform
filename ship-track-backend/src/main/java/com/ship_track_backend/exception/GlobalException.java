@@ -1,0 +1,59 @@
+package com.ship_track_backend.exception;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.HashMap;
+import java.util.Map;
+
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+	
+
+    // Handles @Valid failures on request DTOs (e.g. CreateAccountApiData)
+    // Returns field-level error messages so the frontend can show them per-input
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiResponse<Map<String, String>>> handleValidationErrors(
+            MethodArgumentNotValidException ex) {
+
+        Map<String, String> fieldErrors = new HashMap<>();
+
+        for (FieldError error : ex.getBindingResult().getFieldErrors()) {
+            fieldErrors.put(error.getField(), error.getDefaultMessage());
+        }
+
+        ApiResponse<Map<String, String>> response =
+                new ApiResponse<>(false, "Validation failed", fieldErrors);
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    // Handles exceptions you throw yourself in services, e.g.:
+    // throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already registered");
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<ApiResponse<Object>> handleResponseStatusException(
+            ResponseStatusException ex) {
+
+        ApiResponse<Object> response =  new ApiResponse<>(false, ex.getReason(), null);
+
+        return ResponseEntity.status(ex.getStatusCode()).body(response);
+    }
+    
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiResponse<Object>> handleGenericException(Exception ex) {
+
+        ApiResponse<Object> response =
+                new ApiResponse<>(false, "Something went wrong. Please try again later.", null);
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
+    
+    
+  
+}

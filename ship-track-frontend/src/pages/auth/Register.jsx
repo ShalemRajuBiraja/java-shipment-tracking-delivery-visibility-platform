@@ -15,7 +15,6 @@ const Register = () => {
     name: "",
     email: "",
     password: "",
-    confirmPassword: "",
     role: "",
     });
   const [errors, setErrors] = useState({});
@@ -58,14 +57,6 @@ const Register = () => {
         "Password must be at least 6 characters";
     }
 
-    if (!formData.confirmPassword) {
-      newErrors.confirmPassword =
-        "Please confirm your password";
-    } else if (
-      formData.password !== formData.confirmPassword
-    ) {
-      newErrors.confirmPassword = "Passwords do not match";
-    }
     if (!formData.role) {
     newErrors.role = "Please select your account type";
     }
@@ -190,19 +181,10 @@ const Register = () => {
             onChange={handleChange}
             error={errors.password}
             autoComplete="new-password"
+            showPasswordToggle
           />
 
-          <Input
-            id="signup-confirm-password"
-            name="confirmPassword"
-            type="password"
-            label="Confirm Password"
-            placeholder="Confirm your password"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            error={errors.confirmPassword}
-            autoComplete="new-password"
-          />
+          
 
           <Button
             type="submit"

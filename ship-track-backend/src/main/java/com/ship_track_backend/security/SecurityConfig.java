@@ -1,3 +1,4 @@
+package com.ship_track_backend.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -8,6 +9,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import com.ship_track_backend.filter.JwtRequestFilter;
 
 
 
@@ -25,11 +28,8 @@ public class SecurityConfig {
 	    .cors(Customizer.withDefaults()) // This line tells spring security to USE your existing CorsConfig.java file 
 		.csrf(csrf -> csrf.disable()) 
 		.authorizeHttpRequests( auth -> auth
-				                            .requestMatchers("/auth/login").permitAll()
-				                            .requestMatchers("/auth/create-account").permitAll()
-				                            .requestMatchers("/api/get/foods").permitAll()
-				                            .requestMatchers("/auth/admin/login").permitAll()
-				                            .anyRequest().authenticated() )
+				.requestMatchers( "/auth/login", "/auth/register").permitAll()				         
+				.anyRequest().authenticated() )
 		.sessionManagement( Session -> Session.sessionCreationPolicy(SessionCreationPolicy.STATELESS) );
 		
 	http.addFilterBefore( jwtRequestFilter, UsernamePasswordAuthenticationFilter.class );

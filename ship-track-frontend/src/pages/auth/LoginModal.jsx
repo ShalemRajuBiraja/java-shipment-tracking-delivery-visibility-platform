@@ -104,16 +104,17 @@ const LoginModal = ({ isOpen, onClose }) => {
           />
 
           <Input
-            id="login-password"
-            name="password"
-            type="password"
-            label="Password"
-            placeholder="Enter your password"
-            value={formData.password}
-            onChange={handleChange}
-            error={errors.password}
-            autoComplete="current-password"
-          />
+              id="login-password"
+              name="password"
+              type="password"
+              label="Password"
+              placeholder="Enter your password"
+              value={formData.password}
+              onChange={handleChange}
+              error={errors.password}
+              autoComplete="current-password"
+              showPasswordToggle
+            />
 
           <Button
             type="submit"

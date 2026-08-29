@@ -24,12 +24,13 @@ public class AuthController {
 	@PostMapping("/auth/register")
 	public ResponseEntity<ApiResponse<Void>> registerAccount( @Valid @RequestBody UserRegisterData userRegisterData) throws Exception {
 		
+		System.out.println("Controller reaches");
 		authService.registerAccount(userRegisterData);
 		
 		ApiResponse<Void> apiResponse = new ApiResponse<>(true, "User Registred successfully", null);
 		
 		
-		return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
+		return ResponseEntity.status(HttpStatus.CREATED).body(apiResponse);
 	}
 	
 	

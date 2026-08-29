@@ -5,6 +5,9 @@ import "./styles/toast.css";
 
 import Home from "./pages/Home/Home";
 import Register from "./pages/Auth/Register";
+import Dashboard from "./pages/customer/Dashboard";
+import MyShipments from "./pages/customer/MyShipments";
+import ShipmentDetails from "./pages/customer/ShipmentDetails";
 
 function App() {
   return (
@@ -13,6 +16,11 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/home" element={<Home />} />
         <Route path="/register" element={<Register />} />
+
+        
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/shipments" element={<MyShipments />} />
+        <Route path="/shipment-details/:id" element={<ShipmentDetails />} />
       </Routes>
 
       <ToastContainer

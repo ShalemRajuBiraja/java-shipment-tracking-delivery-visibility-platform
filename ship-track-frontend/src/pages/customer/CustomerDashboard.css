@@ -1,0 +1,158 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+.dashboard {
+  padding: 30px;
+  background: #f4f7fb;
+  min-height: 100vh;
+}
+
+h1 {
+  margin-bottom: 25px;
+  color: #1e293b;
+}
+
+.cards {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.card {
+  flex: 1;
+  color: white;
+  padding: 20px;
+  border-radius: 12px;
+}
+
+.card h2 {
+  font-size: 32px;
+}
+
+.blue {
+  background: #2563eb;
+}
+
+.orange {
+  background: #ea580c;
+}
+
+.green {
+  background: #16a34a;
+}
+
+.title {
+  margin-bottom: 15px;
+  color: #334155;
+}
+
+table {
+  width: 100%;
+  background: white;
+  border-collapse: collapse;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+th,
+td {
+  padding: 15px;
+  text-align: left;
+}
+
+th {
+  background: #1e40af;
+  color: white;
+}
+
+tr:nth-child(even) {
+  background: #f8fafc;
+}
+
+.status {
+  padding: 6px 12px;
+  border-radius: 20px;
+  color: white;
+  font-size: 14px;
+}
+
+.InTransit {
+  background: orange;
+}
+
+.Delivered {
+  background: green;
+}
+
+.Pending {
+  background: crimson;
+}
+button {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  background: #2563eb;
+  color: white;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+.back-button {
+  margin-bottom: 20px;
+}
+
+.shipment-info {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 30px;
+}
+
+.shipment-info h2 {
+  margin-bottom: 20px;
+}
+
+.timeline {
+  background: white;
+  padding: 25px;
+  border-radius: 10px;
+}
+
+.timeline-item {
+  display: flex;
+  gap: 15px;
+  padding: 15px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.circle {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  background: #cbd5e1;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.completed .circle {
+  background: #16a34a;
+}
+
+.timeline-item h3 {
+  margin: 0 0 5px;
+}
+
+.timeline-item p {
+  margin: 0;
+  color: #64748b;
+}

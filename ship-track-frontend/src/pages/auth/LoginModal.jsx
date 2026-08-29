@@ -5,7 +5,7 @@ import Modal from "../../components/ui/Modal";
 import { useNavigate } from "react-router-dom";
 import { loginApi } from "../../services/authService";
 import { toast } from "react-toastify";
-import { redirectBasedOnRole } from "../../utils/redirectBasedOnRole";
+import { redirectBasedOnRole } from "../../utils/roleRedirect";
 
 const LoginModal = ({ isOpen, onClose }) => {
 
@@ -74,7 +74,7 @@ const LoginModal = ({ isOpen, onClose }) => {
                   toast.success(loginApiResponse.data.message);
 
                   // Redirect based on role
-                  redirectBasedOnRole(userData.role, navigate);
+                  // redirectBasedOnRole(userData.role, navigate);
               }
 
               } catch (error) {

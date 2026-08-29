@@ -64,7 +64,8 @@ public class AuthService {
 		UserEntity userData = ifEmailExist.get();
 
 		
-		if(!userData.getPassword().equals(loginApiData.getPassword())) {
+		if(!passwordEncoder.matches( loginApiData.getPassword(),
+		        userData.getPassword())) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid password");
 		}
 		

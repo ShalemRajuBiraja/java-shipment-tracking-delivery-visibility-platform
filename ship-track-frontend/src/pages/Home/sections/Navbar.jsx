@@ -9,6 +9,7 @@ const navItems = [
   { label: "Features", href: "#features" },
   { label: "Services", href: "#services" },
   { label: "How It Works", href: "#how-it-works" },
+  { label: "Admin Login", href: "/auth/admin/login" },
 ];
 
 const Navbar = () => {
@@ -41,10 +42,16 @@ const Navbar = () => {
         </a>
 
         <div className="hidden items-center gap-8 md:flex">
-          {navItems.map((item) => (
+         {navItems.map((item) => (
             <a
               key={item.label}
               href={item.href}
+              onClick={(e) => {
+                if (item.href.startsWith("/")) {
+                  e.preventDefault();
+                  navigate(item.href);
+                }
+              }}
               className="text-sm font-medium text-slate-600 transition-colors hover:text-emerald-600"
             >
               {item.label}
@@ -57,7 +64,7 @@ const Navbar = () => {
 
          <Button
             variant="primary"
-            onClick={() => navigate("/register")}
+            onClick={() => navigate("/auth/register")}
           >
             Register
           </Button>

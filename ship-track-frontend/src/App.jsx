@@ -5,6 +5,7 @@ import "./styles/toast.css";
 
 import Home from "./pages/Home/Home";
 import Register from "./pages/Auth/Register";
+import Dashboard from "./pages/Admin/Dashboard";
 
 function App() {
   return (
@@ -13,6 +14,8 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/home" element={<Home />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+
       </Routes>
 
       <ToastContainer

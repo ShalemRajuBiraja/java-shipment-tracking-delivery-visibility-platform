@@ -74,19 +74,23 @@ const Register = () => {
       return;
     }
 
-    // try{
-    //     const registerApiresponse = await registerApi(formData);
+    try{
+        const apiresponse = await registerApi(formData);
 
-    //         if(registerApiresponse?.data?.success){
-    //             toast.success(registerApiresponse?.data?.message);
-    //             navigate("/");
-    //         }
-    // } catch(error){
-    //         console.log(error.response.data.message); // see error response in console
-    //         setErrors({...errors, apiError : true});
-    //         toast.error(error.response.data.message);
-    // } 
-    alert("Registration under development!");
+            if(apiresponse?.data?.success){
+                toast.success(apiresponse?.data?.message);
+            }
+    } catch (error) {
+        const message = error.response?.data?.message || "Something went wrong";
+        console.log(message);
+
+        setErrors({
+            ...errors,
+            apiError: true
+        });
+
+        toast.error(message);
+      }
   };
 
   return (

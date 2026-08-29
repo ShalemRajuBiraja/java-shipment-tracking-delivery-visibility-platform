@@ -7,8 +7,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ship_track_backend.entity.UserEntity;
+import com.ship_track_backend.dto.LoginResponseDto;
 import com.ship_track_backend.payload.ApiResponse;
+import com.ship_track_backend.pojo.LoginApiData;
 import com.ship_track_backend.pojo.UserRegisterData;
 import com.ship_track_backend.service.AuthService;
 
@@ -34,16 +35,16 @@ public class AuthController {
 	}
 	
 	
-//	@PostMapping("/auth/login")
-//	public ResponseEntity<ApiResponse<LoginResponseDto>> login( @Valid  @RequestBody  LoginApiData loginApiData) {
-//		
-//	LoginResponseDto serviceResponse = 	authService.login(loginApiData);
-//		
-//	ApiResponse<LoginResponseDto> response = new ApiResponse<>(true, "Login Success", serviceResponse);
-//	
-//	return ResponseEntity.status(HttpStatus.OK).body(response);
-//	
-//	}//login closed
+	@PostMapping("/auth/login")
+	public ResponseEntity<ApiResponse<LoginResponseDto>> login( @Valid  @RequestBody  LoginApiData loginApiData) {
+		
+	LoginResponseDto serviceResponse = 	authService.login(loginApiData);
+		
+	ApiResponse<LoginResponseDto> response = new ApiResponse<>(true, "Login Success", serviceResponse);
+	
+	return ResponseEntity.status(HttpStatus.OK).body(response);
+	
+	}//login closed
 
 	
 

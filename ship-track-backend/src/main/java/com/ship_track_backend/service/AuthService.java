@@ -12,8 +12,10 @@ import org.springframework.security.web.util.ThrowableCauseExtractor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.ship_track_backend.dto.LoginResponseDto;
 import com.ship_track_backend.entity.UserEntity;
 import com.ship_track_backend.enums.Role;
+import com.ship_track_backend.pojo.LoginApiData;
 import com.ship_track_backend.pojo.UserRegisterData;
 import com.ship_track_backend.repository.AuthRepository;
 
@@ -25,6 +27,8 @@ public class AuthService {
 	AuthRepository authRepository;	
 	@Autowired
 	private PasswordEncoder passwordEncoder;
+	@Autowired
+	JwtService jwtService;
 	
 // REGISTER ACCOUNT FUNCTION	
 	public void registerAccount(UserRegisterData userRegisterData) throws Exception {
@@ -49,34 +53,34 @@ public class AuthService {
 	}// create Account closed 
 	
 // LOGIN FUNCATION
-//	public LoginResponseDto login(LoginApiData loginApiData) {
-//		
-//		Optional<UserEntity> ifEmailExist =	authRepository.findByEmail(loginApiData.getEmail());
-//		
-//		if(ifEmailExist.isEmpty()) {
-//			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Email is not registred");
-//		}
-//		
-//		UserEntity userData = ifEmailExist.get();
-//
-//		
-//		if(!userData.getPassword().equals(loginApiData.getPassword())) {
-//			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid password");
-//		}
-//		
-//		String jwtToken = jwtService.generateJwtToken(userData);
-//		
-//		Map<String, Object> response = new HashMap<>();
-//		response.put("token", jwtToken);
-//		response.put("userData", userData);
-//		
-//		LoginResponseDto loginResponseDto = new LoginResponseDto();
-//		loginResponseDto.setUserData(userData);
-//		loginResponseDto.setToken(jwtToken);
-//		
-//		return loginResponseDto;
-//		
-//	}//jogin closes
+	public LoginResponseDto login(LoginApiData loginApiData) {
+		
+		Optional<UserEntity> ifEmailExist =	authRepository.findByEmail(loginApiData.getEmail());
+		
+		if(ifEmailExist.isEmpty()) {
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Email is not registred");
+		}
+		
+		UserEntity userData = ifEmailExist.get();
+
+		
+		if(!userData.getPassword().equals(loginApiData.getPassword())) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid password");
+		}
+		
+		String jwtToken = jwtService.generateJwtToken(userData);
+		
+		Map<String, Object> response = new HashMap<>();
+		response.put("token", jwtToken);
+		response.put("userData", userData);
+		
+		LoginResponseDto loginResponseDto = new LoginResponseDto();
+		loginResponseDto.setUserData(userData);
+		loginResponseDto.setToken(jwtToken);
+		
+		return loginResponseDto;
+		
+	}//jogin closes
 	
 	// ADMIN LOGIN FUNCATION
 //		public LoginResponseDto adminLogin( AdminLoginApiData adminLoginApiData) {

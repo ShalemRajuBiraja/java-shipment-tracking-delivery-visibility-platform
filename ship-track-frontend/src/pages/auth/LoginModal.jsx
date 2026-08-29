@@ -5,6 +5,7 @@ import Modal from "../../components/ui/Modal";
 import { useNavigate } from "react-router-dom";
 import { loginApi } from "../../services/authService";
 import { toast } from "react-toastify";
+import { redirectBasedOnRole } from "../../utils/redirectBasedOnRole";
 
 const LoginModal = ({ isOpen, onClose }) => {
 
@@ -35,7 +36,7 @@ const LoginModal = ({ isOpen, onClose }) => {
 
     if (!formData.email.trim()) {
       newErrors.email = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+    } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(formData.email)) {
       newErrors.email = "Enter a valid email address";
     }
 
@@ -56,22 +57,39 @@ const LoginModal = ({ isOpen, onClose }) => {
     if (!validateForm()) {
       return;
     }
-     alert("Login under development!");
-      //  try{
+    try {
+            const loginApiResponse = await loginApi(formData);
 
-      //     const loginApiresponse = await loginApi(formData);
+              if (loginApiResponse?.data?.success) {
 
-      //       if(loginApiresponse?.data?.success){
-      //           localStorage.setItem("userData", JSON.stringify(loginApiresponse.data.data.userData));
-      //           localStorage.setItem("token", loginApiresponse.data.data.token)
-      //           navigate("/home");
-      //       }
-      //   }catch(error){
-      //           console.log(error.response.data.message); // see error response in console
-      //           setErrors({...errors, apiError : true});
-      //           toast.error(error.response.data.message);                           
-      //   } 
-  
+                  // Get response data
+                  const userData = loginApiResponse.data.data.userData;
+                  const token = loginApiResponse.data.data.token;
+
+                  // Store login data
+                  localStorage.setItem( "userData", JSON.stringify(userData) );
+                  localStorage.setItem("token", token);
+
+                  // Show success message
+                  toast.success(loginApiResponse.data.message);
+
+                  // Redirect based on role
+                  redirectBasedOnRole(userData.role, navigate);
+              }
+
+              } catch (error) {
+
+              console.log(error.response?.data?.message || "Login failed");
+
+              setErrors({
+                  ...errors,
+                  apiError: true
+              });
+
+              toast.error(
+                  error.response?.data?.message || "Something went wrong"
+              );}
+
   };
 
   return (

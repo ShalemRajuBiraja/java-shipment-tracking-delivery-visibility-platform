@@ -19,13 +19,13 @@ public class UserRegisterData {
 
     @NotBlank(message = "Email is required")
     @Pattern(
-    	    regexp = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$",
+    	    regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
     	    message = "Enter a valid email address"
     	)    @Size(max = 150, message = "Email must not exceed 150 characters")
     private String email;
 
     @NotBlank(message = "Password is required")
-    @Size(min = 8, max = 100, message = "Password must be between 8 and 100 characters")
+    @Size(min = 8, max = 100, message = "Password must be 8 letters")
     private String password;
 
     @NotBlank(message = "Role is required")

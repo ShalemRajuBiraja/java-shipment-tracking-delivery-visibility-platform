@@ -7,6 +7,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.util.ThrowableCauseExtractor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -22,6 +23,8 @@ public class AuthService {
 	
 	@Autowired
 	AuthRepository authRepository;	
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 	
 // REGISTER ACCOUNT FUNCTION	
 	public void registerAccount(UserRegisterData userRegisterData) throws Exception {
@@ -36,7 +39,9 @@ public class AuthService {
 		userEntity.setName(userRegisterData.getName());
 		userEntity.setEmail(userRegisterData.getEmail());
 		userEntity.setRole(Role.valueOf(userRegisterData.getRole().toUpperCase()));	
-		userEntity.setPassword(userRegisterData.getPassword());
+		userEntity.setPassword(
+			    passwordEncoder.encode(userRegisterData.getPassword())
+				);
 		
 		authRepository.save(userEntity);
 		

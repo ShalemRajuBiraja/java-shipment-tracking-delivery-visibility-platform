@@ -1,6 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import Button from "../../components/ui/Button";
-import Badge from "../../components/ui/Badge";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -8,233 +6,438 @@ const Dashboard = () => {
   const stats = [
     {
       title: "Total Shipments",
-      value: "248",
-      icon: "📦",
-      description: "All shipments",
+      value: "120",
+      icon: "🚚",
+      bgColor: "bg-green-50",
     },
     {
       title: "In Transit",
-      value: "86",
+      value: "45",
       icon: "🚚",
-      description: "Currently moving",
+      bgColor: "bg-green-50",
     },
     {
       title: "Delivered",
-      value: "142",
-      icon: "✅",
-      description: "Successfully delivered",
+      value: "70",
+      icon: "✓",
+      bgColor: "bg-yellow-50",
     },
     {
-      title: "Pending",
-      value: "20",
-      icon: "⏳",
-      description: "Waiting for pickup",
+      title: "Delayed",
+      value: "5",
+      icon: "!",
+      bgColor: "bg-red-50",
     },
   ];
 
   const recentShipments = [
     {
-      id: "ST-2026-001",
-      receiver: "Rahul Kumar",
-      destination: "Bangalore",
+      id: "TRK1001",
+      client: "ABC Pvt Ltd",
+      from: "Mumbai",
+      to: "Delhi",
       status: "Delivered",
-      date: "28 Aug 2026",
+      date: "28 May 2024",
     },
     {
-      id: "ST-2026-002",
-      receiver: "Priya Sharma",
-      destination: "Mumbai",
+      id: "TRK1002",
+      client: "XYZ Exports",
+      from: "Chennai",
+      to: "Bangalore",
       status: "In Transit",
-      date: "28 Aug 2026",
+      date: "28 May 2024",
     },
     {
-      id: "ST-2026-003",
-      receiver: "Amit Singh",
-      destination: "Delhi",
+      id: "TRK1003",
+      client: "Global Store",
+      from: "Kolkata",
+      to: "Hyderabad",
       status: "Pending",
-      date: "27 Aug 2026",
+      date: "27 May 2024",
     },
     {
-      id: "ST-2026-004",
-      receiver: "Sneha Das",
-      destination: "Kolkata",
-      status: "Delivered",
-      date: "27 Aug 2026",
+      id: "TRK1004",
+      client: "Tech Solutions",
+      from: "Pune",
+      to: "Ahmedabad",
+      status: "Delayed",
+      date: "27 May 2024",
     },
     {
-      id: "ST-2026-005",
-      receiver: "Arjun Patel",
-      destination: "Chennai",
+      id: "TRK1005",
+      client: "Sunrise Ltd",
+      from: "Delhi",
+      to: "Jaipur",
       status: "In Transit",
-      date: "26 Aug 2026",
+      date: "26 May 2024",
     },
   ];
 
-  const getBadgeVariant = (status) => {
-    switch (status) {
-      case "Delivered":
-        return "success";
-      case "In Transit":
-        return "info";
-      case "Pending":
-        return "warning";
-      case "Cancelled":
-        return "danger";
-      default:
-        return "default";
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-slate-50 p-4 md:p-6 lg:p-8">
-      {/* Header */}
-      <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 md:text-3xl">
-            Business Dashboard
-          </h1>
+    <div className="min-h-screen bg-white">
 
-          <p className="mt-1 text-sm text-slate-500">
-            Manage your shipments and track delivery progress.
-          </p>
-        </div>
+      {/* Main Layout */}
+      <div className="flex min-h-screen">
 
-        <Button
-          variant="primary"
-          onClick={() => navigate("/business/create-shipment")}
-        >
-          + Create Shipment
-        </Button>
-      </div>
+        {/* Sidebar */}
+        <aside className="hidden w-60 flex-shrink-0 bg-[#07835f] text-white md:block">
 
-      {/* Stats */}
-      <div className="mb-8 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
-        {stats.map((stat) => (
-          <div
-            key={stat.title}
-            className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-slate-500">
-                  {stat.title}
-                </p>
+          {/* Logo */}
+          <div className="flex h-24 items-center border-b border-white/10 px-6">
 
-                <p className="mt-2 text-3xl font-bold text-slate-900">
-                  {stat.value}
-                </p>
-              </div>
-
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 text-2xl">
-                {stat.icon}
-              </div>
+            <div className="mr-3 flex h-11 w-11 items-center justify-center rounded-lg bg-yellow-400 text-xl">
+              🚚
             </div>
 
-            <p className="mt-3 text-xs text-slate-400">
-              {stat.description}
-            </p>
-          </div>
-        ))}
-      </div>
+            <h1 className="text-xl font-bold">
+              ShipTrack
+            </h1>
 
-      {/* Quick Actions */}
-      <div className="mb-8 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-        <h2 className="text-lg font-semibold text-slate-900">
-          Quick Actions
-        </h2>
-
-        <div className="mt-4 flex flex-wrap gap-3">
-          <Button
-            size="sm"
-            onClick={() => navigate("/business/create-shipment")}
-          >
-            + Create Shipment
-          </Button>
-
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => navigate("/business/shipments")}
-          >
-            View Shipments
-          </Button>
-
-          <Button
-            size="sm"
-            variant="secondary"
-            onClick={() => navigate("/business/shipments")}
-          >
-            Track Shipment
-          </Button>
-        </div>
-      </div>
-
-      {/* Recent Shipments */}
-      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-        <div className="flex items-center justify-between border-b border-slate-200 p-5">
-          <div>
-            <h2 className="text-lg font-semibold text-slate-900">
-              Recent Shipments
-            </h2>
-
-            <p className="mt-1 text-sm text-slate-500">
-              Latest shipment activity
-            </p>
           </div>
 
-          <button
-            onClick={() => navigate("/business/shipments")}
-            className="text-sm font-semibold text-emerald-600 hover:text-emerald-700"
-          >
-            View All
-          </button>
-        </div>
+          {/* Navigation */}
+          <nav className="p-4">
 
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[700px]">
-            <thead>
-              <tr className="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                <th className="px-5 py-4">Shipment ID</th>
-                <th className="px-5 py-4">Receiver</th>
-                <th className="px-5 py-4">Destination</th>
-                <th className="px-5 py-4">Status</th>
-                <th className="px-5 py-4">Date</th>
-              </tr>
-            </thead>
+            {/* Dashboard */}
+            <button
+              onClick={() => navigate("/business/dashboard")}
+              className="mb-2 flex w-full items-center rounded-lg bg-white px-4 py-3 text-left text-[#07835f]"
+            >
+              <span className="mr-3 text-xl">
+                ⌂
+              </span>
 
-            <tbody>
-              {recentShipments.map((shipment) => (
-                <tr
-                  key={shipment.id}
-                  className="border-t border-slate-100 hover:bg-slate-50"
+              <span>
+                Dashboard
+              </span>
+            </button>
+
+            {/* Shipments */}
+            <button
+              onClick={() => navigate("/business/shipments")}
+              className="mb-2 flex w-full items-center rounded-lg px-4 py-3 text-left hover:bg-[#096f53]"
+            >
+              <span className="mr-3 text-xl">
+                📦
+              </span>
+
+              <span>
+                Shipments
+              </span>
+            </button>
+
+            {/* Track Shipment */}
+            <button
+              onClick={() => navigate("/business/shipments")}
+              className="mb-2 flex w-full items-center rounded-lg px-4 py-3 text-left hover:bg-[#096f53]"
+            >
+              <span className="mr-3 text-xl">
+                ⌖
+              </span>
+
+              <span>
+                Track Shipment
+              </span>
+            </button>
+
+            {/* Orders */}
+            <button
+              onClick={() => navigate("/business/orders")}
+              className="mb-2 flex w-full items-center rounded-lg px-4 py-3 text-left hover:bg-[#096f53]"
+            >
+              <span className="mr-3 text-xl">
+                ▣
+              </span>
+
+              <span>
+                Orders
+              </span>
+            </button>
+
+            {/* Clients */}
+            <button
+              onClick={() => navigate("/business/clients")}
+              className="mb-2 flex w-full items-center rounded-lg px-4 py-3 text-left hover:bg-[#096f53]"
+            >
+              <span className="mr-3 text-xl">
+                ♧
+              </span>
+
+              <span>
+                Clients
+              </span>
+            </button>
+
+            {/* Reports */}
+            <button
+              onClick={() => navigate("/business/reports")}
+              className="mb-2 flex w-full items-center rounded-lg px-4 py-3 text-left hover:bg-[#096f53]"
+            >
+              <span className="mr-3 text-xl">
+                ▥
+              </span>
+
+              <span>
+                Reports
+              </span>
+            </button>
+
+            {/* Settings */}
+            <button
+              onClick={() => navigate("/business/settings")}
+              className="mb-2 flex w-full items-center rounded-lg px-4 py-3 text-left hover:bg-[#096f53]"
+            >
+              <span className="mr-3 text-xl">
+                ⚙
+              </span>
+
+              <span>
+                Settings
+              </span>
+            </button>
+
+            {/* Logout */}
+            <button
+              onClick={() => navigate("/")}
+              className="mt-6 flex w-full items-center rounded-lg px-4 py-3 text-left hover:bg-[#096f53]"
+            >
+              <span className="mr-3 text-xl">
+                ↪
+              </span>
+
+              <span>
+                Logout
+              </span>
+            </button>
+
+          </nav>
+        </aside>
+
+        {/* Main Content */}
+        <main className="min-w-0 flex-1">
+
+          {/* Header */}
+          <header className="flex h-24 items-center justify-between border-b border-gray-200 bg-white px-6">
+
+            <h1 className="text-2xl font-bold text-gray-900">
+              Dashboard
+            </h1>
+
+            {/* User Information */}
+            <div className="flex items-center">
+
+              <div className="mr-3 flex h-11 w-11 items-center justify-center rounded-full bg-green-50 text-xl">
+                👤
+              </div>
+
+              <div className="hidden sm:block">
+
+                <p className="text-sm font-bold text-gray-900">
+                  John Doe
+                </p>
+
+                <p className="text-xs text-gray-500">
+                  Business Client
+                </p>
+
+              </div>
+
+              <span className="ml-3 text-gray-500">
+                ⌄
+              </span>
+
+            </div>
+
+          </header>
+
+          {/* Dashboard Content */}
+          <div className="bg-gray-50 p-5 md:p-8">
+
+            {/* Statistics */}
+            <div className="mb-8 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
+
+              {stats.map((stat) => (
+
+                <div
+                  key={stat.title}
+                  className="flex items-center rounded-xl border border-gray-200 bg-white p-5 shadow-sm"
                 >
-                  <td className="px-5 py-4 text-sm font-semibold text-emerald-600">
-                    {shipment.id}
-                  </td>
 
-                  <td className="px-5 py-4 text-sm text-slate-700">
-                    {shipment.receiver}
-                  </td>
+                  {/* Stat Icon */}
+                  <div
+                    className={`mr-5 flex h-14 w-14 items-center justify-center rounded-xl ${stat.bgColor} text-2xl`}
+                  >
+                    {stat.icon}
+                  </div>
 
-                  <td className="px-5 py-4 text-sm text-slate-700">
-                    {shipment.destination}
-                  </td>
+                  {/* Stat Details */}
+                  <div>
 
-                  <td className="px-5 py-4">
-                    <Badge variant={getBadgeVariant(shipment.status)}>
-                      {shipment.status}
-                    </Badge>
-                  </td>
+                    <p className="text-sm font-medium text-gray-500">
+                      {stat.title}
+                    </p>
 
-                  <td className="px-5 py-4 text-sm text-slate-500">
-                    {shipment.date}
-                  </td>
-                </tr>
+                    <p className="mt-1 text-3xl font-bold text-gray-900">
+                      {stat.value}
+                    </p>
+
+                  </div>
+
+                </div>
+
               ))}
-            </tbody>
-          </table>
-        </div>
+
+            </div>
+
+            {/* Recent Shipments Card */}
+            <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+
+              {/* Card Header */}
+              <div className="flex items-center justify-between border-b border-gray-200 px-6 py-5">
+
+                <h2 className="text-lg font-bold text-gray-900">
+                  Recent Shipments
+                </h2>
+
+                <button
+                  onClick={() => navigate("/business/shipments")}
+                  className="text-sm font-semibold text-[#07835f] hover:text-[#056548]"
+                >
+                  View All
+                </button>
+
+              </div>
+
+              {/* Table */}
+              <div className="overflow-x-auto">
+
+                <table className="w-full min-w-[800px]">
+
+                  <thead>
+
+                    <tr className="bg-gray-50 text-left">
+
+                      <th className="px-6 py-4 text-sm font-semibold text-gray-600">
+                        Tracking ID
+                      </th>
+
+                      <th className="px-6 py-4 text-sm font-semibold text-gray-600">
+                        Client
+                      </th>
+
+                      <th className="px-6 py-4 text-sm font-semibold text-gray-600">
+                        From
+                      </th>
+
+                      <th className="px-6 py-4 text-sm font-semibold text-gray-600">
+                        To
+                      </th>
+
+                      <th className="px-6 py-4 text-sm font-semibold text-gray-600">
+                        Status
+                      </th>
+
+                      <th className="px-6 py-4 text-sm font-semibold text-gray-600">
+                        Date
+                      </th>
+
+                    </tr>
+
+                  </thead>
+
+                  <tbody>
+
+                    {recentShipments.map((shipment) => (
+
+                      <tr
+                        key={shipment.id}
+                        className="border-t border-gray-100 hover:bg-green-50"
+                      >
+
+                        {/* Tracking ID */}
+                        <td className="px-6 py-5 text-sm font-bold text-[#07835f]">
+                          {shipment.id}
+                        </td>
+
+                        {/* Client */}
+                        <td className="px-6 py-5 text-sm text-gray-700">
+                          {shipment.client}
+                        </td>
+
+                        {/* From */}
+                        <td className="px-6 py-5 text-sm text-gray-700">
+                          {shipment.from}
+                        </td>
+
+                        {/* To */}
+                        <td className="px-6 py-5 text-sm text-gray-700">
+                          {shipment.to}
+                        </td>
+
+                        {/* Status */}
+                        <td className="px-6 py-5">
+
+                          {shipment.status === "Delivered" && (
+                            <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
+                              Delivered
+                            </span>
+                          )}
+
+                          {shipment.status === "In Transit" && (
+                            <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
+                              In Transit
+                            </span>
+                          )}
+
+                          {shipment.status === "Pending" && (
+                            <span className="rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-700">
+                              Pending
+                            </span>
+                          )}
+
+                          {shipment.status === "Delayed" && (
+                            <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">
+                              Delayed
+                            </span>
+                          )}
+
+                        </td>
+
+                        {/* Date */}
+                        <td className="px-6 py-5 text-sm text-gray-600">
+                          {shipment.date}
+                        </td>
+
+                      </tr>
+
+                    ))}
+
+                  </tbody>
+
+                </table>
+
+              </div>
+
+              {/* Table Footer */}
+              <div className="border-t border-gray-200 px-6 py-5">
+
+                <button
+                  onClick={() => navigate("/business/shipments")}
+                  className="text-sm font-semibold text-[#07835f] hover:text-[#056548]"
+                >
+                  View All Shipments
+                </button>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </main>
+
       </div>
+
     </div>
   );
 };

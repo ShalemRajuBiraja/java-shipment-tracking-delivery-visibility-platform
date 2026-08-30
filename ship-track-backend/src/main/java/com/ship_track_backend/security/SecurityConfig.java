@@ -9,6 +9,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 
+import com.ship_track_backend.filter.JwtRequestFilter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
 
 
 
@@ -16,6 +19,8 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 	
+	@Autowired
+	private JwtRequestFilter jwtRequestFilter;
 	
 	@Bean
 	SecurityFilterChain securityFilterChain( HttpSecurity http) throws Exception  {
@@ -28,7 +33,7 @@ public class SecurityConfig {
 				.anyRequest().authenticated() )
 		.sessionManagement( Session -> Session.sessionCreationPolicy(SessionCreationPolicy.STATELESS) );
 		
-//	http.addFilterBefore( jwtRequestFilter, UsernamePasswordAuthenticationFilter.class );
+	http.addFilterBefore( jwtRequestFilter, UsernamePasswordAuthenticationFilter.class );
 		return http.build();
 	}
 

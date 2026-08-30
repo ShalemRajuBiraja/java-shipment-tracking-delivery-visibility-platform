@@ -72,6 +72,7 @@ public class JwtService {
     }
     
     public boolean verifyJwtToken(String token) {
+    	
         try {
             Claims claims = getJwtClaims(token);
             return !claims.getExpiration().before(new Date());

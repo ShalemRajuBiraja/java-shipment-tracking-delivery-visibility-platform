@@ -4,6 +4,7 @@ import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
 import logo from "../../assets/images/ship-track-logo.png";
 import { toast } from "react-toastify";
+import { adminLoginApi } from "../../services/authService";
 
 const AdminLogin = () => {
   const navigate = useNavigate();
@@ -11,11 +12,13 @@ const AdminLogin = () => {
   const [loginData, setLoginData] = useState({
     email: "",
     password: "",
+    favoriteTeacher: "",
   });
 
   const [errors, setErrors] = useState({
     email: "",
     password: "",
+    favoriteTeacher: "",
   });
 
   const handleChange = (event) => {
@@ -32,32 +35,51 @@ const AdminLogin = () => {
     }));
   };
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
+  const handleSubmit = async (event) => {
+  event.preventDefault();
 
-    const newErrors = {};
+  const newErrors = {};
 
-    if (!loginData.email.trim()) {
-      newErrors.email = "Email is required";
-    }
+  if (!loginData.email.trim()) {
+    newErrors.email = "Email is required";
+  }
 
-    if (!loginData.password.trim()) {
-      newErrors.password = "Password is required";
-    }
+  if (!loginData.password.trim()) {
+    newErrors.password = "Password is required";
+  }
 
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
+  if (!loginData.favoriteTeacher.trim()) {
+    newErrors.favoriteTeacher = "Favorite teacher name is required";
+  }
 
-    // API integration will be added here
-    console.log("Admin Login:", loginData);
+  if (Object.keys(newErrors).length > 0) {
+    setErrors(newErrors);
+    return;
+  }
+
+  try {
+    const response = await adminLoginApi(loginData);
+
+    localStorage.setItem(
+      "adminData",
+      JSON.stringify(response.data)
+    );
 
     toast.success("Admin login successful");
 
-    // Temporary navigation
-    // navigate("/admin/dashboard");
-  };
+    navigate("/admin/dashboard");
+
+  } catch (error) {
+    console.error("Admin login error:", error);
+
+    const errorMessage =
+      error?.response?.data?.message ||
+      error?.response?.data?.detail ||
+      "Admin login failed";
+
+    toast.error(errorMessage);
+  }
+};
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-100 px-4 py-8">
@@ -115,6 +137,18 @@ const AdminLogin = () => {
             error={errors.password}
             autoComplete="current-password"
             showPasswordToggle
+          />
+
+          {/* Favorite Teacher */}
+          <Input
+            id="favorite-teacher"
+            name="favoriteTeacher"
+            type="text"
+            label="Favorite Teacher Name"
+            placeholder="Enter your favorite teacher name"
+            value={loginData.favoriteTeacher}
+            onChange={handleChange}
+            error={errors.favoriteTeacher}
           />
 
           <Button

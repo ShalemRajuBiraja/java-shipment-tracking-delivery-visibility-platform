@@ -9,4 +9,5 @@ public class AdminLoginResponse {
 
     private Long id;
     private String email;
+    private String token;
 }

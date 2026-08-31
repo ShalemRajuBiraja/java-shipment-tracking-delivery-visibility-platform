@@ -13,11 +13,13 @@ import org.springframework.http.HttpStatus;
 public class AdminService {
 
     private final AdminRepository adminRepository;
+    private final JwtService jwtService;
+    
 
-    public AdminService(AdminRepository adminRepository) {
+    public AdminService(AdminRepository adminRepository,JwtService jwtService) {
         this.adminRepository = adminRepository;
+        this.jwtService = jwtService;
     }
-
     public AdminLoginResponse login(AdminLoginRequest request) {
 
         AdminEntity admin = adminRepository.findByEmail(request.getEmail())
@@ -41,10 +43,14 @@ public class AdminService {
                     "Invalid favorite teacher name"
             );
         }
+        
+        String jwtToken = jwtService.generateJwtToken(admin);
 
         AdminLoginResponse response = new AdminLoginResponse();
+
         response.setId(admin.getId());
         response.setEmail(admin.getEmail());
+        response.setToken(jwtToken);
 
         return response;
     }

@@ -9,6 +9,7 @@ import org.apache.catalina.startup.UserDatabase;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.ship_track_backend.entity.AdminEntity;
 import com.ship_track_backend.entity.UserEntity;
 
 import io.jsonwebtoken.Claims;
@@ -52,7 +53,25 @@ public class JwtService {
     	
     	return jwtTokenString;
     }
-    
+    public String generateJwtToken(AdminEntity adminData) {
+
+        Date tokenGeneratedTimeDate = new Date();
+
+        Date tokenExpirationDate = new Date(
+            tokenGeneratedTimeDate.getTime() +
+            7L * 24 * 60 * 60 * 1000
+        );
+
+        String jwtTokenString = Jwts.builder()
+                .claim("role", "ADMIN")
+                .subject(adminData.getEmail())
+                .issuedAt(tokenGeneratedTimeDate)
+                .expiration(tokenExpirationDate)
+                .signWith(generateSecurityKey())
+                .compact();
+
+        return jwtTokenString;
+    }
     
     //checking validation of token
     /*

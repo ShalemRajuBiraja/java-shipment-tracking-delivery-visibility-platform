@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 import com.ship_track_backend.enums.ShipmentStatus;
 
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,7 +13,6 @@ import lombok.Setter;
 @Table(name = "shipments")
 @Getter
 @Setter
-@Data
 public class ShipmentEntity {
 
     @Id

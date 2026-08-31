@@ -9,11 +9,14 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
 
 import com.ship_track_backend.entity.ShipmentEntity;
+import com.ship_track_backend.entity.ShipmentTrackingEntity;
 import com.ship_track_backend.entity.UserEntity;
 import com.ship_track_backend.enums.ShipmentStatus;
 import com.ship_track_backend.pojo.CreateShipmentData;
 import com.ship_track_backend.pojo.UpdateShipmentData;
+import com.ship_track_backend.pojo.UpdateShipmentStatusData;
 import com.ship_track_backend.repository.ShipmentRepository;
+import com.ship_track_backend.repository.ShipmentTrackingRepository;
 import com.ship_track_backend.repository.UserRepository;
 
 import java.util.List;
@@ -27,9 +30,10 @@ public class ShipmentService {
 
     @Autowired
     private ShipmentRepository shipmentRepository;
-
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private ShipmentTrackingRepository shipmentTrackingRepository;
 
     private String generateTrackingNumber() {
 
@@ -131,6 +135,16 @@ public class ShipmentService {
                     response.setWeight(shipment.getWeight());
                     response.setStatus(shipment.getStatus());
                     response.setCreatedAt(shipment.getCreatedAt());
+                    response.setSenderName(shipment.getSender().getName());
+                    response.setSenderEmail(shipment.getSender().getEmail());
+
+                    if (shipment.getAssignedOperator() != null) {
+                        response.setAssignedOperatorName(
+                            shipment.getAssignedOperator().getName()
+                        );
+                    }
+
+                    response.setUpdatedAt(shipment.getUpdatedAt());
 
                     return response;
                 })
@@ -188,6 +202,8 @@ public class ShipmentService {
 
         response.setId(shipment.getId());
         response.setTrackingNumber(shipment.getTrackingNumber());
+        response.setSenderName(shipment.getSender().getName());
+        response.setSenderEmail(shipment.getSender().getEmail());
         response.setReceiverName(shipment.getReceiverName());
         response.setReceiverPhone(shipment.getReceiverPhone());
         response.setPickupAddress(shipment.getPickupAddress());
@@ -195,7 +211,13 @@ public class ShipmentService {
         response.setPackageDescription(shipment.getPackageDescription());
         response.setWeight(shipment.getWeight());
         response.setStatus(shipment.getStatus());
+        if (shipment.getAssignedOperator() != null) {
+            response.setAssignedOperatorName(
+                shipment.getAssignedOperator().getName()
+            );
+        }
         response.setCreatedAt(shipment.getCreatedAt());
+        response.setUpdatedAt(shipment.getUpdatedAt());
 
         return response;
     }
@@ -358,5 +380,49 @@ public class ShipmentService {
         shipment.setUpdatedAt(LocalDateTime.now());
 
         shipmentRepository.save(shipment);
+    }
+    
+    public void updateShipmentStatus(
+            Long shipmentId,
+            UpdateShipmentStatusData updateShipmentStatusData,
+            String userEmail) {
+
+        // Find shipment
+        ShipmentEntity shipment = shipmentRepository.findById(shipmentId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Shipment not found"
+                ));
+
+        // Find logged-in user
+        UserEntity user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "User not found"
+                ));
+
+        // Only logistics operator can update status
+        if (user.getRole() != Role.LOGISTICS_OPERATOR) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "Only logistics operator can update shipment status"
+            );
+        }
+
+        // Update status
+        shipment.setStatus(updateShipmentStatusData.getStatus());
+
+        shipment.setUpdatedAt(LocalDateTime.now());
+
+        shipmentRepository.save(shipment);
+        
+        ShipmentTrackingEntity tracking = new ShipmentTrackingEntity();
+
+        tracking.setShipment(shipment);
+        tracking.setStatus(updateShipmentStatusData.getStatus());
+        tracking.setUpdatedBy(user);
+        tracking.setCreatedAt(LocalDateTime.now());
+
+        shipmentTrackingRepository.save(tracking);
     }
 }

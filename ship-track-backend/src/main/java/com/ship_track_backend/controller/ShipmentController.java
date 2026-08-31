@@ -3,6 +3,7 @@ package com.ship_track_backend.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,6 +22,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import com.ship_track_backend.pojo.UpdateShipmentData;
+import com.ship_track_backend.pojo.UpdateShipmentStatusData;
+
 import org.springframework.web.bind.annotation.PutMapping;
 
 @RestController
@@ -89,5 +92,25 @@ public class ShipmentController {
         ApiResponse<Void> response = new ApiResponse<>( true, "Shipment cancelled successfully", null);
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+    @PutMapping("/shipments/{shipmentId}/status")
+    public ResponseEntity<ApiResponse<Void>> updateShipmentStatus(
+            @PathVariable Long shipmentId,
+            @Valid @RequestBody UpdateShipmentStatusData updateShipmentStatusData,
+            Authentication authentication) {
+
+        shipmentService.updateShipmentStatus(
+                shipmentId,
+                updateShipmentStatusData,
+                authentication.getName()
+        );
+
+        ApiResponse<Void> response = new ApiResponse<>(
+                true,
+                "Shipment status updated successfully",
+                null
+        );
+
+        return ResponseEntity.ok(response);
     }
 }

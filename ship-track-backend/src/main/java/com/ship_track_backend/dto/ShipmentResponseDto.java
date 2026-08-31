@@ -16,19 +16,34 @@ public class ShipmentResponseDto {
 
     private String trackingNumber;
 
+    // Sender information
+    private String senderName;
+
+    private String senderEmail;
+
+    // Receiver information
     private String receiverName;
 
     private String receiverPhone;
 
+    // Shipment addresses
     private String pickupAddress;
 
     private String deliveryAddress;
 
+    // Package information
     private String packageDescription;
 
     private BigDecimal weight;
 
+    // Shipment status
     private ShipmentStatus status;
 
+    // Assigned operator
+    private String assignedOperatorName;
+
+    // Dates
     private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
 }

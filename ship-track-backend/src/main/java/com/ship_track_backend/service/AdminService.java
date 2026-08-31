@@ -37,7 +37,7 @@ public class AdminService {
             );
         }
 
-        if (!admin.getFavoriteTeacher().equalsIgnoreCase(request.getFavoriteTeacher())) {
+        if (!admin.getFavoriteTeacher().equals(request.getFavoriteTeacher())) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
                     "Invalid favorite teacher name"
@@ -50,6 +50,7 @@ public class AdminService {
 
         response.setId(admin.getId());
         response.setEmail(admin.getEmail());
+        response.setRole(admin.getRole());
         response.setToken(jwtToken);
 
         return response;

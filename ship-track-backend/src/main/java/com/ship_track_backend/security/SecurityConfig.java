@@ -29,7 +29,7 @@ public class SecurityConfig {
 	    .cors(Customizer.withDefaults()) // This line tells spring security to USE your existing CorsConfig.java file 
 		.csrf(csrf -> csrf.disable()) 
 		.authorizeHttpRequests( auth -> auth
-				.requestMatchers( "/auth/login", "/auth/register").permitAll()				         
+				.requestMatchers( "/auth/login", "/auth/register", "/auth/admin/login").permitAll()				         
 				.anyRequest().authenticated() )
 		.sessionManagement( Session -> Session.sessionCreationPolicy(SessionCreationPolicy.STATELESS) );
 		

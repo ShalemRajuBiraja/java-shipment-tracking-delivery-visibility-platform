@@ -28,7 +28,7 @@ public class GlobalException {
         }
 
         ApiResponse<Map<String, String>> response =
-                new ApiResponse<>(false, "Validation failed", fieldErrors);
+                new ApiResponse<>(false, "Enter correct data", fieldErrors);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }

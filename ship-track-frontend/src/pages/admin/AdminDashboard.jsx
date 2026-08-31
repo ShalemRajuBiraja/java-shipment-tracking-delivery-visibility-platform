@@ -1,5 +1,5 @@
 
-const Dashboard = () => {
+const AdminDashboard = () => {
   const stats = [
     {
       title: "Total Shipments",
@@ -367,4 +367,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default AdminDashboard;

@@ -13,6 +13,8 @@ import com.ship_track_backend.pojo.CreateShipmentData;
 import com.ship_track_backend.service.ShipmentService;
 import java.util.List;
 
+import javax.naming.AuthenticationNotSupportedException;
+
 import org.springframework.web.bind.annotation.GetMapping;
 
 import com.ship_track_backend.dto.ShipmentResponseDto;
@@ -97,7 +99,7 @@ public class ShipmentController {
     public ResponseEntity<ApiResponse<Void>> updateShipmentStatus(
             @PathVariable Long shipmentId,
             @Valid @RequestBody UpdateShipmentStatusData updateShipmentStatusData,
-            Authentication authentication) {
+            AuthenticationNotSupportedException  authentication) {
 
         shipmentService.updateShipmentStatus(
                 shipmentId,

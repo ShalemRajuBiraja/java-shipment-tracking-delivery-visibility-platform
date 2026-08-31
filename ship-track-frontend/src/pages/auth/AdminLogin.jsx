@@ -5,6 +5,7 @@ import Button from "../../components/ui/Button";
 import logo from "../../assets/images/ship-track-logo.png";
 import { toast } from "react-toastify";
 import { adminLoginApi } from "../../services/authService";
+import { redirectBasedOnRole } from "../../utils/roleRedirect";
 
 const AdminLogin = () => {
   const navigate = useNavigate();
@@ -40,13 +41,17 @@ const AdminLogin = () => {
 
   const newErrors = {};
 
-  if (!loginData.email.trim()) {
-    newErrors.email = "Email is required";
-  }
+   if (!loginData.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(loginData.email)) {
+      newErrors.email = "Enter a valid email address";
+    }
 
-  if (!loginData.password.trim()) {
-    newErrors.password = "Password is required";
-  }
+    if (!loginData.password) {
+      newErrors.password = "Password is required";
+    } else if (loginData.password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters";
+    }
 
   if (!loginData.favoriteTeacher.trim()) {
     newErrors.favoriteTeacher = "Favorite teacher name is required";
@@ -60,14 +65,13 @@ const AdminLogin = () => {
   try {
     const response = await adminLoginApi(loginData);
 
-    localStorage.setItem(
-      "adminData",
-      JSON.stringify(response.data)
-    );
+    localStorage.setItem("userData",JSON.stringify(response.data) );
+    localStorage.setItem("token", response.data.token);
 
     toast.success("Admin login successful");
 
-    navigate("/admin/dashboard");
+    // Redirect based on role
+    redirectBasedOnRole(response.data.role, navigate);
 
   } catch (error) {
     console.error("Admin login error:", error);
@@ -87,13 +91,6 @@ const AdminLogin = () => {
 
         {/* Logo */}
         <div className="mb-6 flex flex-col items-center text-center">
-          <div className="mb-4 flex h-16 w-16 items-center justify-center overflow-hidden rounded-xl bg-emerald-600">
-            <img
-              src={logo}
-              alt="ShipTrack Pro"
-              className="h-full w-full object-cover"
-            />
-          </div>
 
           <h1 className="text-2xl font-bold text-slate-900">
             Admin Login Only

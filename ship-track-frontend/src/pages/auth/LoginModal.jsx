@@ -69,13 +69,11 @@ const LoginModal = ({ isOpen, onClose }) => {
                   // Store login data
                   localStorage.setItem( "userData", JSON.stringify(userData) );
                   localStorage.setItem("token", token);
-                  console.log("Login successful:", userData);
-                  console.log("Token:", token);
                   // Show success message
                   toast.success(loginApiResponse.data.message);
 
                   // Redirect based on role
-                  // redirectBasedOnRole(userData.role, navigate);
+                  redirectBasedOnRole(userData.role, navigate);
               }
 
               } catch (error) {

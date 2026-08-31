@@ -1,0 +1,2 @@
+ALTER TABLE admins
+ADD COLUMN role VARCHAR(50);

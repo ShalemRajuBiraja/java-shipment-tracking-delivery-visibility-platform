@@ -1,6 +1,5 @@
 package com.ship_track_backend.pojo;
 
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -19,7 +18,7 @@ public class AdminLoginRequest {
     	private String email;
 
     @NotBlank(message = "Password is required")
-    @Size(min = 8, max = 100, message = "Password must be 8 letters")
+    @Size(min = 6, max = 100, message = "Password must be 6 letters")
     private String password;
 
     @NotBlank(message = "Favorite teacher name is required")

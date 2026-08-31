@@ -24,6 +24,9 @@ public class AdminEntity {
 
     @Column(name = "favorite_teacher", nullable = false)
     private String favoriteTeacher;
+    
+    @Column(nullable = false)
+    private String role;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

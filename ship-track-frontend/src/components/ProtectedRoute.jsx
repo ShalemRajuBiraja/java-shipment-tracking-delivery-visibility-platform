@@ -1,24 +1,24 @@
 import { Navigate } from "react-router-dom";
+import { AUTH_CONFIG } from "../constants/baseUrl";
 
 const ProtectedRoute = ({ children, allowedRole }) => {
 
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem(AUTH_CONFIG.TOKEN);
 
-    const userDataString = localStorage.getItem("userData");
+    const userData = JSON.parse(
+        localStorage.getItem("userData")
+    );
 
     // User is not logged in
-    if (!token || !userDataString) {
+    if (!token || !userData) {
         return <Navigate to="/home" replace />;
     }
 
-    const userData = JSON.parse(userDataString);
-
-    // User role doesn't have permission
+    // User has wrong role
     if (userData.role !== allowedRole) {
         return <Navigate to="/home" replace />;
     }
 
-    // User is authorized
     return children;
 };
 

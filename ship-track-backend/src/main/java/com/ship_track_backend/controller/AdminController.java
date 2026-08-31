@@ -10,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/admin")
 public class AdminController {
 
     private final AdminService adminService;
@@ -19,7 +18,8 @@ public class AdminController {
         this.adminService = adminService;
     }
 
-    @PostMapping("/login")
+    
+    @PostMapping("/auth/admin/login")
     public ResponseEntity<AdminLoginResponse> login(
             @Valid @RequestBody AdminLoginRequest request
     ) {

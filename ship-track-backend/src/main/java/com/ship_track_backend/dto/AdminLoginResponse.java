@@ -8,6 +8,10 @@ import lombok.Setter;
 public class AdminLoginResponse {
 
     private Long id;
+
     private String email;
+
+    private String role;
+
     private String token;
 }

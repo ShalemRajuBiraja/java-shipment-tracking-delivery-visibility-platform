@@ -1,12 +1,12 @@
-import Sidebar from "./components/Sidebar";
-import DashboardHeader from "./components/DashboardHeader";
-import StatsCards from "./components/StatsCards";
-import RecentShipments from "./components/RecentShipments";
+import BusinessSidebar from "./BusinessSidebar";
+import DashboardHeader from "./DashboardHeader";
+import StatsCards from "./StatsCards";
+import RecentShipments from "./RecentShipments";
 
 const Dashboard = () => {
   return (
     <div className="flex min-h-screen bg-white">
-      <Sidebar />
+      <BusinessSidebar />
 
       <main className="min-w-0 flex-1">
         <DashboardHeader />

@@ -8,9 +8,9 @@ import Register from "./pages/Auth/Register";
 import AdminLogin from "./pages/Auth/AdminLogin";
 import CustomerDashboard from "./pages/Customer/CustomerDashboard";
 
-// import BusinessDashboard from "./pages/Business/BusinessDashboard";
-// import LogisticsDashboard from "./pages/Logistics/LogisticsDashboard";
-// import SupportDashboard from "./pages/Support/SupportDashboard";
+import BusinessDashboard from "./pages/Business/BusinessDashboard";
+import LogisticsDashboard from "./pages/Logistics/LogisticsDashboard";
+import SupportDashboard from "./pages/support/SupportDashboard";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
@@ -33,9 +33,9 @@ return (
      <Route path="/customer/dashboard" element={<ProtectedRoute allowedRole="CUSTOMER"><CustomerDashboard /></ProtectedRoute>} />
      <Route path="/admin/dashboard" element={<ProtectedRoute allowedRole="ADMIN"><AdminDashboard /></ProtectedRoute>} />
 
-    {/*<Route path="/business/dashboard" element={<ProtectedRoute allowedRole="BUSINESS_CLIENT"><BusinessDashboard /></ProtectedRoute>} />
+    <Route path="/business/dashboard" element={<ProtectedRoute allowedRole="BUSINESS_CLIENT"><BusinessDashboard /></ProtectedRoute>} />
     <Route path="/logistics/dashboard" element={<ProtectedRoute allowedRole="LOGISTICS_OPERATOR"><LogisticsDashboard /></ProtectedRoute>} />
-    <Route path="/support/dashboard" element={<ProtectedRoute allowedRole="SUPPORT_AGENT"><SupportDashboard /></ProtectedRoute>} /> */}
+    <Route path="/support/dashboard" element={<ProtectedRoute allowedRole="SUPPORT_AGENT"><SupportDashboard /></ProtectedRoute>} /> 
 
   </Routes>
 

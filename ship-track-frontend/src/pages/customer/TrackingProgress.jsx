@@ -40,10 +40,10 @@ const TrackingProgress = () => {
   ];
 
   return (
-    <section className="bg-white border border-slate-200 rounded-xl shadow-sm p-5 mb-4">
-      
+    <section className="bg-white border border-slate-200 rounded-xl shadow-sm p-4 md:p-5 mb-4">
+
       {/* Tracking Number */}
-      <h2 className="text-lg font-bold text-slate-800 mb-10">
+      <h2 className="text-base font-bold text-slate-800 mb-6">
         Tracking Number:
         <span className="text-emerald-600 ml-2">
           TRK1234567890
@@ -54,23 +54,23 @@ const TrackingProgress = () => {
       <div className="relative">
 
         {/* Background Progress Line */}
-        <div className="absolute top-[11px] left-[8%] right-[8%] h-[2px] bg-slate-200 hidden lg:block" />
+        <div className="absolute top-[9px] left-[8%] right-[8%] h-[2px] bg-slate-200 hidden lg:block" />
 
         {/* Completed Progress Line */}
-        <div className="absolute top-[11px] left-[8%] w-[50%] h-[2px] bg-emerald-600 hidden lg:block" />
+        <div className="absolute top-[9px] left-[8%] w-[50%] h-[2px] bg-emerald-600 hidden lg:block" />
 
         {/* Steps */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-y-8 relative">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-y-6 relative">
 
           {steps.map((step) => (
             <div
               key={step.title}
               className="flex flex-col items-center text-center"
             >
-              
-              {/* Simple Status Dot */}
+
+              {/* Small Status Dot */}
               <div
-                className={`w-6 h-6 rounded-full relative z-10 ${
+                className={`w-5 h-5 rounded-full relative z-10 ${
                   step.completed
                     ? "bg-emerald-600"
                     : "bg-white border-2 border-slate-300"
@@ -79,7 +79,7 @@ const TrackingProgress = () => {
 
               {/* Status Name */}
               <h3
-                className={`font-semibold text-base mt-5 ${
+                className={`font-semibold text-sm mt-3 ${
                   step.active
                     ? "text-emerald-700"
                     : "text-slate-800"
@@ -90,12 +90,11 @@ const TrackingProgress = () => {
 
               {/* Date and Time */}
               {step.completed ? (
-                <div className="text-sm text-slate-500 mt-2 leading-6">
-                  <p>{step.date}</p>
-                  <p>{step.time}</p>
-                </div>
+                <p className="text-xs text-slate-500 mt-1">
+                  {step.date} · {step.time}
+                </p>
               ) : (
-                <p className="text-sm text-slate-500 mt-2">
+                <p className="text-xs text-slate-500 mt-1">
                   Pending
                 </p>
               )}
@@ -105,14 +104,14 @@ const TrackingProgress = () => {
       </div>
 
       {/* Status Message */}
-      <div className="mt-10 border border-emerald-100 border-l-4 border-l-emerald-600 bg-emerald-50 rounded-lg px-5 py-4 flex items-center gap-4">
-        
+      <div className="mt-6 border-l-4 border-emerald-600 bg-emerald-50 rounded-md px-4 py-2.5 flex items-center gap-3">
+
         <Info
-          size={24}
+          size={18}
           className="text-emerald-700 shrink-0"
         />
 
-        <p className="text-base text-slate-700">
+        <p className="text-sm text-slate-700">
           Your shipment is on the way.
         </p>
       </div>

@@ -1,19 +1,21 @@
 import {
   Truck,
   LayoutDashboard,
-  PackageCheck,
+  Package,
+  Users,
   Settings,
   LogOut,
-  Headphones,
   Menu,
   X,
+  PlusCircle,
+  Headphones,
 } from "lucide-react";
 
 import { NavLink, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { toast } from "react-toastify";
 
-const CustomerSidebar = () => {
+const AdminSidebar = () => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -21,17 +23,27 @@ const CustomerSidebar = () => {
     {
       name: "Dashboard",
       icon: LayoutDashboard,
-      path: "/customer/dashboard",
+      path: "/admin/dashboard",
     },
     {
-      name: "Shipment History",
-      icon: PackageCheck,
-      path: "/customer/shipment-history",
+      name: "Shipments",
+      icon: Package,
+      path: "/admin/shipments",
+    },
+    {
+      name: "Create Shipment",
+      icon: PlusCircle,
+      path: "/admin/create-shipment",
+    },
+    {
+      name: "Users",
+      icon: Users,
+      path: "/admin/users",
     },
     {
       name: "Settings",
       icon: Settings,
-      path: "/customer/settings",
+      path: "/admin/settings",
     },
   ];
 
@@ -51,7 +63,7 @@ const CustomerSidebar = () => {
   };
 
   const handleSupportClick = () => {
-    alert("Support Agent is currently unavailable!");
+    alert("Currently unavailable!");
   };
 
   return (
@@ -73,9 +85,7 @@ const CustomerSidebar = () => {
         >
           <Menu size={24} />
         </button>
-
       </div>
-
 
       {/* Mobile Overlay */}
       {isOpen && (
@@ -85,11 +95,9 @@ const CustomerSidebar = () => {
         />
       )}
 
-
       {/* Sidebar */}
       <aside
-        className={`fixed left-0 top-0 h-screen w-64 bg-emerald-950 text-white flex flex-col z-50 transition-transform duration-300
-        ${
+        className={`fixed left-0 top-0 h-screen w-64 bg-emerald-950 text-white flex flex-col z-50 transition-transform duration-300 ${
           isOpen
             ? "translate-x-0"
             : "-translate-x-full lg:translate-x-0"
@@ -100,7 +108,6 @@ const CustomerSidebar = () => {
         <div className="px-5 py-5 flex items-center justify-between">
 
           <div className="flex items-center gap-3">
-
             <Truck
               size={30}
               className="text-emerald-400"
@@ -112,27 +119,22 @@ const CustomerSidebar = () => {
               </h1>
 
               <p className="text-xs text-emerald-200 mt-0.5">
-                Customer Dashboard
+                Admin Dashboard
               </p>
             </div>
-
           </div>
 
-
-          {/* Mobile Close Button */}
+          {/* Mobile Close */}
           <button
             onClick={() => setIsOpen(false)}
             className="lg:hidden p-2 hover:bg-emerald-900 rounded-lg"
           >
             <X size={22} />
           </button>
-
         </div>
-
 
         {/* Navigation */}
         <nav className="px-3 space-y-1">
-
           {menuItems.map((item) => {
             const Icon = item.icon;
 
@@ -154,41 +156,15 @@ const CustomerSidebar = () => {
                 <span className="text-sm font-medium">
                   {item.name}
                 </span>
-
               </NavLink>
             );
           })}
-
         </nav>
-
 
         {/* Bottom Section */}
         <div className="mt-auto p-4">
 
           <div className="border-t border-emerald-800 mb-4" />
-
-
-          {/* Compact Support */}
-          <button
-            onClick={handleSupportClick}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-emerald-900 hover:bg-emerald-800 border border-emerald-800 transition text-left mb-4"
-          >
-            <Headphones
-              size={20}
-              className="text-emerald-300 shrink-0"
-            />
-
-            <div>
-              <p className="text-sm font-semibold">
-                Need Help?
-              </p>
-
-              <p className="text-xs text-emerald-200 mt-0.5">
-                Contact Support Agent
-              </p>
-            </div>
-          </button>
-
 
           {/* Logout */}
           <button
@@ -198,7 +174,7 @@ const CustomerSidebar = () => {
             hover:bg-red-500/20
             border border-red-500/20
             hover:border-red-400/40
-            transition-all duration-200"
+            transition-all duration-200 mb-4"
           >
             <LogOut size={20} />
 
@@ -207,11 +183,41 @@ const CustomerSidebar = () => {
             </span>
           </button>
 
-        </div>
+          {/* Support */}
+          {/* Support */}
+<div className="bg-emerald-900 rounded-lg p-3 text-center border border-emerald-800">
 
+  <div className="flex items-center justify-center gap-2 mb-2">
+
+    <div className="w-8 h-8 rounded-full bg-emerald-800 flex items-center justify-center">
+      <Headphones
+        size={17}
+        className="text-emerald-300"
+      />
+    </div>
+
+    <h3 className="font-semibold text-sm">
+      Need Help?
+    </h3>
+
+  </div>
+
+  <p className="text-xs text-emerald-100 mb-2">
+    Contact our support team
+  </p>
+
+  <button
+    onClick={handleSupportClick}
+    className="w-full bg-emerald-600 hover:bg-emerald-500 py-1.5 rounded-lg text-xs font-medium transition"
+  >
+    Support Center
+  </button>
+
+</div>
+        </div>
       </aside>
     </>
   );
 };
 
-export default CustomerSidebar;
+export default AdminSidebar;

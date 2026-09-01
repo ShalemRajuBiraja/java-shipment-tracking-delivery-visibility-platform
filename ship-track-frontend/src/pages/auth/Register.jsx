@@ -11,12 +11,15 @@ import { toast } from "react-toastify";
 const Register = () => {
 
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    role: "",
-    });
+ const [formData, setFormData] = useState({
+  name: "",
+  email: "",
+  password: "",
+  role: "",
+  gstId: "",
+  companyLicenseId: "",
+  licenseId: "",
+});
   const [errors, setErrors] = useState({});
 
   // 1. Handle input changes Function
@@ -60,6 +63,28 @@ const Register = () => {
     if (!formData.role) {
     newErrors.role = "Please select your account type";
     }
+
+    if (
+        formData.role === "BUSINESS_CLIENT" &&
+        !formData.gstId.trim()
+      ) {
+        newErrors.gstId = "GST ID is required";
+      }
+
+      if (
+        formData.role === "SUPPORT_AGENT" &&
+        !formData.companyLicenseId.trim()
+      ) {
+        newErrors.companyLicenseId =
+          "Company License ID is required";
+      }
+
+      if (
+        formData.role === "LOGISTICS_OPERATOR" &&
+        !formData.licenseId.trim()
+      ) {
+        newErrors.licenseId = "License ID is required";
+      }
 
     setErrors(newErrors);
 
@@ -136,6 +161,7 @@ const Register = () => {
                     Account Type
                 </label>
 
+
                 <select
                     id="signup-role"
                     name="role"
@@ -162,6 +188,47 @@ const Register = () => {
                     </p>
                 )}
                 </div>
+                {/* Business Client GST ID */}
+                  {formData.role === "BUSINESS_CLIENT" && (
+                    <Input
+                      id="signup-gst-id"
+                      name="gstId"
+                      type="text"
+                      label="GST ID"
+                      placeholder="Enter your GST ID"
+                      value={formData.gstId}
+                      onChange={handleChange}
+                      error={errors.gstId}
+                    />
+                  )}
+
+                  {/* Support Agent Company License ID */}
+                  {formData.role === "SUPPORT_AGENT" && (
+                    <Input
+                      id="signup-company-license"
+                      name="companyLicenseId"
+                      type="text"
+                      label="Company License ID"
+                      placeholder="Enter your company license ID"
+                      value={formData.companyLicenseId}
+                      onChange={handleChange}
+                      error={errors.companyLicenseId}
+                    />
+                  )}
+
+                  {/* Logistics Operator License ID */}
+                  {formData.role === "LOGISTICS_OPERATOR" && (
+                    <Input
+                      id="signup-license-id"
+                      name="licenseId"
+                      type="text"
+                      label="License ID"
+                      placeholder="Enter your license ID"
+                      value={formData.licenseId}
+                      onChange={handleChange}
+                      error={errors.licenseId}
+                    />
+                  )}
 
           <Input
             id="signup-email"

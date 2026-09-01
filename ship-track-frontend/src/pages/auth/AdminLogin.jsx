@@ -38,7 +38,7 @@ const AdminLogin = () => {
 
   const handleSubmit = async (event) => {
   event.preventDefault();
-
+  console.log("Admin login button clicked");
   const newErrors = {};
 
    if (!loginData.email.trim()) {
@@ -61,28 +61,47 @@ const AdminLogin = () => {
     setErrors(newErrors);
     return;
   }
+try {
+  console.log("Calling Admin Login API...", loginData);
 
-  try {
-    const response = await adminLoginApi(loginData);
+  const response = await adminLoginApi(loginData);
 
-    localStorage.setItem("userData",JSON.stringify(response.data) );
-    localStorage.setItem("token", response.data.token);
+  console.log("Response Data:", response.data);
 
-    toast.success("Admin login successful");
+  const userData = {
+    id: response.data.id,
+    email: response.data.email,
+    role: response.data.role,
+  };
 
-    // Redirect based on role
-    redirectBasedOnRole(response.data.role, navigate);
+  const token = response.data.token;
 
-  } catch (error) {
-    console.error("Admin login error:", error);
+  // Store authentication data
+  localStorage.setItem(
+    "userData",
+    JSON.stringify(userData)
+  );
 
-    const errorMessage =
-      error?.response?.data?.message ||
-      error?.response?.data?.detail ||
-      "Admin login failed";
+  localStorage.setItem("token", token);
 
-    toast.error(errorMessage);
-  }
+  console.log("User Data:", userData);
+  console.log("Role:", userData.role);
+
+  toast.success("Admin login successful");
+
+  // Redirect based on role
+  redirectBasedOnRole(userData.role, navigate);
+
+} catch (error) {
+  console.error("Admin login error:", error);
+
+  const errorMessage =
+    error?.response?.data?.message ||
+    error?.response?.data?.detail ||
+    "Admin login failed";
+
+  toast.error(errorMessage);
+}
 };
 
   return (

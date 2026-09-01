@@ -8,13 +8,18 @@ import Register from "./pages/Auth/Register";
 import AdminLogin from "./pages/Auth/AdminLogin";
 import CustomerDashboard from "./pages/Customer/CustomerDashboard";
 
-// import BusinessDashboard from "./pages/Business/BusinessDashboard";
-// import LogisticsDashboard from "./pages/Logistics/LogisticsDashboard";
-// import SupportDashboard from "./pages/Support/SupportDashboard";
-
 import ProtectedRoute from "./components/ProtectedRoute";
-import AdminDashboard from "./pages/Admin/AdminDashboard";
 
+import AdminDashboard from "./pages/Admin/AdminDashboard";
+import AdminLayout from "./pages/Admin/AdminLayout";
+import Users from "./pages/Admin/Users";
+import Settings from "./pages/Admin/Settings";
+import CreateShipment from "./pages/Admin/CreateShipment";
+import Shipments from "./pages/Admin/Shipments";
+
+import CustomerLayout from "./pages/Customer/CustomerLayout";
+import ShipmentHistory from "./pages/Customer/ShipmentHistory";
+import CustomerSettings from "./pages/Customer/CustomerSettings";
 function App() {
 
 return (
@@ -30,12 +35,22 @@ return (
 
 
     {/* Private Routes */}
-     <Route path="/customer/dashboard" element={<ProtectedRoute allowedRole="CUSTOMER"><CustomerDashboard /></ProtectedRoute>} />
-     <Route path="/admin/dashboard" element={<ProtectedRoute allowedRole="ADMIN"><AdminDashboard /></ProtectedRoute>} />
 
-    {/*<Route path="/business/dashboard" element={<ProtectedRoute allowedRole="BUSINESS_CLIENT"><BusinessDashboard /></ProtectedRoute>} />
-    <Route path="/logistics/dashboard" element={<ProtectedRoute allowedRole="LOGISTICS_OPERATOR"><LogisticsDashboard /></ProtectedRoute>} />
-    <Route path="/support/dashboard" element={<ProtectedRoute allowedRole="SUPPORT_AGENT"><SupportDashboard /></ProtectedRoute>} /> */}
+    {/* Customer Private Routes */}
+    <Route path="/customer" element={ <ProtectedRoute allowedRole="CUSTOMER">  <CustomerLayout /> </ProtectedRoute> }>
+      <Route path="dashboard" element={<CustomerDashboard />}/>
+      <Route path="shipment-history" element={<ShipmentHistory />}/>
+      <Route path="settings"  element={<CustomerSettings />}/>
+    </Route>
+
+    {/* Admin Routes */}
+      <Route path="/admin" element={ <ProtectedRoute allowedRole="ADMIN"> <AdminLayout /> </ProtectedRoute>}>
+        <Route path="dashboard" element={<AdminDashboard />} />
+        <Route path="settings" element={<Settings />} />
+        <Route path="users" element={<Users />} />  
+        <Route path="create-shipment" element={<CreateShipment />} />
+        <Route path="shipments" element={<Shipments />} />
+      </Route>
 
   </Routes>
 

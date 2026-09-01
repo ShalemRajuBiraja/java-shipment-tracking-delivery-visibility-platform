@@ -19,8 +19,6 @@ public class ShipmentResponseDto {
     // Sender information
     private String senderName;
 
-    private String senderEmail;
-
     // Receiver information
     private String receiverName;
 

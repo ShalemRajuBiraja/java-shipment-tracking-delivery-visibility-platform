@@ -136,7 +136,6 @@ public class ShipmentService {
                     response.setStatus(shipment.getStatus());
                     response.setCreatedAt(shipment.getCreatedAt());
                     response.setSenderName(shipment.getSender().getName());
-                    response.setSenderEmail(shipment.getSender().getEmail());
 
                     if (shipment.getAssignedOperator() != null) {
                         response.setAssignedOperatorName(
@@ -203,7 +202,6 @@ public class ShipmentService {
         response.setId(shipment.getId());
         response.setTrackingNumber(shipment.getTrackingNumber());
         response.setSenderName(shipment.getSender().getName());
-        response.setSenderEmail(shipment.getSender().getEmail());
         response.setReceiverName(shipment.getReceiverName());
         response.setReceiverPhone(shipment.getReceiverPhone());
         response.setPickupAddress(shipment.getPickupAddress());

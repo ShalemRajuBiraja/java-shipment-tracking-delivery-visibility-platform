@@ -12,7 +12,7 @@ import AdminLogin from "./pages/Auth/AdminLogin";
 import CustomerDashboard from "./pages/Customer/CustomerDashboard";
 import CustomerLayout from "./pages/Customer/CustomerLayout";
 import ShipmentHistory from "./pages/Customer/ShipmentHistory";
-import CustomerSettings from "./pages/Customer/CustomerSettings";
+import CustomerSettings from "./pages/Customer/Settings";
 
 // Admin Pages
 import AdminDashboard from "./pages/Admin/AdminDashboard";
@@ -23,133 +23,63 @@ import CreateShipment from "./pages/Admin/CreateShipment";
 import Shipments from "./pages/Admin/Shipments";
 
 // Operator Pages
-import OperatorDashboard from "./pages/operator/Dashboard";
-import OperatorShipments from "./pages/operator/Shipments";
-import TrackShipment from "./pages/operator/TrackShipment";
-import Reports from "./pages/operator/Reports";
+import LogisticsOperatorDashboard from "./pages/LogisticsOperator/OperatorDashboard";
+import OperatorShipments from "./pages/LogisticsOperator/OperatorShipments";
+import TrackShipment from "./pages/LogisticsOperator/TrackShipment";
+import Reports from "./pages/LogisticsOperator/Reports";
+
+import OperatorLayout from "./pages/LogisticsOperator/OperatorLayout";
 
 // Authentication
 import ProtectedRoute from "./components/ProtectedRoute";
+import BusinessDashboard from "./pages/Business/BusinessDashboard";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
 
-        {/* =========================
-            PUBLIC ROUTES
-        ========================== */}
-
+        {/* PUBLIC ROUTES */}
         <Route path="/" element={<Home />} />
-
         <Route path="/home" element={<Home />} />
+        <Route path="/auth/register" element={<Register />}/>
+        <Route path="/auth/admin/login" element={<AdminLogin />}/>
+        <Route path="/business-client/dashboard" element={<BusinessDashboard />}/>
 
-        <Route
-          path="/auth/register"
-          element={<Register />}
-        />
-
-        <Route
-          path="/auth/admin/login"
-          element={<AdminLogin />}
-        />
+        {/* CUSTOMER ROUTES*/}
+        <Route path="/customer" element={ <ProtectedRoute allowedRole="CUSTOMER"> <CustomerLayout /> </ProtectedRoute> } >
+        <Route path="dashboard" element={<CustomerDashboard />} />
+        <Route path="shipment-history" element={<ShipmentHistory />} />
+        <Route path="settings"element={<CustomerSettings />}/></Route>
 
 
-        {/* =========================
-            CUSTOMER ROUTES
-        ========================== */}
+        {/*ADMIN ROUTES*/}
+        <Route path="/admin" element={  <ProtectedRoute allowedRole="ADMIN"> <AdminLayout /> </ProtectedRoute>  } >
+        <Route path="dashboard" element={<AdminDashboard />}/>
+        <Route path="settings" element={<Settings />}/>
+        <Route path="users" element={<Users />} />
+        <Route path="create-shipment"  element={<CreateShipment />} />
+        <Route path="shipments"  element={<Shipments />}/></Route>
 
-        <Route
-          path="/customer"
-          element={
-            <ProtectedRoute allowedRole="CUSTOMER">
-              <CustomerLayout />
-            </ProtectedRoute>
-          }
-        >
 
-          <Route
-            path="dashboard"
-            element={<CustomerDashboard />}
-          />
+        {/*OPERATOR ROUTES*/}
+        {/* <Route path="/logistics-operator/dashboard" element={<LogisticsOperatorDashboard />}/>
+        <Route path="/logistics-operator/shipments" element={<OperatorShipments />}/>
+        <Route  path="/logistics-operator/track" element={<TrackShipment />} />
+        <Route path="/logistics-operator/reports"  element={<Reports />}/> */}
 
-          <Route
-            path="shipment-history"
-            element={<ShipmentHistory />}
-          />
+        {/* LOGISTICS OPERATOR ROUTES */}
+        <Route path="/logistics-operator" element={<ProtectedRoute allowedRole="LOGISTICS_OPERATOR"><OperatorLayout /></ProtectedRoute>}>
 
-          <Route
-            path="settings"
-            element={<CustomerSettings />}
-          />
+          <Route path="dashboard" element={<LogisticsOperatorDashboard />} />
+
+          <Route path="shipments" element={<OperatorShipments />} />
+
+          <Route path="track" element={<TrackShipment />} />
+
+          <Route path="reports" element={<Reports />} />
 
         </Route>
-
-
-        {/* =========================
-            ADMIN ROUTES
-        ========================== */}
-
-        <Route
-          path="/admin"
-          element={
-            <ProtectedRoute allowedRole="ADMIN">
-              <AdminLayout />
-            </ProtectedRoute>
-          }
-        >
-
-          <Route
-            path="dashboard"
-            element={<AdminDashboard />}
-          />
-
-          <Route
-            path="settings"
-            element={<Settings />}
-          />
-
-          <Route
-            path="users"
-            element={<Users />}
-          />
-
-          <Route
-            path="create-shipment"
-            element={<CreateShipment />}
-          />
-
-          <Route
-            path="shipments"
-            element={<Shipments />}
-          />
-
-        </Route>
-
-
-        {/* =========================
-            OPERATOR ROUTES
-        ========================== */}
-
-        <Route
-          path="/operator/dashboard"
-          element={<OperatorDashboard />}
-        />
-
-        <Route
-          path="/operator/shipments"
-          element={<OperatorShipments />}
-        />
-
-        <Route
-          path="/operator/track"
-          element={<TrackShipment />}
-        />
-
-        <Route
-          path="/operator/reports"
-          element={<Reports />}
-        />
 
       </Routes>
 

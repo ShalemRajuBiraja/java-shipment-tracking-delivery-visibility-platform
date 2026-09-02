@@ -3,7 +3,7 @@ import DashboardHeader from "./DashboardHeader";
 import StatsCards from "./StatsCards";
 import RecentShipments from "./RecentShipments";
 
-const Dashboard = () => {
+const BusinessDashboard = () => {
   return (
     <div className="flex min-h-screen bg-white">
       <BusinessSidebar />
@@ -20,4 +20,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default BusinessDashboard;

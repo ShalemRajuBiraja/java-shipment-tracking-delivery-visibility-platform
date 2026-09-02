@@ -9,12 +9,6 @@ const ProtectedRoute = ({ children, allowedRole }) => {
         localStorage.getItem("userData")
     );
 
-    console.log("=== PROTECTED ROUTE CHECK ===");
-    console.log("Token:", token);
-    console.log("User Data:", userData);
-    console.log("User Role:", userData?.role);
-    console.log("Allowed Role:", allowedRole);
-
     // User is not logged in
     if (!token || !userData) {
         console.log("REDIRECT: No token or userData");
@@ -27,7 +21,6 @@ const ProtectedRoute = ({ children, allowedRole }) => {
         return <Navigate to="/home" replace />;
     }
 
-    console.log("ACCESS GRANTED");
 
     return children;
 };

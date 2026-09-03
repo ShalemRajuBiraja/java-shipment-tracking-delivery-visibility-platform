@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import com.ship_track_backend.dto.ShipmentResponseDto;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -32,7 +34,7 @@ public class ShipmentController {
     @Autowired
     private ShipmentService shipmentService;
 
-    @PostMapping("/shipments")
+    @PostMapping("/api/create-shipment")
     public ResponseEntity<ApiResponse<Void>> createShipment(
             @Valid @RequestBody CreateShipmentData createShipmentData) {
 
@@ -43,16 +45,18 @@ public class ShipmentController {
         return ResponseEntity .status(HttpStatus.CREATED).body(response);
     }
     
-    @GetMapping("/shipments")
-    public ResponseEntity<ApiResponse<List<ShipmentResponseDto>>> getAllShipments() {
+    @GetMapping("/api/get-shipments")
+    public ResponseEntity<ApiResponse<List<ShipmentResponseDto>>> getAllShipments(Authentication authentication) {
 
-        List<ShipmentResponseDto> shipments = shipmentService.getAllShipments();
+    	String email = authentication.getName();
+        List<ShipmentResponseDto> shipments = shipmentService.getAllShipments(email);
 
-        ApiResponse<List<ShipmentResponseDto>> response =
-                new ApiResponse<>(true,"Shipments fetched successfully", shipments);
+        ApiResponse<List<ShipmentResponseDto>> response = new ApiResponse<>(true,"Shipments fetched successfully", shipments);
 
         return ResponseEntity.status(HttpStatus.OK) .body(response);
     }
+    
+    
     @GetMapping("/shipments/{id}")
     public ResponseEntity<ApiResponse<ShipmentResponseDto>> getShipmentById( @PathVariable Long id) {
 

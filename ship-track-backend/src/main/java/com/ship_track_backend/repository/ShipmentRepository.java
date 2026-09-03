@@ -14,5 +14,8 @@ public interface ShipmentRepository extends JpaRepository<ShipmentEntity, Long> 
     List<ShipmentEntity> findBySender(UserEntity sender);
 
     List<ShipmentEntity> findByAssignedOperator(UserEntity assignedOperator);
+    
+    List<ShipmentEntity> findBySender_Email(String email);
+
 
 }

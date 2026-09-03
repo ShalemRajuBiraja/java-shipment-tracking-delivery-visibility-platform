@@ -15,6 +15,7 @@ import com.ship_track_backend.enums.ShipmentStatus;
 import com.ship_track_backend.pojo.CreateShipmentData;
 import com.ship_track_backend.pojo.UpdateShipmentData;
 import com.ship_track_backend.pojo.UpdateShipmentStatusData;
+import com.ship_track_backend.repository.AuthRepository;
 import com.ship_track_backend.repository.ShipmentRepository;
 import com.ship_track_backend.repository.ShipmentTrackingRepository;
 import com.ship_track_backend.repository.UserRepository;
@@ -34,6 +35,8 @@ public class ShipmentService {
     private UserRepository userRepository;
     @Autowired
     private ShipmentTrackingRepository shipmentTrackingRepository;
+    @Autowired
+    private AuthRepository authRepository;
 
     private String generateTrackingNumber() {
 
@@ -84,68 +87,54 @@ public class ShipmentService {
         shipmentRepository.save(shipment);
     }
     
-    public List<ShipmentResponseDto> getAllShipments() {
+    public List<ShipmentResponseDto> getAllShipments(String email) {
 
-        String email = SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getName();
-
-        UserEntity loggedInUser = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "User not found"
-                ));
-
-        List<ShipmentEntity> shipments;
-
-        if (loggedInUser.getRole() == Role.ADMIN ||
-                loggedInUser.getRole() == Role.SUPPORT_AGENT) {
-
-            shipments = shipmentRepository.findAll();
-
-        } else if (loggedInUser.getRole() == Role.BUSINESS_CLIENT) {
-
-            shipments = shipmentRepository.findBySender(loggedInUser);
-
-        } else if (loggedInUser.getRole() == Role.LOGISTICS_OPERATOR) {
-
-            shipments = shipmentRepository.findByAssignedOperator(loggedInUser);
-
-        } else {
-
-            throw new ResponseStatusException(
-                    HttpStatus.FORBIDDEN,
-                    "You are not authorized to view shipments"
-            );
-        }
+        List<ShipmentEntity> shipments =
+                shipmentRepository.findBySender_Email(email);
 
         return shipments.stream()
                 .map(shipment -> {
 
-                    ShipmentResponseDto response = new ShipmentResponseDto();
+                    ShipmentResponseDto responseDto =
+                            new ShipmentResponseDto();
 
-                    response.setId(shipment.getId());
-                    response.setTrackingNumber(shipment.getTrackingNumber());
-                    response.setReceiverName(shipment.getReceiverName());
-                    response.setReceiverPhone(shipment.getReceiverPhone());
-                    response.setPickupAddress(shipment.getPickupAddress());
-                    response.setDeliveryAddress(shipment.getDeliveryAddress());
-                    response.setPackageDescription(shipment.getPackageDescription());
-                    response.setWeight(shipment.getWeight());
-                    response.setStatus(shipment.getStatus());
-                    response.setCreatedAt(shipment.getCreatedAt());
-                    response.setSenderName(shipment.getSender().getName());
+                    responseDto.setId(shipment.getId());
+                    responseDto.setTrackingNumber(shipment.getTrackingNumber());
 
+                    // Sender
+                    responseDto.setSenderName(
+                            shipment.getSender().getName()
+                    );
+
+                    // Receiver
+                    responseDto.setReceiverName(shipment.getReceiverName());
+                    responseDto.setReceiverPhone(shipment.getReceiverPhone());
+
+                    // Addresses
+                    responseDto.setPickupAddress(shipment.getPickupAddress());
+                    responseDto.setDeliveryAddress(shipment.getDeliveryAddress());
+
+                    // Package
+                    responseDto.setPackageDescription(
+                            shipment.getPackageDescription()
+                    );
+                    responseDto.setWeight(shipment.getWeight());
+
+                    // Status
+                    responseDto.setStatus(shipment.getStatus());
+
+                    // Assigned Operator
                     if (shipment.getAssignedOperator() != null) {
-                        response.setAssignedOperatorName(
-                            shipment.getAssignedOperator().getName()
+                        responseDto.setAssignedOperatorName(
+                                shipment.getAssignedOperator().getName()
                         );
                     }
 
-                    response.setUpdatedAt(shipment.getUpdatedAt());
+                    // Dates
+                    responseDto.setCreatedAt(shipment.getCreatedAt());
+                    responseDto.setUpdatedAt(shipment.getUpdatedAt());
 
-                    return response;
+                    return responseDto;
                 })
                 .collect(Collectors.toList());
     }

@@ -4,14 +4,25 @@ import {
   UsersRound,
   Shield,
   MoreVertical,
+  Trash2,
+  X,
+  AlertTriangle,
 } from "lucide-react";
+import { toast } from "react-toastify";
 
 const Users = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRole, setSelectedRole] = useState("ALL");
 
+  // Controls 3-dot dropdown
+  const [activeMenu, setActiveMenu] = useState(null);
+
+  // Controls delete confirmation modal
+  const [selectedUser, setSelectedUser] = useState(null);
+
   // Temporary static data
-  const users = [
+  // Later replace this with API data
+  const [users, setUsers] = useState([
     {
       id: 1,
       name: "Raju Kumar",
@@ -42,7 +53,7 @@ const Users = () => {
       email: "rahul@gmail.com",
       role: "CUSTOMER",
     },
-  ];
+  ]);
 
   // Filter users
   const filteredUsers = users.filter((user) => {
@@ -57,6 +68,7 @@ const Users = () => {
     return matchesSearch && matchesRole;
   });
 
+  // Role badge styling
   const getRoleStyle = (role) => {
     switch (role) {
       case "CUSTOMER":
@@ -76,10 +88,34 @@ const Users = () => {
     }
   };
 
+  // Open delete confirmation
+  const handleDeleteClick = (user) => {
+    setSelectedUser(user);
+    setActiveMenu(null);
+  };
+
+  // Delete user
+  const confirmDeleteUser = () => {
+    if (!selectedUser) return;
+
+    setUsers((previousUsers) =>
+      previousUsers.filter(
+        (user) => user.id !== selectedUser.id
+      )
+    );
+
+    toast.success(
+      `${selectedUser.name} deleted successfully`
+    );
+
+    setSelectedUser(null);
+  };
+
   return (
     <div className="space-y-5">
 
-      {/* Page Header */}
+      {/* ================= PAGE HEADER ================= */}
+
       <div>
         <h1 className="text-xl md:text-2xl font-bold text-slate-800">
           Users Management
@@ -90,76 +126,89 @@ const Users = () => {
         </p>
       </div>
 
-      {/* Summary Cards */}
-<div className="flex flex-wrap gap-3">
 
-  {/* Total Users */}
-  <div className="w-full sm:w-64 bg-white border border-slate-200 rounded-lg px-3 py-2 shadow-sm">
-    
-    <div className="flex items-center gap-2">
-      
-      <div className="w-8 h-8 rounded-md bg-emerald-50 flex items-center justify-center">
-        <UsersRound
-          size={16}
-          className="text-emerald-600"
-        />
+      {/* ================= SUMMARY CARDS ================= */}
+
+      <div className="flex flex-wrap gap-3">
+
+        {/* Total Users */}
+
+        <div className="w-full sm:w-64 bg-white border border-slate-200 rounded-lg px-3 py-2 shadow-sm">
+
+          <div className="flex items-center gap-2">
+
+            <div className="w-8 h-8 rounded-md bg-emerald-50 flex items-center justify-center">
+
+              <UsersRound
+                size={16}
+                className="text-emerald-600"
+              />
+
+            </div>
+
+            <div>
+
+              <p className="text-xs text-slate-500">
+                Total Users
+              </p>
+
+              <h3 className="text-base font-bold text-slate-800">
+                {users.length}
+              </h3>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        {/* User Roles */}
+
+        <div className="w-full sm:w-64 bg-white border border-slate-200 rounded-lg px-3 py-2 shadow-sm">
+
+          <div className="flex items-center gap-2">
+
+            <div className="w-8 h-8 rounded-md bg-emerald-50 flex items-center justify-center">
+
+              <Shield
+                size={16}
+                className="text-emerald-600"
+              />
+
+            </div>
+
+            <div>
+
+              <p className="text-xs text-slate-500">
+                User Roles
+              </p>
+
+              <h3 className="text-base font-bold text-slate-800">
+                4
+              </h3>
+
+            </div>
+
+          </div>
+
+        </div>
+
       </div>
 
-      <div>
-        <p className="text-xs text-slate-500">
-          Total Users
-        </p>
 
-        <h3 className="text-base font-bold text-slate-800">
-          {users.length}
-        </h3>
-      </div>
+      {/* ================= USERS TABLE ================= */}
 
-    </div>
-
-  </div>
-
-
-  {/* User Roles */}
-  <div className="w-full sm:w-64 bg-white border border-slate-200 rounded-lg px-3 py-2 shadow-sm">
-    
-    <div className="flex items-center gap-2">
-      
-      <div className="w-8 h-8 rounded-md bg-emerald-50 flex items-center justify-center">
-        <Shield
-          size={16}
-          className="text-emerald-600"
-        />
-      </div>
-
-      <div>
-        <p className="text-xs text-slate-500">
-          User Roles
-        </p>
-
-        <h3 className="text-base font-bold text-slate-800">
-          4
-        </h3>
-      </div>
-
-    </div>
-
-  </div>
-
-</div>
-
-
-
-
-      {/* Users Table */}
       <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
 
         {/* Table Header */}
+
         <div className="p-4 border-b border-slate-200">
 
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
 
             <div>
+
               <h2 className="text-base font-bold text-slate-800">
                 All Users
               </h2>
@@ -167,13 +216,16 @@ const Users = () => {
               <p className="text-xs text-slate-500 mt-1">
                 Manage registered users and their roles.
               </p>
+
             </div>
 
 
             {/* Search and Filter */}
+
             <div className="flex flex-col sm:flex-row gap-3">
 
               {/* Search */}
+
               <div className="relative">
 
                 <Search
@@ -195,6 +247,7 @@ const Users = () => {
 
 
               {/* Role Filter */}
+
               <select
                 value={selectedRole}
                 onChange={(event) =>
@@ -202,7 +255,10 @@ const Users = () => {
                 }
                 className="px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
               >
-                <option value="ALL">All Roles</option>
+
+                <option value="ALL">
+                  All Roles
+                </option>
 
                 <option value="CUSTOMER">
                   Customer
@@ -219,6 +275,7 @@ const Users = () => {
                 <option value="SUPPORT_AGENT">
                   Support Agent
                 </option>
+
               </select>
 
             </div>
@@ -228,7 +285,8 @@ const Users = () => {
         </div>
 
 
-        {/* Table */}
+        {/* ================= TABLE ================= */}
+
         <div className="overflow-x-auto">
 
           <table className="w-full text-sm">
@@ -270,12 +328,15 @@ const Users = () => {
                   >
 
                     {/* User */}
+
                     <td className="px-5 py-4">
 
                       <div className="flex items-center gap-3">
 
                         <div className="w-9 h-9 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center font-semibold text-sm">
+
                           {user.name.charAt(0).toUpperCase()}
+
                         </div>
 
                         <span className="font-medium text-slate-800">
@@ -288,12 +349,14 @@ const Users = () => {
 
 
                     {/* Email */}
+
                     <td className="px-5 py-4 text-slate-600">
                       {user.email}
                     </td>
 
 
                     {/* Role */}
+
                     <td className="px-5 py-4">
 
                       <span
@@ -307,15 +370,55 @@ const Users = () => {
                     </td>
 
 
-                    {/* Action */}
+                    {/* ================= ACTION MENU ================= */}
+
                     <td className="px-5 py-4 text-center">
 
-                      <button
-                        className="p-2 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition"
-                        title="User options"
-                      >
-                        <MoreVertical size={18} />
-                      </button>
+                      <div className="relative inline-block">
+
+                        {/* Three Dot Button */}
+
+                        <button
+                          onClick={() =>
+                            setActiveMenu(
+                              activeMenu === user.id
+                                ? null
+                                : user.id
+                            )
+                          }
+                          className="p-2 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition"
+                          title="User options"
+                        >
+
+                          <MoreVertical size={18} />
+
+                        </button>
+
+
+                        {/* Dropdown */}
+
+                        {activeMenu === user.id && (
+
+                          <div className="absolute right-0 top-10 w-36 bg-white border border-slate-200 rounded-lg shadow-lg z-20 py-1">
+
+                            <button
+                              onClick={() =>
+                                handleDeleteClick(user)
+                              }
+                              className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition"
+                            >
+
+                              <Trash2 size={16} />
+
+                              Delete User
+
+                            </button>
+
+                          </div>
+
+                        )}
+
+                      </div>
 
                     </td>
 
@@ -346,6 +449,7 @@ const Users = () => {
 
 
         {/* Bottom Info */}
+
         <div className="bg-slate-50 px-5 py-3 border-t border-slate-200">
 
           <p className="text-xs text-slate-500">
@@ -355,6 +459,98 @@ const Users = () => {
         </div>
 
       </div>
+
+
+      {/* ================= DELETE CONFIRMATION MODAL ================= */}
+
+      {selectedUser && (
+
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+
+          {/* Overlay */}
+
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setSelectedUser(null)}
+          />
+
+
+          {/* Modal */}
+
+          <div className="relative w-full max-w-md bg-white rounded-xl shadow-xl p-6">
+
+            {/* Close Button */}
+
+            <button
+              onClick={() => setSelectedUser(null)}
+              className="absolute right-4 top-4 text-slate-400 hover:text-slate-700"
+            >
+
+              <X size={20} />
+
+            </button>
+
+
+            {/* Warning Icon */}
+
+            <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mb-4">
+
+              <AlertTriangle
+                size={24}
+                className="text-red-600"
+              />
+
+            </div>
+
+
+            <h2 className="text-lg font-bold text-slate-800">
+              Delete User?
+            </h2>
+
+
+            <p className="text-sm text-slate-500 mt-2">
+
+              Are you sure you want to delete{" "}
+
+              <span className="font-semibold text-slate-700">
+                {selectedUser.name}
+              </span>
+
+              ? This action cannot be undone.
+
+            </p>
+
+
+            {/* Buttons */}
+
+            <div className="flex justify-end gap-3 mt-6">
+
+              <button
+                onClick={() => setSelectedUser(null)}
+                className="px-4 py-2.5 text-sm font-medium border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 transition"
+              >
+                Cancel
+              </button>
+
+
+              <button
+                onClick={confirmDeleteUser}
+                className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold bg-red-600 hover:bg-red-700 text-white rounded-lg transition"
+              >
+
+                <Trash2 size={17} />
+
+                Delete User
+
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      )}
 
     </div>
   );

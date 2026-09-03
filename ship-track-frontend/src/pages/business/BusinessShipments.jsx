@@ -1,50 +1,36 @@
 import { Package, Search } from "lucide-react";
-import { useState } from "react";
+import { useState,useEffect } from "react";
+import { getShipmentsApi } from "../../services/shipmentService";
 
 const BusinessShipments = () => {
 
   const [searchTerm, setSearchTerm] = useState("");
-
-  const shipments = [
-    {
-      id: "BUS-1001",
-      recipient: "Rahul Kumar",
-      origin: "Hyderabad",
-      destination: "Bangalore",
-      status: "In Transit",
-      date: "02 Sep 2026",
-    },
-    {
-      id: "BUS-1002",
-      recipient: "Priya Sharma",
-      origin: "Chennai",
-      destination: "Mumbai",
-      status: "Delivered",
-      date: "01 Sep 2026",
-    },
-    {
-      id: "BUS-1003",
-      recipient: "Amit Singh",
-      origin: "Delhi",
-      destination: "Hyderabad",
-      status: "Pending",
-      date: "01 Sep 2026",
-    },
-    {
-      id: "BUS-1004",
-      recipient: "Sneha Das",
-      origin: "Mumbai",
-      destination: "Chennai",
-      status: "Delivered",
-      date: "31 Aug 2026",
-    },
-  ];
-
+const [shipments, setShipments] = useState([]);
   const filteredShipments = shipments.filter((shipment) =>
-    shipment.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    shipment.recipient.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    shipment.destination.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  shipment.id.toString().includes(searchTerm) ||
+  shipment.receiverName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  shipment.deliveryAddress?.toLowerCase().includes(searchTerm.toLowerCase())
+);
+
+  useEffect(() => {
+    
+    const fetchShipments = async () => {
+      try {
+            const response = await getShipmentsApi();
+            if (response.data.success) {
+                setShipments(response.data.data);
+            } else {
+                console.error("Failed to fetch shipments:", response.data.message);
+            }
+        
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchShipments();
+
+  }, []);
 
   const getStatusStyle = (status) => {
     switch (status) {
@@ -180,12 +166,12 @@ const BusinessShipments = () => {
                       {shipment.id}
                     </td>
 
-                    <td className="px-5 py-4 text-slate-700">
-                      {shipment.recipient}
-                    </td>
+                   <td className="px-5 py-4 text-slate-700">
+                    {shipment.receiverName}
+                  </td>
 
                     <td className="px-5 py-4 text-slate-600">
-                      {shipment.origin} → {shipment.destination}
+                      {shipment.pickupAddress} → {shipment.deliveryAddress}
                     </td>
 
                     <td className="px-5 py-4">
@@ -201,7 +187,7 @@ const BusinessShipments = () => {
                     </td>
 
                     <td className="px-5 py-4 text-slate-500">
-                      {shipment.date}
+                      {shipment.createdAt}
                     </td>
 
                   </tr>

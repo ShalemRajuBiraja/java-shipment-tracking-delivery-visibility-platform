@@ -47,7 +47,7 @@ import SupportSettings from "./pages/SupportAgent/SupportSettings";
 import BusinessLayout from "./pages/Business/BusinessLayout";
 import BusinessDashboard from "./pages/Business/BusinessDashboard";
 import BusinessShipments from "./pages/Business/BusinessShipments";
-// import CreateBusinessShipment from "./pages/Business/CreateBusinessShipment";
+import CreateBusinessShipment from "./pages/Business/CreateBusinessShipment";
 import BusinessReports from "./pages/Business/BusinessReports";
 import BusinessSettings from "./pages/Business/BusinessSettings";
 
@@ -99,7 +99,7 @@ function App() {
       <Route path="/business" element={ <ProtectedRoute allowedRole="BUSINESS_CLIENT">  <BusinessLayout /> </ProtectedRoute> }>
       <Route path="dashboard" element={<BusinessDashboard />} />
       <Route path="shipments" element={<BusinessShipments />} />
-      {/* <Route path="create-shipment" element={<CreateBusinessShipment />} /> */}
+      <Route path="create-shipment" element={<CreateBusinessShipment />} /> 
        <Route path="reports" element={<BusinessReports />} /> 
       <Route path="settings" element={<BusinessSettings />} />
 

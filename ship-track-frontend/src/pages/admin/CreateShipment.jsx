@@ -4,13 +4,13 @@ import {
   UserRound,
   MapPin,
   Package,
-  Hash,
+  Building2,
+  Phone,
 } from "lucide-react";
 import { toast } from "react-toastify";
 
 const CreateShipment = () => {
-  const [shipmentData, setShipmentData] = useState({
-    trackingNumber: "",
+  const initialData = {
     senderName: "",
     senderPhone: "",
     receiverName: "",
@@ -20,7 +20,9 @@ const CreateShipment = () => {
     weight: "",
     deliveryAddress: "",
     status: "ORDER_PLACED",
-  });
+  };
+
+  const [shipmentData, setShipmentData] = useState(initialData);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -34,160 +36,251 @@ const CreateShipment = () => {
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    console.log("Shipment Data:", shipmentData);
+    // Basic validation
+    if (
+      !shipmentData.senderName ||
+      !shipmentData.senderPhone ||
+      !shipmentData.receiverName ||
+      !shipmentData.receiverPhone ||
+      !shipmentData.packageName ||
+      !shipmentData.weight ||
+      !shipmentData.deliveryAddress
+    ) {
+      toast.error("Please fill all required fields!");
+      return;
+    }
 
-    toast.success("Shipment created successfully!");
+    console.log("Business Client Shipment:", shipmentData);
+
+    // Backend API integration later
+    toast.success("Shipment request created successfully!");
+
+    handleReset();
   };
 
   const handleReset = () => {
-    setShipmentData({
-      trackingNumber: "",
-      senderName: "",
-      senderPhone: "",
-      receiverName: "",
-      receiverPhone: "",
-      packageName: "",
-      packageDescription: "",
-      weight: "",
-      deliveryAddress: "",
-      status: "ORDER_PLACED",
-    });
+    setShipmentData(initialData);
   };
 
   return (
     <div className="w-full">
-
-      {/* Page Header */}
-      <div className="mb-5">
+      {/* ================= PAGE HEADER ================= */}
+      <div className="mb-6">
         <h1 className="text-xl md:text-2xl font-bold text-slate-800">
           Create Shipment
         </h1>
 
-        <p className="text-sm text-slate-500 mt-1">
-          Enter shipment information to create a new shipment.
+        <p className="mt-1 text-sm text-slate-500">
+          Enter shipment details to create a new delivery request.
         </p>
       </div>
 
-      {/* Form */}
-      <form onSubmit={handleSubmit} className="bg-white border border-slate-200 rounded-xl shadow-sm" >
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-5"
+      >
+        {/* ================= SENDER + RECEIVER ================= */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          
+          {/* Sender Details */}
+          <section className="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
 
-        {/* Sender and Receiver */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 border-b border-slate-200">
+            <div className="flex items-center gap-3 mb-5 pb-4 border-b border-slate-200">
 
-          {/* Sender */}
-          <div className="p-5 lg:border-r border-slate-200">
+              <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center">
+                <Building2
+                  size={20}
+                  className="text-emerald-600"
+                />
+              </div>
 
-            <div className="flex items-center gap-2 mb-4">
-              <UserRound size={20} className="text-emerald-600" />
+              <div>
+                <h2 className="font-bold text-slate-800">
+                  Sender Details
+                </h2>
 
-              <h2 className="font-semibold text-slate-800">
-                Sender Details
-              </h2>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Enter sender information.
+                </p>
+              </div>
+
             </div>
+
 
             <div className="space-y-4">
 
+              {/* Sender Name */}
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Sender Name
+                  Sender Name *
                 </label>
 
-                <input
-                  type="text"
-                  name="senderName"
-                  value={shipmentData.senderName}
-                  onChange={handleChange}
-                  placeholder="Enter sender name"
-                  className="w-full px-4 py-2.5 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-emerald-500"
-                />
+                <div className="relative">
+
+                  <UserRound
+                    size={17}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                  />
+
+                  <input
+                    type="text"
+                    name="senderName"
+                    value={shipmentData.senderName}
+                    onChange={handleChange}
+                    placeholder="Enter sender name"
+                    className="w-full pl-10 pr-4 py-2.5 text-sm border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  />
+
+                </div>
               </div>
 
+
+              {/* Sender Phone */}
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Sender Phone
+                  Sender Phone *
                 </label>
 
-                <input
-                  type="text"
-                  name="senderPhone"
-                  value={shipmentData.senderPhone}
-                  onChange={handleChange}
-                  placeholder="Enter phone number"
-                  className="w-full px-4 py-2.5 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-emerald-500"
-                />
+                <div className="relative">
+
+                  <Phone
+                    size={17}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                  />
+
+                  <input
+                    type="tel"
+                    name="senderPhone"
+                    value={shipmentData.senderPhone}
+                    onChange={handleChange}
+                    placeholder="Enter phone number"
+                    className="w-full pl-10 pr-4 py-2.5 text-sm border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  />
+
+                </div>
               </div>
 
             </div>
 
-          </div>
+          </section>
 
 
-          {/* Receiver */}
-          <div className="p-5">
+          {/* Receiver Details */}
+          <section className="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
 
-            <div className="flex items-center gap-2 mb-4">
-              <UserRound size={20} className="text-emerald-600" />
+            <div className="flex items-center gap-3 mb-5 pb-4 border-b border-slate-200">
 
-              <h2 className="font-semibold text-slate-800">
-                Receiver Details
-              </h2>
+              <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center">
+                <UserRound
+                  size={20}
+                  className="text-emerald-600"
+                />
+              </div>
+
+              <div>
+                <h2 className="font-bold text-slate-800">
+                  Receiver Details
+                </h2>
+
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Enter receiver information.
+                </p>
+              </div>
+
             </div>
+
 
             <div className="space-y-4">
 
+              {/* Receiver Name */}
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Receiver Name
+                  Receiver Name *
                 </label>
 
-                <input
-                  type="text"
-                  name="receiverName"
-                  value={shipmentData.receiverName}
-                  onChange={handleChange}
-                  placeholder="Enter receiver name"
-                  className="w-full px-4 py-2.5 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-emerald-500"
-                />
+                <div className="relative">
+
+                  <UserRound
+                    size={17}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                  />
+
+                  <input
+                    type="text"
+                    name="receiverName"
+                    value={shipmentData.receiverName}
+                    onChange={handleChange}
+                    placeholder="Enter receiver name"
+                    className="w-full pl-10 pr-4 py-2.5 text-sm border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  />
+
+                </div>
               </div>
 
+
+              {/* Receiver Phone */}
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Receiver Phone
+                  Receiver Phone *
                 </label>
 
-                <input
-                  type="text"
-                  name="receiverPhone"
-                  value={shipmentData.receiverPhone}
-                  onChange={handleChange}
-                  placeholder="Enter phone number"
-                  className="w-full px-4 py-2.5 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-emerald-500"
-                />
+                <div className="relative">
+
+                  <Phone
+                    size={17}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                  />
+
+                  <input
+                    type="tel"
+                    name="receiverPhone"
+                    value={shipmentData.receiverPhone}
+                    onChange={handleChange}
+                    placeholder="Enter phone number"
+                    className="w-full pl-10 pr-4 py-2.5 text-sm border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  />
+
+                </div>
               </div>
 
             </div>
 
-          </div>
+          </section>
 
         </div>
 
 
-        {/* Package Information */}
-        <div className="p-5 border-b border-slate-200">
+        {/* ================= PRODUCT DETAILS ================= */}
+        <section className="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
 
-          <div className="flex items-center gap-2 mb-4">
-            <Package size={20} className="text-emerald-600" />
+          <div className="flex items-center gap-3 mb-5 pb-4 border-b border-slate-200">
 
-            <h2 className="font-semibold text-slate-800">
-              Package Information
-            </h2>
+            <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center">
+              <Package
+                size={20}
+                className="text-emerald-600"
+              />
+            </div>
+
+            <div>
+              <h2 className="font-bold text-slate-800">
+                Product Details
+              </h2>
+
+              <p className="text-xs text-slate-500 mt-0.5">
+                Provide information about the shipment package.
+              </p>
+            </div>
+
           </div>
+
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
+            {/* Product Name */}
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
-                Package Name
+                Product Name *
               </label>
 
               <input
@@ -195,14 +288,16 @@ const CreateShipment = () => {
                 name="packageName"
                 value={shipmentData.packageName}
                 onChange={handleChange}
-                placeholder="Enter package name"
-                className="w-full px-4 py-2.5 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-emerald-500"
+                placeholder="Enter product name"
+                className="w-full px-4 py-2.5 text-sm border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
               />
             </div>
 
+
+            {/* Weight */}
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
-                Weight (kg)
+                Weight (kg) *
               </label>
 
               <input
@@ -211,114 +306,88 @@ const CreateShipment = () => {
                 value={shipmentData.weight}
                 onChange={handleChange}
                 placeholder="Enter package weight"
-                className="w-full px-4 py-2.5 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-emerald-500"
+                min="0"
+                step="0.1"
+                className="w-full px-4 py-2.5 text-sm border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
               />
             </div>
 
           </div>
 
+
+          {/* Product Description */}
           <div className="mt-4">
+
             <label className="block text-sm font-medium text-slate-700 mb-2">
-              Package Description
+              Product Description
             </label>
 
             <textarea
               name="packageDescription"
               value={shipmentData.packageDescription}
               onChange={handleChange}
-              rows="3"
-              placeholder="Enter package description"
-              className="w-full px-4 py-2.5 border border-slate-300 rounded-lg outline-none resize-none focus:ring-2 focus:ring-emerald-500"
+              rows="4"
+              placeholder="Describe the product or package contents"
+              className="w-full px-4 py-2.5 text-sm border border-slate-300 rounded-lg outline-none resize-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
             />
+
           </div>
 
-        </div>
+        </section>
 
 
-        {/* Delivery Details */}
-        <div className="p-5">
+        {/* ================= DELIVERY ADDRESS ================= */}
+        <section className="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
 
-          <div className="flex items-center gap-2 mb-4">
-            <MapPin size={20} className="text-emerald-600" />
+          <div className="flex items-center gap-3 mb-5 pb-4 border-b border-slate-200">
 
-            <h2 className="font-semibold text-slate-800">
-              Delivery Details
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
-                Delivery Address
-              </label>
-
-              <textarea
-                name="deliveryAddress"
-                value={shipmentData.deliveryAddress}
-                onChange={handleChange}
-                rows="3"
-                placeholder="Enter complete delivery address"
-                className="w-full px-4 py-2.5 border border-slate-300 rounded-lg outline-none resize-none focus:ring-2 focus:ring-emerald-500"
+            <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center">
+              <MapPin
+                size={20}
+                className="text-emerald-600"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
-                Shipment Status
-              </label>
+              <h2 className="font-bold text-slate-800">
+                Delivery Address
+              </h2>
 
-              <select
-                name="status"
-                value={shipmentData.status}
-                onChange={handleChange}
-                className="w-full px-4 py-2.5 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
-              >
-                <option value="ORDER_PLACED">
-                  Order Placed
-                </option>
-
-                <option value="PACKED">
-                  Packed
-                </option>
-
-                <option value="PICKED">
-                  Picked
-                </option>
-
-                <option value="ON_GOING">
-                  On Going
-                </option>
-
-                <option value="OUT_FOR_DELIVERY">
-                  Out for Delivery
-                </option>
-
-                <option value="DELIVERED">
-                  Delivered
-                </option>
-              </select>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Enter the complete destination address.
+              </p>
             </div>
 
           </div>
 
-        </div>
+
+          <textarea
+            name="deliveryAddress"
+            value={shipmentData.deliveryAddress}
+            onChange={handleChange}
+            rows="4"
+            placeholder="House / Building, Street, City, State, PIN Code"
+            className="w-full px-4 py-2.5 text-sm border border-slate-300 rounded-lg outline-none resize-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+          />
+
+        </section>
 
 
-        {/* Actions */}
-        <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 p-5 border-t border-slate-200 bg-slate-50 rounded-b-xl">
+        {/* ================= ACTION BUTTONS ================= */}
+        <div className="flex flex-col-reverse sm:flex-row justify-end gap-3">
 
           <button
             type="button"
             onClick={handleReset}
-            className="px-5 py-2.5 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-100 transition"
+            className="px-5 py-2.5 border border-slate-300 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-100 transition"
           >
             Reset
           </button>
 
+
           <button
             type="submit"
-            className="flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-semibold transition"
+            className="flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-semibold transition shadow-sm"
           >
             <PackagePlus size={18} />
 
@@ -328,7 +397,6 @@ const CreateShipment = () => {
         </div>
 
       </form>
-
     </div>
   );
 };

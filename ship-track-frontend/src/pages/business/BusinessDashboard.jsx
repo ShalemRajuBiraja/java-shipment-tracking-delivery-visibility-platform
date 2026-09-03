@@ -4,70 +4,101 @@ import {
   CheckCircle,
   Clock,
 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { getShipmentsApi } from "../../services/shipmentService";
 
 const BusinessDashboard = () => {
 
+  const [shipments, setShipments] = useState([]);
+
+  useEffect(() => {
+
+    const fetchShipments = async () => {
+      try {
+
+        const response = await getShipmentsApi();
+
+        if (response.data.success) {
+          setShipments(response.data.data);
+        } else {
+          console.error(
+            "Failed to fetch shipments:",
+            response.data.message
+          );
+        }
+
+      } catch (error) {
+        console.error("Error fetching dashboard shipments:", error);
+      }
+    };
+
+    fetchShipments();
+
+  }, []);
+
+
+  // Statistics
   const stats = [
     {
       title: "Total Shipments",
-      value: "248",
+      value: shipments.length,
       icon: Package,
       description: "All business shipments",
     },
     {
       title: "In Transit",
-      value: "64",
+      value: shipments.filter(
+        (shipment) => shipment.status === "IN_TRANSIT"
+      ).length,
       icon: Truck,
       description: "Currently moving",
     },
     {
       title: "Delivered",
-      value: "162",
+      value: shipments.filter(
+        (shipment) => shipment.status === "DELIVERED"
+      ).length,
       icon: CheckCircle,
       description: "Successfully delivered",
     },
     {
       title: "Pending",
-      value: "22",
+      value: shipments.filter(
+        (shipment) => shipment.status === "CREATED"
+      ).length,
       icon: Clock,
       description: "Waiting for processing",
     },
   ];
 
-  const recentShipments = [
-    {
-      id: "BUS-1001",
-      destination: "Bangalore",
-      status: "In Transit",
-    },
-    {
-      id: "BUS-1002",
-      destination: "Mumbai",
-      status: "Delivered",
-    },
-    {
-      id: "BUS-1003",
-      destination: "Chennai",
-      status: "Pending",
-    },
-    {
-      id: "BUS-1004",
-      destination: "Delhi",
-      status: "Delivered",
-    },
-  ];
+
+  // Latest 4 shipments
+  const recentShipments = [...shipments]
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt) - new Date(a.createdAt)
+    )
+    .slice(0, 4);
+
 
   const getStatusStyle = (status) => {
-    if (status === "Delivered") {
-      return "bg-green-100 text-green-700";
-    }
 
-    if (status === "In Transit") {
-      return "bg-blue-100 text-blue-700";
-    }
+    switch (status) {
 
-    return "bg-yellow-100 text-yellow-700";
+      case "DELIVERED":
+        return "bg-green-100 text-green-700";
+
+      case "IN_TRANSIT":
+        return "bg-blue-100 text-blue-700";
+
+      case "CREATED":
+        return "bg-yellow-100 text-yellow-700";
+
+      default:
+        return "bg-slate-100 text-slate-600";
+    }
   };
+
 
   return (
     <div className="p-5 md:p-7">
@@ -90,6 +121,7 @@ const BusinessDashboard = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
 
         {stats.map((stat) => {
+
           const Icon = stat.icon;
 
           return (
@@ -101,6 +133,7 @@ const BusinessDashboard = () => {
               <div className="flex justify-between items-center">
 
                 <div>
+
                   <p className="text-sm text-slate-500">
                     {stat.title}
                   </p>
@@ -108,13 +141,16 @@ const BusinessDashboard = () => {
                   <h2 className="text-2xl font-bold text-slate-800 mt-1">
                     {stat.value}
                   </h2>
+
                 </div>
 
                 <div className="p-2 bg-emerald-50 rounded-lg">
+
                   <Icon
                     size={22}
                     className="text-emerald-600"
                   />
+
                 </div>
 
               </div>
@@ -153,8 +189,9 @@ const BusinessDashboard = () => {
             <thead className="bg-slate-50 text-slate-500">
 
               <tr>
+
                 <th className="text-left px-5 py-3">
-                  Shipment ID
+                  Tracking Number
                 </th>
 
                 <th className="text-left px-5 py-3">
@@ -164,6 +201,7 @@ const BusinessDashboard = () => {
                 <th className="text-left px-5 py-3">
                   Status
                 </th>
+
               </tr>
 
             </thead>
@@ -171,36 +209,53 @@ const BusinessDashboard = () => {
 
             <tbody>
 
-              {recentShipments.map((shipment) => (
+              {recentShipments.length > 0 ? (
 
-                <tr
-                  key={shipment.id}
-                  className="border-t border-slate-100"
-                >
+                recentShipments.map((shipment) => (
 
-                  <td className="px-5 py-4 font-medium text-emerald-600">
-                    {shipment.id}
-                  </td>
+                  <tr
+                    key={shipment.id}
+                    className="border-t border-slate-100 hover:bg-slate-50"
+                  >
 
-                  <td className="px-5 py-4 text-slate-600">
-                    {shipment.destination}
-                  </td>
+                    <td className="px-5 py-4 font-medium text-emerald-600">
+                      {shipment.trackingNumber}
+                    </td>
 
-                  <td className="px-5 py-4">
+                    <td className="px-5 py-4 text-slate-600">
+                      {shipment.deliveryAddress}
+                    </td>
 
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusStyle(
-                        shipment.status
-                      )}`}
-                    >
-                      {shipment.status}
-                    </span>
+                    <td className="px-5 py-4">
 
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusStyle(
+                          shipment.status
+                        )}`}
+                      >
+                        {shipment.status}
+                      </span>
+
+                    </td>
+
+                  </tr>
+
+                ))
+
+              ) : (
+
+                <tr>
+
+                  <td
+                    colSpan="3"
+                    className="text-center py-8 text-slate-500"
+                  >
+                    No recent shipments found.
                   </td>
 
                 </tr>
 
-              ))}
+              )}
 
             </tbody>
 

@@ -12,12 +12,21 @@ const Register = () => {
 
   const [formData, setFormData] = useState({
     name: "",
+    role: "",
+    phoneNumber: "",
     email: "",
     password: "",
-    role: "",
+
+    // Business Client
+    companyName: "",
     gstId: "",
-    companyLicenseId: "",
-    licenseId: "",
+
+    // Logistics Operator
+    logisticsCompanyName: "",
+    transportLicenseNumber: "",
+
+    // Support Agent
+    employeeId: "",
   });
 
   const [errors, setErrors] = useState({});
@@ -41,10 +50,53 @@ const Register = () => {
   const validateForm = () => {
     const newErrors = {};
 
+    // Full Name
     if (!formData.name.trim()) {
       newErrors.name = "Full name is required";
     }
 
+    // Account Type
+    if (!formData.role) {
+      newErrors.role = "Please select your account type";
+    }
+
+    // Phone Number
+    if (!formData.phoneNumber.trim()) {
+      newErrors.phoneNumber = "Phone number is required";
+    } else if (!/^[0-9]{10}$/.test(formData.phoneNumber.trim())) {
+      newErrors.phoneNumber = "Enter a valid 10-digit phone number";
+    }
+
+    // Role-based validation
+    if (formData.role === "BUSINESS_CLIENT") {
+      if (!formData.companyName.trim()) {
+        newErrors.companyName = "Company name is required";
+      }
+
+      if (!formData.gstId.trim()) {
+        newErrors.gstId = "GSTIN is required";
+      }
+    }
+
+    if (formData.role === "LOGISTICS_OPERATOR") {
+      if (!formData.logisticsCompanyName.trim()) {
+        newErrors.logisticsCompanyName =
+          "Logistics company name is required";
+      }
+
+      if (!formData.transportLicenseNumber.trim()) {
+        newErrors.transportLicenseNumber =
+          "Transport license number is required";
+      }
+    }
+
+    if (formData.role === "SUPPORT_AGENT") {
+      if (!formData.employeeId.trim()) {
+        newErrors.employeeId = "Employee ID is required";
+      }
+    }
+
+    // Email
     if (!formData.email.trim()) {
       newErrors.email = "Email is required";
     } else if (
@@ -55,36 +107,12 @@ const Register = () => {
       newErrors.email = "Enter a valid email address";
     }
 
+    // Password
     if (!formData.password) {
       newErrors.password = "Password is required";
     } else if (formData.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
-    }
-
-    if (!formData.role) {
-      newErrors.role = "Please select your account type";
-    }
-
-    if (
-      formData.role === "BUSINESS_CLIENT" &&
-      !formData.gstId.trim()
-    ) {
-      newErrors.gstId = "GST ID is required";
-    }
-
-    if (
-      formData.role === "SUPPORT_AGENT" &&
-      !formData.companyLicenseId.trim()
-    ) {
-      newErrors.companyLicenseId =
-        "Company License ID is required";
-    }
-
-    if (
-      formData.role === "LOGISTICS_OPERATOR" &&
-      !formData.licenseId.trim()
-    ) {
-      newErrors.licenseId = "License ID is required";
+      newErrors.password =
+        "Password must be at least 6 characters";
     }
 
     setErrors(newErrors);
@@ -159,6 +187,7 @@ const Register = () => {
           <div className="flex-1 overflow-y-auto px-6 py-6 sm:px-8">
             <form onSubmit={handleSubmit} className="space-y-5">
 
+              {/* Full Name */}
               <Input
                 id="signup-name"
                 name="name"
@@ -191,14 +220,22 @@ const Register = () => {
                       : "border-slate-300"
                   }`}
                 >
-                  <option value="">Select your account type</option>
-                  <option value="CUSTOMER">Customer</option>
+                  <option value="">
+                    Select your account type
+                  </option>
+
+                  <option value="CUSTOMER">
+                    Customer
+                  </option>
+
                   <option value="BUSINESS_CLIENT">
                     Business Client
                   </option>
+
                   <option value="LOGISTICS_OPERATOR">
                     Logistics Operator
                   </option>
+
                   <option value="SUPPORT_AGENT">
                     Support Agent
                   </option>
@@ -211,48 +248,90 @@ const Register = () => {
                 )}
               </div>
 
-              {/* Business Client GST ID */}
+              {/* ================= BUSINESS CLIENT FIELDS ================= */}
               {formData.role === "BUSINESS_CLIENT" && (
-                <Input
-                  id="signup-gst-id"
-                  name="gstId"
-                  type="text"
-                  label="GST ID"
-                  placeholder="Enter your GST ID"
-                  value={formData.gstId}
-                  onChange={handleChange}
-                  error={errors.gstId}
-                />
+                <>
+                  <Input
+                    id="signup-company-name"
+                    name="companyName"
+                    type="text"
+                    label="Company Name"
+                    placeholder="Enter your company name"
+                    value={formData.companyName}
+                    onChange={handleChange}
+                    error={errors.companyName}
+                  />
+
+                  <Input
+                    id="signup-gst-id"
+                    name="gstId"
+                    type="text"
+                    label="GSTIN"
+                    placeholder="Enter your GSTIN"
+                    value={formData.gstId}
+                    onChange={handleChange}
+                    error={errors.gstId}
+                  />
+                </>
               )}
 
-              {/* Support Agent Company License ID */}
+              {/* ================= LOGISTICS OPERATOR FIELDS ================= */}
+              {formData.role === "LOGISTICS_OPERATOR" && (
+                <>
+                  <Input
+                    id="signup-logistics-company"
+                    name="logisticsCompanyName"
+                    type="text"
+                    label="Logistics Company Name"
+                    placeholder="Enter your logistics company name"
+                    value={formData.logisticsCompanyName}
+                    onChange={handleChange}
+                    error={errors.logisticsCompanyName}
+                  />
+
+                  <Input
+                    id="signup-transport-license"
+                    name="transportLicenseNumber"
+                    type="text"
+                    label="Transport License Number"
+                    placeholder="Enter your transport license number"
+                    value={formData.transportLicenseNumber}
+                    onChange={handleChange}
+                    error={errors.transportLicenseNumber}
+                  />
+                </>
+              )}
+
+              {/* ================= SUPPORT AGENT FIELDS ================= */}
               {formData.role === "SUPPORT_AGENT" && (
                 <Input
-                  id="signup-company-license"
-                  name="companyLicenseId"
+                  id="signup-employee-id"
+                  name="employeeId"
                   type="text"
-                  label="Company License ID"
-                  placeholder="Enter your company license ID"
-                  value={formData.companyLicenseId}
+                  label="Employee ID"
+                  placeholder="Enter your employee ID"
+                  value={formData.employeeId}
                   onChange={handleChange}
-                  error={errors.companyLicenseId}
+                  error={errors.employeeId}
                 />
               )}
 
-              {/* Logistics Operator License ID */}
-              {formData.role === "LOGISTICS_OPERATOR" && (
-                <Input
-                  id="signup-license-id"
-                  name="licenseId"
-                  type="text"
-                  label="License ID"
-                  placeholder="Enter your license ID"
-                  value={formData.licenseId}
-                  onChange={handleChange}
-                  error={errors.licenseId}
-                />
-              )}
+              {/* ================= FIXED FIELDS ================= */}
 
+              {/* Phone Number */}
+              <Input
+                id="signup-phone"
+                name="phoneNumber"
+                type="tel"
+                label="Phone Number"
+                placeholder="Enter your 10-digit phone number"
+                value={formData.phoneNumber}
+                onChange={handleChange}
+                error={errors.phoneNumber}
+                autoComplete="tel"
+              />
+
+              {/* Email */}
               <Input
                 id="signup-email"
                 name="email"
@@ -265,6 +344,7 @@ const Register = () => {
                 autoComplete="email"
               />
 
+              {/* Password */}
               <Input
                 id="signup-password"
                 name="password"

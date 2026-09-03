@@ -36,11 +36,6 @@ const BusinessSidebar = () => {
       path: "/business/create-shipment",
     },
     {
-      name: "Reports",
-      icon: BarChart3,
-      path: "/business/reports",
-    },
-    {
       name: "Settings",
       icon: Settings,
       path: "/business/settings",
@@ -56,7 +51,7 @@ const BusinessSidebar = () => {
       localStorage.removeItem("token");
       localStorage.removeItem("userData");
 
-      toast.success("Logged out successfully!");
+      toast.warning("Logged out successfully!");
 
       navigate("/");
     }

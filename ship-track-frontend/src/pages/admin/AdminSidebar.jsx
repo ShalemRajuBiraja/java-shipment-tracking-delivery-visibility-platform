@@ -47,6 +47,7 @@ const AdminSidebar = () => {
     },
   ];
 
+  // Logout
   const handleLogout = () => {
     const isConfirmed = window.confirm(
       "Are you sure you want to logout?"
@@ -62,13 +63,14 @@ const AdminSidebar = () => {
     }
   };
 
+  // Support
   const handleSupportClick = () => {
-    alert("Currently unavailable!");
+    toast.info("Contact System Support for assistance.");
   };
 
   return (
     <>
-      {/* Mobile Header */}
+      {/* ================= MOBILE HEADER ================= */}
       <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-emerald-950 flex items-center justify-between px-4 z-50 shadow-md">
 
         <div className="flex items-center gap-2">
@@ -85,9 +87,11 @@ const AdminSidebar = () => {
         >
           <Menu size={24} />
         </button>
+
       </div>
 
-      {/* Mobile Overlay */}
+
+      {/* ================= MOBILE OVERLAY ================= */}
       {isOpen && (
         <div
           className="fixed inset-0 bg-black/40 z-40 lg:hidden"
@@ -95,7 +99,8 @@ const AdminSidebar = () => {
         />
       )}
 
-      {/* Sidebar */}
+
+      {/* ================= SIDEBAR ================= */}
       <aside
         className={`fixed left-0 top-0 h-screen w-64 bg-emerald-950 text-white flex flex-col z-50 transition-transform duration-300 ${
           isOpen
@@ -104,10 +109,11 @@ const AdminSidebar = () => {
         }`}
       >
 
-        {/* Logo */}
+        {/* ================= LOGO ================= */}
         <div className="px-5 py-5 flex items-center justify-between">
 
           <div className="flex items-center gap-3">
+
             <Truck
               size={30}
               className="text-emerald-400"
@@ -122,19 +128,24 @@ const AdminSidebar = () => {
                 Admin Dashboard
               </p>
             </div>
+
           </div>
 
-          {/* Mobile Close */}
+
+          {/* Mobile Close Button */}
           <button
             onClick={() => setIsOpen(false)}
             className="lg:hidden p-2 hover:bg-emerald-900 rounded-lg"
           >
             <X size={22} />
           </button>
+
         </div>
 
-        {/* Navigation */}
+
+        {/* ================= NAVIGATION ================= */}
         <nav className="px-3 space-y-1">
+
           {menuItems.map((item) => {
             const Icon = item.icon;
 
@@ -156,65 +167,59 @@ const AdminSidebar = () => {
                 <span className="text-sm font-medium">
                   {item.name}
                 </span>
+
               </NavLink>
             );
           })}
+
         </nav>
 
-        {/* Bottom Section */}
-        <div className="mt-auto p-4">
 
-          <div className="border-t border-emerald-800 mb-4" />
+        {/* ================= BOTTOM SECTION ================= */}
+        <div className="mt-auto px-4 pb-5">
+
+          {/* Divider */}
+          <div className="border-t border-emerald-800 mb-5" />
+
+
+          {/* Need Help Section */}
+          <div
+            onClick={handleSupportClick}
+            className="bg-emerald-900/70 border border-emerald-800 rounded-xl px-4 py-3 flex items-center gap-3 cursor-pointer hover:bg-emerald-900 transition mb-4"
+          >
+            <Headphones
+              size={22}
+              className="text-emerald-300"
+            />
+
+            <div>
+              <h3 className="font-semibold text-sm">
+                Need Help?
+              </h3>
+
+              <p className="text-xs text-emerald-100 mt-0.5">
+                Contact System Support
+              </p>
+            </div>
+
+          </div>
+
 
           {/* Logout */}
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg
-            text-red-300 hover:text-white
-            hover:bg-red-500/20
-            border border-red-500/20
-            hover:border-red-400/40
-            transition-all duration-200 mb-4"
+            className="w-full flex items-center gap-4 px-5 py-3 rounded-xl text-red-300 hover:text-white hover:bg-red-500/20 border border-red-500/30 hover:border-red-400/50 transition-all duration-200"
           >
-            <LogOut size={20} />
+            <LogOut size={22} />
 
-            <span className="text-sm font-semibold">
+            <span className="text-base font-semibold">
               Logout
             </span>
+
           </button>
 
-          {/* Support */}
-          {/* Support */}
-<div className="bg-emerald-900 rounded-lg p-3 text-center border border-emerald-800">
-
-  <div className="flex items-center justify-center gap-2 mb-2">
-
-    <div className="w-8 h-8 rounded-full bg-emerald-800 flex items-center justify-center">
-      <Headphones
-        size={17}
-        className="text-emerald-300"
-      />
-    </div>
-
-    <h3 className="font-semibold text-sm">
-      Need Help?
-    </h3>
-
-  </div>
-
-  <p className="text-xs text-emerald-100 mb-2">
-    Contact our support team
-  </p>
-
-  <button
-    onClick={handleSupportClick}
-    className="w-full bg-emerald-600 hover:bg-emerald-500 py-1.5 rounded-lg text-xs font-medium transition"
-  >
-    Support Center
-  </button>
-
-</div>
         </div>
+
       </aside>
     </>
   );

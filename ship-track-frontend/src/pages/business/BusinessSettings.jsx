@@ -2,24 +2,19 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 
 import {
-  UserRound,
-  Mail,
-  Phone,
+  Building2,
   LockKeyhole,
 } from "lucide-react";
 
-const Settings = () => {
+const BusinessSettings = () => {
 
-  // ================= PROFILE DATA =================
-
-  const [profileData, setProfileData] = useState({
-    name: "Customer",
-    email: "customer@email.com",
-    phone: "+91 98765 43210",
+  const [businessData, setBusinessData] = useState({
+    companyName: "ABC Logistics Pvt Ltd",
+    email: "business@quickship.com",
+    phone: "9876543210",
+    address: "Hyderabad, Telangana",
   });
 
-
-  // ================= PASSWORD DATA =================
 
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
@@ -28,28 +23,22 @@ const Settings = () => {
   });
 
 
-  // ================= PROFILE CHANGE =================
-
-  const handleProfileChange = (e) => {
-    setProfileData({
-      ...profileData,
+  const handleBusinessChange = (e) => {
+    setBusinessData({
+      ...businessData,
       [e.target.name]: e.target.value,
     });
   };
 
 
-  // ================= PROFILE SUBMIT =================
-
-  const handleProfileSubmit = (e) => {
+  const handleBusinessSubmit = (e) => {
     e.preventDefault();
 
-    console.log("Profile Data:", profileData);
+    console.log("Business Data:", businessData);
 
-    toast.success("Profile updated successfully!");
+    toast.success("Business information updated successfully!");
   };
 
-
-  // ================= PASSWORD CHANGE =================
 
   const handlePasswordChange = (e) => {
     setPasswordData({
@@ -58,8 +47,6 @@ const Settings = () => {
     });
   };
 
-
-  // ================= PASSWORD SUBMIT =================
 
   const handlePasswordSubmit = (e) => {
     e.preventDefault();
@@ -98,8 +85,7 @@ const Settings = () => {
   return (
     <div className="p-5 md:p-7 max-w-6xl">
 
-      {/* ================= PAGE HEADER ================= */}
-
+      {/* PAGE HEADER */}
       <div className="mb-6">
 
         <h1 className="text-2xl font-bold text-slate-800">
@@ -107,145 +93,124 @@ const Settings = () => {
         </h1>
 
         <p className="text-sm text-slate-500 mt-1">
-          Manage your account information and security settings.
+          Manage your business information and account security.
         </p>
 
       </div>
 
 
-      {/* ================= SETTINGS CARDS ================= */}
-
+      {/* SETTINGS CARDS */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
 
 
-        {/* ================= PROFILE INFORMATION ================= */}
+        {/* BUSINESS INFORMATION CARD */}
+        <section className="bg-white border border-slate-200 rounded-xl shadow-sm flex flex-col min-h-[510px]">
 
-        <section className="bg-white border border-slate-200 rounded-xl shadow-sm flex flex-col min-h-[450px]">
-
-          {/* Card Header */}
-
+          {/* Header */}
           <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-100">
 
             <div className="p-2 bg-emerald-50 rounded-lg">
-
-              <UserRound
+              <Building2
                 size={20}
                 className="text-emerald-600"
               />
-
             </div>
 
             <div>
-
               <h2 className="font-semibold text-slate-800">
-                Profile Information
+                Business Information
               </h2>
 
               <p className="text-xs text-slate-500 mt-0.5">
-                Update your personal details
+                Update your business details
               </p>
-
             </div>
 
           </div>
 
 
-          {/* Profile Form */}
-
+          {/* Form */}
           <form
-            onSubmit={handleProfileSubmit}
+            onSubmit={handleBusinessSubmit}
             className="p-5 flex flex-col flex-1"
           >
 
             <div className="space-y-4">
 
-
-              {/* Full Name */}
-
+              {/* Company Name */}
               <div>
-
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                  Full Name
+                  Company Name
                 </label>
 
                 <input
                   type="text"
-                  name="name"
-                  value={profileData.name}
-                  onChange={handleProfileChange}
+                  name="companyName"
+                  value={businessData.companyName}
+                  onChange={handleBusinessChange}
                   className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
                 />
-
               </div>
 
 
               {/* Email */}
-
               <div>
-
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                  Email Address
+                  Business Email
                 </label>
 
-                <div className="relative">
-
-                  <Mail
-                    size={17}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-                  />
-
-                  <input
-                    type="email"
-                    name="email"
-                    value={profileData.email}
-                    onChange={handleProfileChange}
-                    className="w-full pl-10 pr-3 py-2.5 text-sm border border-slate-200 rounded-lg outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
-                  />
-
-                </div>
-
+                <input
+                  type="email"
+                  name="email"
+                  value={businessData.email}
+                  onChange={handleBusinessChange}
+                  className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                />
               </div>
 
 
               {/* Phone */}
-
               <div>
-
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">
                   Phone Number
                 </label>
 
-                <div className="relative">
+                <input
+                  type="text"
+                  name="phone"
+                  value={businessData.phone}
+                  onChange={handleBusinessChange}
+                  className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                />
+              </div>
 
-                  <Phone
-                    size={17}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-                  />
 
-                  <input
-                    type="text"
-                    name="phone"
-                    value={profileData.phone}
-                    onChange={handleProfileChange}
-                    className="w-full pl-10 pr-3 py-2.5 text-sm border border-slate-200 rounded-lg outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
-                  />
+              {/* Address */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                  Business Address
+                </label>
 
-                </div>
-
+                <textarea
+                  rows="3"
+                  name="address"
+                  value={businessData.address}
+                  onChange={handleBusinessChange}
+                  className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm outline-none resize-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                />
               </div>
 
             </div>
 
 
-            {/* Save Button */}
-
+            {/* Button pushed to bottom */}
             <div className="mt-auto pt-5">
 
               <button
                 type="submit"
                 className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-lg text-sm font-medium transition"
               >
-                Save Changes
+                Update Business Data
               </button>
 
             </div>
@@ -255,25 +220,20 @@ const Settings = () => {
         </section>
 
 
-        {/* ================= PASSWORD SETTINGS ================= */}
+        {/* PASSWORD SETTINGS CARD */}
+        <section className="bg-white border border-slate-200 rounded-xl shadow-sm flex flex-col min-h-[510px]">
 
-        <section className="bg-white border border-slate-200 rounded-xl shadow-sm flex flex-col min-h-[450px]">
-
-          {/* Card Header */}
-
+          {/* Header */}
           <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-100">
 
             <div className="p-2 bg-emerald-50 rounded-lg">
-
               <LockKeyhole
                 size={20}
                 className="text-emerald-600"
               />
-
             </div>
 
             <div>
-
               <h2 className="font-semibold text-slate-800">
                 Password & Security
               </h2>
@@ -281,14 +241,12 @@ const Settings = () => {
               <p className="text-xs text-slate-500 mt-0.5">
                 Update your account password
               </p>
-
             </div>
 
           </div>
 
 
-          {/* Password Form */}
-
+          {/* Form */}
           <form
             onSubmit={handlePasswordSubmit}
             className="p-5 flex flex-col flex-1"
@@ -296,11 +254,8 @@ const Settings = () => {
 
             <div className="space-y-4">
 
-
               {/* Current Password */}
-
               <div>
-
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">
                   Current Password
                 </label>
@@ -313,14 +268,11 @@ const Settings = () => {
                   placeholder="Enter current password"
                   className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
                 />
-
               </div>
 
 
               {/* New Password */}
-
               <div>
-
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">
                   New Password
                 </label>
@@ -333,14 +285,11 @@ const Settings = () => {
                   placeholder="Enter new password"
                   className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
                 />
-
               </div>
 
 
               {/* Confirm Password */}
-
               <div>
-
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">
                   Confirm New Password
                 </label>
@@ -353,12 +302,10 @@ const Settings = () => {
                   placeholder="Confirm new password"
                   className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
                 />
-
               </div>
 
 
-              {/* Password Requirement */}
-
+              {/* Requirement */}
               <p className="text-xs text-slate-400">
                 Password must contain at least 6 characters.
               </p>
@@ -366,8 +313,7 @@ const Settings = () => {
             </div>
 
 
-            {/* Update Button */}
-
+            {/* Button pushed to bottom */}
             <div className="mt-auto pt-5">
 
               <button
@@ -385,15 +331,8 @@ const Settings = () => {
 
       </div>
 
-
-      {/* Footer */}
-
-      <footer className="text-center text-xs text-slate-500 py-5">
-        © 2026 QuickShip. All rights reserved.
-      </footer>
-
     </div>
   );
 };
 
-export default Settings;
+export default BusinessSettings;

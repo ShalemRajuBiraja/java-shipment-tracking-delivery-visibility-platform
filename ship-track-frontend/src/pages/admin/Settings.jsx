@@ -1,4 +1,5 @@
 import { useState } from "react";
+
 import {
   User,
   Mail,
@@ -8,17 +9,20 @@ import {
 } from "lucide-react";
 
 const Settings = () => {
+  // ================= PROFILE DATA =================
   const [profileData, setProfileData] = useState({
     name: "Admin",
     email: "admin@gmail.com",
   });
 
+  // ================= PASSWORD DATA =================
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
 
+  // ================= PROFILE CHANGE =================
   const handleProfileChange = (event) => {
     const { name, value } = event.target;
 
@@ -28,6 +32,7 @@ const Settings = () => {
     }));
   };
 
+  // ================= PASSWORD CHANGE =================
   const handlePasswordChange = (event) => {
     const { name, value } = event.target;
 
@@ -37,6 +42,7 @@ const Settings = () => {
     }));
   };
 
+  // ================= SAVE PROFILE =================
   const handleProfileSubmit = (event) => {
     event.preventDefault();
 
@@ -44,17 +50,31 @@ const Settings = () => {
     console.log("Profile Data:", profileData);
   };
 
+  // ================= UPDATE PASSWORD =================
   const handlePasswordSubmit = (event) => {
     event.preventDefault();
 
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      alert("New passwords do not match!");
+      return;
+    }
+
     // Backend API integration later
-    console.log("Password Data:", passwordData);
+    console.log("Password Updated");
+
+    setPasswordData({
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    });
+
+    alert("Password updated successfully!");
   };
 
   return (
     <div className="space-y-5">
 
-      {/* Page Header */}
+      {/* ================= PAGE HEADER ================= */}
       <div>
         <h1 className="text-xl md:text-2xl font-bold text-slate-800">
           Settings
@@ -66,7 +86,7 @@ const Settings = () => {
       </div>
 
 
-      {/* Profile Settings */}
+      {/* ================= PROFILE SETTINGS ================= */}
       <section className="bg-white border border-slate-200 rounded-xl shadow-sm">
 
         {/* Section Header */}
@@ -183,7 +203,6 @@ const Settings = () => {
               className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-lg text-sm font-semibold transition"
             >
               <Save size={17} />
-
               Save Changes
             </button>
 
@@ -194,7 +213,7 @@ const Settings = () => {
       </section>
 
 
-      {/* Security Settings */}
+      {/* ================= PASSWORD SETTINGS ================= */}
       <section className="bg-white border border-slate-200 rounded-xl shadow-sm">
 
         {/* Section Header */}
@@ -209,11 +228,11 @@ const Settings = () => {
 
           <div>
             <h2 className="text-base font-bold text-slate-800">
-              Account Security
+              Update Password
             </h2>
 
             <p className="text-xs text-slate-500 mt-0.5">
-              Update your account password.
+              Change your password to keep your account secure.
             </p>
           </div>
 
@@ -281,7 +300,7 @@ const Settings = () => {
           </div>
 
 
-          {/* Update Password */}
+          {/* Update Button */}
           <div className="flex justify-end mt-5">
 
             <button
@@ -289,7 +308,6 @@ const Settings = () => {
               className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-lg text-sm font-semibold transition"
             >
               <LockKeyhole size={17} />
-
               Update Password
             </button>
 

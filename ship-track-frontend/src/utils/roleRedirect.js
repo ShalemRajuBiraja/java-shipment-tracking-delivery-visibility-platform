@@ -4,7 +4,7 @@ export const redirectBasedOnRole = (role, navigate) => {
         CUSTOMER: "/customer/dashboard",
         BUSINESS_CLIENT: "/business/dashboard",
         LOGISTICS_OPERATOR: "/logistics-operator/dashboard",
-        SUPPORT_AGENT: "/support/dashboard",
+        SUPPORT_AGENT: "/support-agent/dashboard",
         ADMIN: "/admin/dashboard"
     };
 

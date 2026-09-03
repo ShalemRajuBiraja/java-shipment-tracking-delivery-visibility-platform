@@ -7,6 +7,7 @@ import "./styles/toast.css";
 import Home from "./pages/Home/Home";
 import Register from "./pages/Auth/Register";
 import AdminLogin from "./pages/Auth/AdminLogin";
+import ForgotPassword from "./pages/Auth/ForgotPassword";
 
 // Customer Pages
 import CustomerDashboard from "./pages/Customer/CustomerDashboard";
@@ -27,12 +28,28 @@ import LogisticsOperatorDashboard from "./pages/LogisticsOperator/OperatorDashbo
 import OperatorShipments from "./pages/LogisticsOperator/OperatorShipments";
 import TrackShipment from "./pages/LogisticsOperator/TrackShipment";
 import Reports from "./pages/LogisticsOperator/Reports";
+import OperatorSettings from "./pages/LogisticsOperator/OperatorSettings";
 
 import OperatorLayout from "./pages/LogisticsOperator/OperatorLayout";
 
 // Authentication
 import ProtectedRoute from "./components/ProtectedRoute";
+
+// Support Agent Pages
+import SupportDashboard from "./pages/SupportAgent/SupportDashboard";
+import SupportLayout from "./pages/SupportAgent/SupportLayout";
+import SupportRequests from "./pages/SupportAgent/SupportRequests";
+import ShipmentLookup from "./pages/SupportAgent/ShipmentLookup";
+import ResolvedRequests from "./pages/SupportAgent/ResolvedRequests";
+import SupportSettings from "./pages/SupportAgent/SupportSettings";
+
+// Business Client Pages
+import BusinessLayout from "./pages/Business/BusinessLayout";
 import BusinessDashboard from "./pages/Business/BusinessDashboard";
+import BusinessShipments from "./pages/Business/BusinessShipments";
+// import CreateBusinessShipment from "./pages/Business/CreateBusinessShipment";
+import BusinessReports from "./pages/Business/BusinessReports";
+import BusinessSettings from "./pages/Business/BusinessSettings";
 
 function App() {
   return (
@@ -44,7 +61,7 @@ function App() {
         <Route path="/home" element={<Home />} />
         <Route path="/auth/register" element={<Register />}/>
         <Route path="/auth/admin/login" element={<AdminLogin />}/>
-        <Route path="/business-client/dashboard" element={<BusinessDashboard />}/>
+        <Route path="/auth/forgot-password" element={<ForgotPassword />}/>
 
         {/* CUSTOMER ROUTES*/}
         <Route path="/customer" element={ <ProtectedRoute allowedRole="CUSTOMER"> <CustomerLayout /> </ProtectedRoute> } >
@@ -61,31 +78,37 @@ function App() {
         <Route path="create-shipment"  element={<CreateShipment />} />
         <Route path="shipments"  element={<Shipments />}/></Route>
 
-
-        {/*OPERATOR ROUTES*/}
-        {/* <Route path="/logistics-operator/dashboard" element={<LogisticsOperatorDashboard />}/>
-        <Route path="/logistics-operator/shipments" element={<OperatorShipments />}/>
-        <Route  path="/logistics-operator/track" element={<TrackShipment />} />
-        <Route path="/logistics-operator/reports"  element={<Reports />}/> */}
-
         {/* LOGISTICS OPERATOR ROUTES */}
         <Route path="/logistics-operator" element={<ProtectedRoute allowedRole="LOGISTICS_OPERATOR"><OperatorLayout /></ProtectedRoute>}>
+        <Route path="dashboard" element={<LogisticsOperatorDashboard />} />
+        <Route path="shipments" element={<OperatorShipments />} />
+        <Route path="track" element={<TrackShipment />} />
+        <Route path="reports" element={<Reports />} />
+        <Route path="settings" element={<OperatorSettings />} /></Route>
 
-          <Route path="dashboard" element={<LogisticsOperatorDashboard />} />
+        {/* SUPPORT AGENT ROUTES */}
+      <Route path="/support-agent" element={<ProtectedRoute allowedRole="SUPPORT_AGENT"><SupportLayout /></ProtectedRoute>}>
+      <Route path="dashboard" element={<SupportDashboard />} />
+      <Route path="requests" element={<SupportRequests />} />
+      <Route path="shipment-lookup" element={<ShipmentLookup />} />
+      <Route path="resolved" element={<ResolvedRequests />} />
+      <Route path="settings" element={<SupportSettings />} />
+      </Route>
 
-          <Route path="shipments" element={<OperatorShipments />} />
+      {/* BUSINESS CLIENT ROUTES */}
+      <Route path="/business" element={ <ProtectedRoute allowedRole="BUSINESS_CLIENT">  <BusinessLayout /> </ProtectedRoute> }>
+      <Route path="dashboard" element={<BusinessDashboard />} />
+      <Route path="shipments" element={<BusinessShipments />} />
+      {/* <Route path="create-shipment" element={<CreateBusinessShipment />} /> */}
+       <Route path="reports" element={<BusinessReports />} /> 
+      <Route path="settings" element={<BusinessSettings />} />
 
-          <Route path="track" element={<TrackShipment />} />
-
-          <Route path="reports" element={<Reports />} />
-
-        </Route>
+</Route>
 
       </Routes>
 
 
-      {/* =========================
-          TOAST NOTIFICATIONS
+      {/* TOAST NOTIFICATIONS
       ========================== */}
 
       <ToastContainer

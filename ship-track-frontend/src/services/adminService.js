@@ -30,3 +30,6 @@ export const getUsersApi = async () => {
   return await axiosInstance.get( API_END_POINTS.GET_USERS );
 };
 
+export const adminUpdateProfileApi = async (profileData) => {
+  return await axiosInstance.put( API_END_POINTS.UPDATE_ADMIN_PROFILE, profileData );
+};

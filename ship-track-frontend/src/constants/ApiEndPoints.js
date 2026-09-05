@@ -27,4 +27,5 @@ GET_ADMIN_SHIPMENTS: "/api/admin/dashboard-shipments",
 DELETE_SHIPMENT: "/api/admin/delete-shipment",
 ADMIN_USER_DELETE: "/api/admin/delete-user",
 GET_USERS: "/api/admin/users",
+UPDATE_ADMIN_PROFILE: "/api/admin/profile",
 }

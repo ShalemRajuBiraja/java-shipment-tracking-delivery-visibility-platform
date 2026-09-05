@@ -9,6 +9,8 @@ import {
   X,
   PlusCircle,
   Headphones,
+  Copy,
+  Check,
 } from "lucide-react";
 
 import { NavLink, useNavigate } from "react-router-dom";
@@ -16,8 +18,11 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 
 const AdminSidebar = () => {
+
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
+  const [isSupportModalOpen, setIsSupportModalOpen] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
 
   const menuItems = [
     {
@@ -64,9 +69,26 @@ const AdminSidebar = () => {
   };
 
   // Support
-  const handleSupportClick = () => {
-    toast.info("Contact System Support for assistance.");
-  };
+const handleSupportClick = () => {
+
+  setIsSupportModalOpen(true);
+
+};
+const handleCopyEmail = async () => {
+
+  await navigator.clipboard.writeText(
+    "shalemrajubiraja7@gmail.com"
+  );
+
+  setIsCopied(true);
+
+  setTimeout(() => {
+
+    setIsCopied(false);
+
+  }, 2000);
+
+};
 
   return (
     <>
@@ -183,9 +205,10 @@ const AdminSidebar = () => {
 
 
           {/* Need Help Section */}
-          <div
+         <button
+            type="button"
             onClick={handleSupportClick}
-            className="bg-emerald-900/70 border border-emerald-800 rounded-xl px-4 py-3 flex items-center gap-3 cursor-pointer hover:bg-emerald-900 transition mb-4"
+            className="w-full bg-emerald-900/70 border border-emerald-800 rounded-xl px-4 py-3 flex items-center gap-3 cursor-pointer hover:bg-emerald-900 transition mb-4 text-left"
           >
             <Headphones
               size={22}
@@ -198,11 +221,10 @@ const AdminSidebar = () => {
               </h3>
 
               <p className="text-xs text-emerald-100 mt-0.5">
-                Contact System Support
+                Contact Development Team
               </p>
             </div>
-
-          </div>
+          </button>
 
 
           {/* Logout */}
@@ -221,6 +243,119 @@ const AdminSidebar = () => {
         </div>
 
       </aside>
+      {/* ================= SUPPORT MODAL ================= */}
+
+{isSupportModalOpen && (
+
+  <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+
+    {/* Overlay */}
+
+    <div
+      className="absolute inset-0 bg-black/50"
+      onClick={() => setIsSupportModalOpen(false)}
+    />
+
+
+    {/* Modal */}
+
+    <div className="relative w-full max-w-md bg-white rounded-2xl shadow-xl p-6">
+
+      {/* Close Button */}
+
+      <button
+        onClick={() => setIsSupportModalOpen(false)}
+        className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition"
+      >
+        <X size={20} />
+      </button>
+
+
+      {/* Icon */}
+
+      <div className="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center mb-4">
+
+        <Headphones
+          size={24}
+          className="text-emerald-600"
+        />
+
+      </div>
+
+
+      {/* Title */}
+
+      <h2 className="text-xl font-bold text-slate-800">
+
+        Contact Development Team
+
+      </h2>
+
+
+      <p className="text-sm text-slate-500 mt-2 mb-5">
+
+        Send your queries to the development team using the email below.
+
+      </p>
+
+
+      {/* Email Box */}
+
+      <div className="flex items-center justify-between gap-3 border border-slate-200 bg-slate-50 rounded-xl px-4 py-3">
+
+        <span className="text-sm font-medium text-slate-700 break-all">
+
+          shalemrajubiraja7@gmail.com
+
+        </span>
+
+
+        <button
+          onClick={handleCopyEmail}
+          className="flex-shrink-0 p-2 text-emerald-600 hover:bg-emerald-100 rounded-lg transition"
+          title="Copy email"
+        >
+
+          {isCopied ? (
+
+            <Check size={19} />
+
+          ) : (
+
+            <Copy size={19} />
+
+          )}
+
+        </button>
+
+      </div>
+
+
+      {/* Bottom Message */}
+
+      <p className="text-xs text-slate-400 mt-4">
+
+        Send your queries to this email.
+
+      </p>
+
+
+      {/* Close Button */}
+
+      <button
+        onClick={() => setIsSupportModalOpen(false)}
+        className="w-full mt-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-semibold transition"
+      >
+
+        Close
+
+      </button>
+
+    </div>
+
+  </div>
+
+)}
     </>
   );
 };

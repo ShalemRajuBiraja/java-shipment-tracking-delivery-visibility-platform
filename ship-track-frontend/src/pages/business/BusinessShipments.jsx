@@ -1,51 +1,90 @@
-import { Package, Search } from "lucide-react";
-import { useState,useEffect } from "react";
+import { Package, Search, Eye } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+
 import { getShipmentsApi } from "../../services/shipmentService";
 
 const BusinessShipments = () => {
+  const navigate = useNavigate();
 
   const [searchTerm, setSearchTerm] = useState("");
-const [shipments, setShipments] = useState([]);
-  const filteredShipments = shipments.filter((shipment) =>
-  shipment.id.toString().includes(searchTerm) ||
-  shipment.receiverName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  shipment.deliveryAddress?.toLowerCase().includes(searchTerm.toLowerCase())
-);
+  const [shipments, setShipments] = useState([]);
+
+  const filteredShipments = shipments.filter((shipment) => {
+    const search = searchTerm.toLowerCase();
+
+    return (
+      shipment.id?.toString().includes(searchTerm) ||
+      shipment.trackingNumber?.toLowerCase().includes(search) ||
+      shipment.receiverName?.toLowerCase().includes(search) ||
+      shipment.deliveryAddress?.toLowerCase().includes(search)
+    );
+  });
 
   useEffect(() => {
-    
     const fetchShipments = async () => {
       try {
-            const response = await getShipmentsApi();
-            if (response.data.success) {
-                setShipments(response.data.data);
-            } else {
-                console.error("Failed to fetch shipments:", response.data.message);
-            }
-        
+        const response = await getShipmentsApi();
+
+        if (response.data.success) {
+          setShipments(response.data.data);
+        } else {
+          console.error(
+            "Failed to fetch shipments:",
+            response.data.message
+          );
+        }
       } catch (error) {
-        console.error(error);
+        console.error("Error fetching shipments:", error);
       }
     };
 
     fetchShipments();
-
   }, []);
 
   const getStatusStyle = (status) => {
-    switch (status) {
-      case "Delivered":
-        return "bg-green-100 text-green-700";
+    switch (status?.toUpperCase()) {
+      case "CREATED":
+        return "bg-purple-100 text-purple-700";
 
-      case "In Transit":
+      case "PENDING":
+        return "bg-yellow-100 text-yellow-700";
+
+      case "IN_TRANSIT":
+      case "IN TRANSIT":
         return "bg-blue-100 text-blue-700";
 
-      case "Pending":
-        return "bg-yellow-100 text-yellow-700";
+      case "OUT_FOR_DELIVERY":
+        return "bg-orange-100 text-orange-700";
+
+      case "DELIVERED":
+        return "bg-green-100 text-green-700";
+
+      case "CANCELLED":
+        return "bg-red-100 text-red-700";
 
       default:
         return "bg-slate-100 text-slate-600";
     }
+  };
+
+  const formatStatus = (status) => {
+    if (!status) return "Unknown";
+
+    return status
+      .replaceAll("_", " ")
+      .toLowerCase()
+      .replace(/\b\w/g, (char) => char.toUpperCase());
+  };
+
+  const formatDate = (date) => {
+    if (!date) return "-";
+
+    return new Date(date).toLocaleDateString();
+  };
+
+  const handleViewDetails = (shipmentId) => {
+    navigate(`/business/shipments/${shipmentId}`);
   };
 
   return (
@@ -57,7 +96,10 @@ const [shipments, setShipments] = useState([]);
         <div className="flex items-center gap-3">
 
           <div className="p-2 bg-emerald-50 rounded-lg">
-            <Package size={22} className="text-emerald-600" />
+            <Package
+              size={22}
+              className="text-emerald-600"
+            />
           </div>
 
           <div>
@@ -107,7 +149,7 @@ const [shipments, setShipments] = useState([]);
                 placeholder="Search shipment..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full sm:w-64 border border-slate-300 rounded-lg py-2 pl-10 pr-3 text-sm outline-none focus:border-emerald-500"
+                className="w-full sm:w-64 border border-slate-300 rounded-lg py-2 pl-10 pr-3 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
               />
 
             </div>
@@ -131,6 +173,10 @@ const [shipments, setShipments] = useState([]);
                 </th>
 
                 <th className="px-5 py-3 font-medium">
+                  Tracking Number
+                </th>
+
+                <th className="px-5 py-3 font-medium">
                   Recipient
                 </th>
 
@@ -146,6 +192,10 @@ const [shipments, setShipments] = useState([]);
                   Date
                 </th>
 
+                <th className="px-5 py-3 font-medium text-center">
+                  Action
+                </th>
+
               </tr>
 
             </thead>
@@ -159,21 +209,44 @@ const [shipments, setShipments] = useState([]);
 
                   <tr
                     key={shipment.id}
-                    className="border-t border-slate-100 hover:bg-slate-50"
+                    className="border-t border-slate-100 hover:bg-slate-50 transition"
                   >
 
+                    {/* Shipment ID */}
                     <td className="px-5 py-4 font-medium text-emerald-600">
-                      {shipment.id}
+                      #{shipment.id}
                     </td>
 
-                   <td className="px-5 py-4 text-slate-700">
-                    {shipment.receiverName}
-                  </td>
 
+                    {/* Tracking Number */}
+                    <td className="px-5 py-4">
+
+                      <span className="font-medium text-slate-700">
+                        {shipment.trackingNumber || "-"}
+                      </span>
+
+                    </td>
+
+
+                    {/* Recipient */}
+                    <td className="px-5 py-4 text-slate-700">
+                      {shipment.receiverName}
+                    </td>
+
+
+                    {/* Route */}
                     <td className="px-5 py-4 text-slate-600">
-                      {shipment.pickupAddress} → {shipment.deliveryAddress}
+
+                      <div className="max-w-xs truncate">
+                        {shipment.pickupAddress}
+                        {" → "}
+                        {shipment.deliveryAddress}
+                      </div>
+
                     </td>
 
+
+                    {/* Status */}
                     <td className="px-5 py-4">
 
                       <span
@@ -181,13 +254,32 @@ const [shipments, setShipments] = useState([]);
                           shipment.status
                         )}`}
                       >
-                        {shipment.status}
+                        {formatStatus(shipment.status)}
                       </span>
 
                     </td>
 
+
+                    {/* Date */}
                     <td className="px-5 py-4 text-slate-500">
-                      {shipment.createdAt}
+                      {formatDate(shipment.createdAt)}
+                    </td>
+
+
+                    {/* View Details */}
+                    <td className="px-5 py-4 text-center">
+
+                      <button
+                        onClick={() =>
+                          handleViewDetails(shipment.id)
+                        }
+                        className="inline-flex items-center gap-2 px-3 py-2 text-xs font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition"
+                      >
+                        <Eye size={16} />
+
+                        View Details
+                      </button>
+
                     </td>
 
                   </tr>
@@ -199,7 +291,7 @@ const [shipments, setShipments] = useState([]);
                 <tr>
 
                   <td
-                    colSpan="5"
+                    colSpan="7"
                     className="text-center py-8 text-slate-500"
                   >
                     No shipments found.

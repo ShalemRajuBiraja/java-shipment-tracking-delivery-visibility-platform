@@ -17,8 +17,8 @@ const BusinessDashboard = () => {
       try {
 
         const response = await getShipmentsApi();
-
-        if (response.data.success) {
+        console.log("Fetched shipments:", response.data);
+        if (response.data.success === true) {
           setShipments(response.data.data);
         } else {
           console.error(

@@ -1,25 +1,13 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
-
 import {
-  UserRound,
-  Mail,
-  Phone,
   LockKeyhole,
+  Eye,
+  EyeOff,
 } from "lucide-react";
+import { updatePasswordApi } from "../../services/authService";
 
 const Settings = () => {
-
-  // ================= PROFILE DATA =================
-
-  const [profileData, setProfileData] = useState({
-    name: "Customer",
-    email: "customer@email.com",
-    phone: "+91 98765 43210",
-  });
-
-
-  // ================= PASSWORD DATA =================
 
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
@@ -28,40 +16,25 @@ const Settings = () => {
   });
 
 
-  // ================= PROFILE CHANGE =================
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
 
-  const handleProfileChange = (e) => {
-    setProfileData({
-      ...profileData,
-      [e.target.name]: e.target.value,
-    });
-  };
+  const [showNewPassword, setShowNewPassword] = useState(false);
 
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // ================= PROFILE SUBMIT =================
-
-  const handleProfileSubmit = (e) => {
-    e.preventDefault();
-
-    console.log("Profile Data:", profileData);
-
-    toast.success("Profile updated successfully!");
-  };
-
-
-  // ================= PASSWORD CHANGE =================
 
   const handlePasswordChange = (e) => {
+
     setPasswordData({
       ...passwordData,
       [e.target.name]: e.target.value,
     });
+
   };
 
 
-  // ================= PASSWORD SUBMIT =================
+  const handlePasswordSubmit = async (e) => {
 
-  const handlePasswordSubmit = (e) => {
     e.preventDefault();
 
     if (
@@ -69,36 +42,64 @@ const Settings = () => {
       !passwordData.newPassword ||
       !passwordData.confirmPassword
     ) {
+
       toast.error("Please fill all password fields.");
       return;
+
     }
 
-    if (passwordData.newPassword !== passwordData.confirmPassword) {
+
+    if (
+      passwordData.newPassword !==
+      passwordData.confirmPassword
+    ) {
+
       toast.error("New passwords do not match.");
       return;
+
     }
+
 
     if (passwordData.newPassword.length < 6) {
-      toast.error("Password must contain at least 6 characters.");
+
+      toast.error(
+        "Password must contain at least 6 characters."
+      );
+
       return;
+
     }
 
-    console.log("Password Data:", passwordData);
+     try {
+          const response = await updatePasswordApi(passwordData.currentPassword, passwordData.newPassword);
+    
+          if (response.data.success === true) {
+            toast.success("Password updated successfully!");
+            setPasswordData({
+              currentPassword: "",
+              newPassword: "",
+              confirmPassword: "",
+            });
+          } else {
+            toast.error("Failed to update password. Please try again.");
+          }
+    
+        } catch (error) {
+          console.error("Error updating password:", error);
+          toast.error("Failed to update password. Please try again.");
+        }
 
-    toast.success("Password updated successfully!");
+   
 
-    setPasswordData({
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: "",
-    });
   };
 
 
   return (
-    <div className="p-5 md:p-7 max-w-6xl">
 
-      {/* ================= PAGE HEADER ================= */}
+    <div className="p-5 md:p-7 max-w-4xl">
+
+
+      {/* Page Header */}
 
       <div className="mb-6">
 
@@ -107,293 +108,247 @@ const Settings = () => {
         </h1>
 
         <p className="text-sm text-slate-500 mt-1">
-          Manage your account information and security settings.
+          Manage your account security settings.
         </p>
 
       </div>
 
 
-      {/* ================= SETTINGS CARDS ================= */}
+      {/* Password Settings */}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+      <section className="bg-white border border-slate-200 rounded-xl shadow-sm max-w-lg">
 
 
-        {/* ================= PROFILE INFORMATION ================= */}
+        {/* Card Header */}
 
-        <section className="bg-white border border-slate-200 rounded-xl shadow-sm flex flex-col min-h-[450px]">
+        <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-100">
 
-          {/* Card Header */}
+          <div className="p-2 bg-emerald-50 rounded-lg">
 
-          <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-100">
-
-            <div className="p-2 bg-emerald-50 rounded-lg">
-
-              <UserRound
-                size={20}
-                className="text-emerald-600"
-              />
-
-            </div>
-
-            <div>
-
-              <h2 className="font-semibold text-slate-800">
-                Profile Information
-              </h2>
-
-              <p className="text-xs text-slate-500 mt-0.5">
-                Update your personal details
-              </p>
-
-            </div>
+            <LockKeyhole
+              size={20}
+              className="text-emerald-600"
+            />
 
           </div>
 
 
-          {/* Profile Form */}
+          <div>
 
-          <form
-            onSubmit={handleProfileSubmit}
-            className="p-5 flex flex-col flex-1"
-          >
+            <h2 className="font-semibold text-slate-800">
+              Password & Security
+            </h2>
 
-            <div className="space-y-4">
-
-
-              {/* Full Name */}
-
-              <div>
-
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                  Full Name
-                </label>
-
-                <input
-                  type="text"
-                  name="name"
-                  value={profileData.name}
-                  onChange={handleProfileChange}
-                  className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
-                />
-
-              </div>
-
-
-              {/* Email */}
-
-              <div>
-
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                  Email Address
-                </label>
-
-                <div className="relative">
-
-                  <Mail
-                    size={17}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-                  />
-
-                  <input
-                    type="email"
-                    name="email"
-                    value={profileData.email}
-                    onChange={handleProfileChange}
-                    className="w-full pl-10 pr-3 py-2.5 text-sm border border-slate-200 rounded-lg outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
-                  />
-
-                </div>
-
-              </div>
-
-
-              {/* Phone */}
-
-              <div>
-
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                  Phone Number
-                </label>
-
-                <div className="relative">
-
-                  <Phone
-                    size={17}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-                  />
-
-                  <input
-                    type="text"
-                    name="phone"
-                    value={profileData.phone}
-                    onChange={handleProfileChange}
-                    className="w-full pl-10 pr-3 py-2.5 text-sm border border-slate-200 rounded-lg outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
-                  />
-
-                </div>
-
-              </div>
-
-            </div>
-
-
-            {/* Save Button */}
-
-            <div className="mt-auto pt-5">
-
-              <button
-                type="submit"
-                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-lg text-sm font-medium transition"
-              >
-                Save Changes
-              </button>
-
-            </div>
-
-          </form>
-
-        </section>
-
-
-        {/* ================= PASSWORD SETTINGS ================= */}
-
-        <section className="bg-white border border-slate-200 rounded-xl shadow-sm flex flex-col min-h-[450px]">
-
-          {/* Card Header */}
-
-          <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-100">
-
-            <div className="p-2 bg-emerald-50 rounded-lg">
-
-              <LockKeyhole
-                size={20}
-                className="text-emerald-600"
-              />
-
-            </div>
-
-            <div>
-
-              <h2 className="font-semibold text-slate-800">
-                Password & Security
-              </h2>
-
-              <p className="text-xs text-slate-500 mt-0.5">
-                Update your account password
-              </p>
-
-            </div>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Update your account password
+            </p>
 
           </div>
 
-
-          {/* Password Form */}
-
-          <form
-            onSubmit={handlePasswordSubmit}
-            className="p-5 flex flex-col flex-1"
-          >
-
-            <div className="space-y-4">
+        </div>
 
 
-              {/* Current Password */}
+        {/* Password Form */}
 
-              <div>
+        <form
+          onSubmit={handlePasswordSubmit}
+          className="p-5"
+        >
 
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                  Current Password
-                </label>
+
+          <div className="space-y-4">
+
+
+            {/* Current Password */}
+
+            <div>
+
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">
+
+                Current Password
+
+              </label>
+
+
+              <div className="relative">
 
                 <input
-                  type="password"
+                  type={
+                    showCurrentPassword
+                      ? "text"
+                      : "password"
+                  }
                   name="currentPassword"
                   value={passwordData.currentPassword}
                   onChange={handlePasswordChange}
                   placeholder="Enter current password"
-                  className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                  className="w-full border border-slate-200 rounded-lg px-3 py-2.5 pr-11 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
                 />
+
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setShowCurrentPassword(
+                      !showCurrentPassword
+                    )
+                  }
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-emerald-600"
+                >
+
+                  {showCurrentPassword ? (
+                    <EyeOff size={18} />
+                  ) : (
+                    <Eye size={18} />
+                  )}
+
+                </button>
 
               </div>
 
+            </div>
 
-              {/* New Password */}
 
-              <div>
+            {/* New Password */}
 
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                  New Password
-                </label>
+            <div>
+
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">
+
+                New Password
+
+              </label>
+
+
+              <div className="relative">
 
                 <input
-                  type="password"
+                  type={
+                    showNewPassword
+                      ? "text"
+                      : "password"
+                  }
                   name="newPassword"
                   value={passwordData.newPassword}
                   onChange={handlePasswordChange}
                   placeholder="Enter new password"
-                  className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                  className="w-full border border-slate-200 rounded-lg px-3 py-2.5 pr-11 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
                 />
+
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setShowNewPassword(
+                      !showNewPassword
+                    )
+                  }
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-emerald-600"
+                >
+
+                  {showNewPassword ? (
+                    <EyeOff size={18} />
+                  ) : (
+                    <Eye size={18} />
+                  )}
+
+                </button>
 
               </div>
 
+            </div>
 
-              {/* Confirm Password */}
 
-              <div>
+            {/* Confirm Password */}
 
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                  Confirm New Password
-                </label>
+            <div>
+
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">
+
+                Confirm New Password
+
+              </label>
+
+
+              <div className="relative">
 
                 <input
-                  type="password"
+                  type={
+                    showConfirmPassword
+                      ? "text"
+                      : "password"
+                  }
                   name="confirmPassword"
                   value={passwordData.confirmPassword}
                   onChange={handlePasswordChange}
                   placeholder="Confirm new password"
-                  className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                  className="w-full border border-slate-200 rounded-lg px-3 py-2.5 pr-11 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
                 />
+
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setShowConfirmPassword(
+                      !showConfirmPassword
+                    )
+                  }
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-emerald-600"
+                >
+
+                  {showConfirmPassword ? (
+                    <EyeOff size={18} />
+                  ) : (
+                    <Eye size={18} />
+                  )}
+
+                </button>
 
               </div>
 
-
-              {/* Password Requirement */}
-
-              <p className="text-xs text-slate-400">
-                Password must contain at least 6 characters.
-              </p>
-
             </div>
 
 
-            {/* Update Button */}
+            <p className="text-xs text-slate-400">
 
-            <div className="mt-auto pt-5">
+              Password must contain at least 6 characters.
 
-              <button
-                type="submit"
-                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-lg text-sm font-medium transition"
-              >
-                Update Password
-              </button>
+            </p>
 
-            </div>
-
-          </form>
-
-        </section>
-
-      </div>
+          </div>
 
 
-      {/* Footer */}
+          <div className="mt-5">
+
+            <button
+              type="submit"
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-lg text-sm font-medium transition"
+            >
+
+              Update Password
+
+            </button>
+
+          </div>
+
+
+        </form>
+
+      </section>
+
 
       <footer className="text-center text-xs text-slate-500 py-5">
+
         © 2026 QuickShip. All rights reserved.
+
       </footer>
 
+
     </div>
+
   );
+
 };
+
 
 export default Settings;

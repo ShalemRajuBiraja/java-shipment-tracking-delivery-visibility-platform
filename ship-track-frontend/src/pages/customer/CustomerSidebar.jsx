@@ -33,6 +33,11 @@ const CustomerSidebar = () => {
       icon: Settings,
       path: "/customer/settings",
     },
+    {
+      name: "Support",
+      icon: Headphones,
+      path: "/customer/support",
+    }
   ];
 
   const handleLogout = () => {
@@ -51,7 +56,8 @@ const CustomerSidebar = () => {
   };
 
   const handleSupportClick = () => {
-    alert("Support Agent is currently unavailable!");
+    navigate("/customer/support");
+    setIsOpen(false);
   };
 
   return (
@@ -169,25 +175,6 @@ const CustomerSidebar = () => {
 
 
           {/* Compact Support */}
-          <button
-            onClick={handleSupportClick}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-emerald-900 hover:bg-emerald-800 border border-emerald-800 transition text-left mb-4"
-          >
-            <Headphones
-              size={20}
-              className="text-emerald-300 shrink-0"
-            />
-
-            <div>
-              <p className="text-sm font-semibold">
-                Need Help?
-              </p>
-
-              <p className="text-xs text-emerald-200 mt-0.5">
-                Contact Support Agent
-              </p>
-            </div>
-          </button>
 
 
           {/* Logout */}

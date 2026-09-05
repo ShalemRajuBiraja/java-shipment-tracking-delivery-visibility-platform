@@ -15,3 +15,10 @@ export const loginApi = async (formData) => {
 export const adminLoginApi = async (adminData) => {
   return await axiosInstance.post(API_END_POINTS.adminLogin, adminData);
 };
+
+export const updatePasswordApi = async (currentPassword, newPassword) => {
+  return await axiosInstance.put(API_END_POINTS.PASSWORD_UPDATE, {
+    currentPassword,
+    newPassword
+  });
+};

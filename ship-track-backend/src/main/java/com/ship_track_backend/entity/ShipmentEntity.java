@@ -32,11 +32,38 @@ public class ShipmentEntity {
     @Column(name = "receiver_phone", nullable = false)
     private String receiverPhone;
 
+
+    // ================= PICKUP LOCATION =================
+
     @Column(name = "pickup_address", nullable = false, columnDefinition = "TEXT")
     private String pickupAddress;
 
+    @Column(name = "pickup_city", nullable = false)
+    private String pickupCity;
+
+    @Column(name = "pickup_state", nullable = false)
+    private String pickupState;
+
+    @Column(name = "pickup_pincode", nullable = false)
+    private String pickupPincode;
+
+
+    // ================= DELIVERY LOCATION =================
+
     @Column(name = "delivery_address", nullable = false, columnDefinition = "TEXT")
     private String deliveryAddress;
+
+    @Column(name = "delivery_city", nullable = false)
+    private String deliveryCity;
+
+    @Column(name = "delivery_state", nullable = false)
+    private String deliveryState;
+
+    @Column(name = "delivery_pincode", nullable = false)
+    private String deliveryPincode;
+
+
+    // ================= PACKAGE DETAILS =================
 
     @Column(name = "package_description", columnDefinition = "TEXT")
     private String packageDescription;
@@ -44,13 +71,22 @@ public class ShipmentEntity {
     @Column
     private BigDecimal weight;
 
+
+    // ================= SHIPMENT STATUS =================
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ShipmentStatus status;
 
+
+    // ================= ASSIGNED OPERATOR =================
+
     @ManyToOne
     @JoinColumn(name = "assigned_operator_id")
     private UserEntity assignedOperator;
+
+
+    // ================= TIMESTAMPS =================
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

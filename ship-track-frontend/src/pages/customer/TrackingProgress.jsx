@@ -1,120 +1,248 @@
-import { Info } from "lucide-react";
+import { Check, Info, X } from "lucide-react";
 
-const TrackingProgress = () => {
+const TrackingProgress = ({ shipment }) => {
+
   const steps = [
     {
-      title: "Order Placed",
-      date: "30 Aug 2025",
-      time: "10:00 AM",
-      completed: true,
+      status: "CREATED",
+      label: "Created",
     },
     {
-      title: "Packed",
-      date: "30 Aug 2025",
-      time: "11:30 AM",
-      completed: true,
+      status: "PICKED_UP",
+      label: "Picked Up",
     },
     {
-      title: "Picked",
-      date: "30 Aug 2025",
-      time: "01:00 PM",
-      completed: true,
+      status: "IN_TRANSIT",
+      label: "In Transit",
     },
     {
-      title: "On Going",
-      date: "30 Aug 2025",
-      time: "03:30 PM",
-      completed: true,
-      active: true,
+      status: "OUT_FOR_DELIVERY",
+      label: "Out for Delivery",
     },
     {
-      title: "Out for Delivery",
-      date: "Pending",
-      completed: false,
-    },
-    {
-      title: "Delivered",
-      date: "Pending",
-      completed: false,
+      status: "DELIVERED",
+      label: "Delivered",
     },
   ];
 
+
+  // Find current shipment status position
+  const currentIndex = steps.findIndex(
+    (step) => step.status === shipment.currentStatus
+  );
+
+
+  // Check if shipment is cancelled
+  const isCancelled =
+    shipment.currentStatus === "CANCELLED";
+
+
+  // Find tracking record for each status
+  const getTrackingRecord = (status) => {
+
+    return shipment.trackingHistory?.find(
+      (history) => history.status === status
+    );
+
+  };
+
+
+  // Format date and time
+  const formatDateTime = (dateTime) => {
+
+    if (!dateTime) return "Pending";
+
+    return new Date(dateTime).toLocaleString(
+      "en-IN",
+      {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      }
+    );
+
+  };
+
+
   return (
-    <section className="bg-white border border-slate-200 rounded-xl shadow-sm p-4 md:p-5 mb-4">
+    <section className="bg-white border border-slate-200 rounded-xl shadow-sm p-5 md:p-6 mb-4">
 
-      {/* Tracking Number */}
-      <h2 className="text-base font-bold text-slate-800 mb-6">
-        Tracking Number:
-        <span className="text-emerald-600 ml-2">
-          TRK1234567890
-        </span>
-      </h2>
+      {/* Header */}
+      <div className="mb-10">
 
-      {/* Progress Section */}
+        <h2 className="text-lg font-bold text-slate-800">
+          Shipment Progress
+        </h2>
+
+        <p className="text-sm text-slate-500 mt-1">
+
+          Tracking Number:
+
+          <span className="font-semibold text-emerald-600 ml-2">
+            {shipment.trackingNumber}
+          </span>
+
+        </p>
+
+      </div>
+
+
+      {/* Progress Line */}
       <div className="relative">
 
-        {/* Background Progress Line */}
-        <div className="absolute top-[9px] left-[8%] right-[8%] h-[2px] bg-slate-200 hidden lg:block" />
+        {/* Background Line */}
+        <div className="absolute top-3 left-[10%] right-[10%] h-[3px] bg-slate-200 hidden md:block" />
 
-        {/* Completed Progress Line */}
-        <div className="absolute top-[9px] left-[8%] w-[50%] h-[2px] bg-emerald-600 hidden lg:block" />
+
+        {/* Completed Line */}
+        {!isCancelled && currentIndex >= 0 && (
+
+          <div
+            className="absolute top-3 left-[10%] h-[3px] bg-emerald-600 transition-all duration-500 hidden md:block"
+            style={{
+              width: `${(currentIndex / (steps.length - 1)) * 80}%`,
+            }}
+          />
+
+        )}
+
 
         {/* Steps */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-y-6 relative">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 relative">
 
-          {steps.map((step) => (
-            <div
-              key={step.title}
-              className="flex flex-col items-center text-center"
-            >
+          {steps.map((step, index) => {
 
-              {/* Small Status Dot */}
+            const isCompleted =
+              !isCancelled && index <= currentIndex;
+
+            const isCurrent =
+              !isCancelled && index === currentIndex;
+
+            const trackingRecord =
+              getTrackingRecord(step.status);
+
+
+            return (
+
               <div
-                className={`w-5 h-5 rounded-full relative z-10 ${
-                  step.completed
-                    ? "bg-emerald-600"
-                    : "bg-white border-2 border-slate-300"
-                }`}
-              />
-
-              {/* Status Name */}
-              <h3
-                className={`font-semibold text-sm mt-3 ${
-                  step.active
-                    ? "text-emerald-700"
-                    : "text-slate-800"
-                }`}
+                key={step.status}
+                className="flex md:flex-col items-center md:text-center gap-3 md:gap-0"
               >
-                {step.title}
-              </h3>
 
-              {/* Date and Time */}
-              {step.completed ? (
-                <p className="text-xs text-slate-500 mt-1">
-                  {step.date} · {step.time}
-                </p>
-              ) : (
-                <p className="text-xs text-slate-500 mt-1">
-                  Pending
-                </p>
-              )}
-            </div>
-          ))}
+                {/* Circle */}
+                <div
+                  className={`w-6 h-6 rounded-full flex items-center justify-center relative z-10 shrink-0 ${
+                    isCompleted
+                      ? "bg-emerald-600"
+                      : "bg-white border-2 border-slate-300"
+                  }`}
+                >
+
+                  {isCompleted && (
+                    <Check
+                      size={14}
+                      className="text-white"
+                    />
+                  )}
+
+                </div>
+
+
+                {/* Status */}
+                <div className="md:mt-3">
+
+                  <h3
+                    className={`text-sm font-semibold ${
+                      isCurrent
+                        ? "text-emerald-700"
+                        : isCompleted
+                        ? "text-slate-800"
+                        : "text-slate-400"
+                    }`}
+                  >
+                    {step.label}
+                  </h3>
+
+
+                  {/* Date */}
+                  <p className="text-xs text-slate-500 mt-1">
+
+                    {trackingRecord
+                      ? formatDateTime(
+                          trackingRecord.createdAt
+                        )
+                      : "Pending"}
+
+                  </p>
+
+
+                  {/* Location */}
+                  {trackingRecord?.location && (
+
+                    <p className="text-xs text-slate-400 mt-1">
+
+                      {trackingRecord.location}
+
+                    </p>
+
+                  )}
+
+                </div>
+
+              </div>
+
+            );
+
+          })}
+
         </div>
+
       </div>
 
-      {/* Status Message */}
-      <div className="mt-6 border-l-4 border-emerald-600 bg-emerald-50 rounded-md px-4 py-2.5 flex items-center gap-3">
 
-        <Info
-          size={18}
-          className="text-emerald-700 shrink-0"
-        />
+      {/* Current Status Message */}
 
-        <p className="text-sm text-slate-700">
-          Your shipment is on the way.
-        </p>
-      </div>
+      {isCancelled ? (
+
+        <div className="mt-8 border-l-4 border-red-500 bg-red-50 rounded-md px-4 py-3 flex items-center gap-3">
+
+          <X
+            size={19}
+            className="text-red-600 shrink-0"
+          />
+
+          <p className="text-sm font-semibold text-red-700">
+            This shipment has been cancelled.
+          </p>
+
+        </div>
+
+      ) : (
+
+        <div className="mt-8 border-l-4 border-emerald-600 bg-emerald-50 rounded-md px-4 py-3 flex items-center gap-3">
+
+          <Info
+            size={19}
+            className="text-emerald-700 shrink-0"
+          />
+
+          <p className="text-sm text-slate-700">
+
+            Current Status:
+
+            <span className="font-semibold text-emerald-700 ml-2">
+
+              {shipment.currentStatus?.replaceAll("_", " ")}
+
+            </span>
+
+          </p>
+
+        </div>
+
+      )}
 
     </section>
   );

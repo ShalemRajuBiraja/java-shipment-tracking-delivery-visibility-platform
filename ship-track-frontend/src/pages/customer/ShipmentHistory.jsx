@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   Package,
   MapPin,
@@ -5,49 +6,100 @@ import {
   Search,
 } from "lucide-react";
 
+// Import your history API
+// import { getShipmentHistoryApi } from "../../services/shipmentService";
+
 const ShipmentHistory = () => {
-  const shipments = [
-    {
-      trackingNumber: "TRK1234567890",
-      receiver: "Ramesh Kumar",
-      destination: "Vijayawada, Andhra Pradesh",
-      date: "30 Aug 2026",
-      status: "On Going",
-    },
-    {
-      trackingNumber: "TRK9876543210",
-      receiver: "Suresh Kumar",
-      destination: "Hyderabad, Telangana",
-      date: "25 Aug 2026",
-      status: "Delivered",
-    },
-    {
-      trackingNumber: "TRK4567891230",
-      receiver: "Anil Kumar",
-      destination: "Bangalore, Karnataka",
-      date: "20 Aug 2026",
-      status: "Delivered",
-    },
-    {
-      trackingNumber: "TRK7891234560",
-      receiver: "Rajesh Kumar",
-      destination: "Chennai, Tamil Nadu",
-      date: "15 Aug 2026",
-      status: "Delivered",
-    },
-  ];
+
+  const [shipments, setShipments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+
+
+  const fetchShipmentHistory = async () => {
+
+  //   try {
+
+  //     setLoading(true);
+
+  //     const response = await getShipmentHistoryApi();
+
+  //     if (response.data.success) {
+  //       setShipments(response.data.data);
+  //     }
+
+  //   } catch (error) {
+
+  //     console.error(
+  //       "Error fetching shipment history:",
+  //       error
+  //     );
+
+  //     setShipments([]);
+
+  //   } finally {
+
+  //     setLoading(false);
+
+  //   }
+  };
+
+
+  useEffect(() => {
+
+    fetchShipmentHistory();
+
+  }, []);
+
+
+  const filteredShipments = shipments.filter((shipment) =>
+    shipment.trackingNumber
+      ?.toLowerCase()
+      .includes(searchTerm.toLowerCase())
+  );
+
 
   const getStatusStyle = (status) => {
-    if (status === "Delivered") {
+
+    if (status === "DELIVERED") {
       return "bg-emerald-50 text-emerald-700 border-emerald-200";
     }
 
-    if (status === "On Going") {
+    if (status === "IN_TRANSIT") {
       return "bg-blue-50 text-blue-700 border-blue-200";
+    }
+
+    if (status === "CREATED") {
+      return "bg-yellow-50 text-yellow-700 border-yellow-200";
     }
 
     return "bg-slate-100 text-slate-600 border-slate-200";
   };
+
+
+  const formatDate = (date) => {
+
+    if (!date) return "-";
+
+    return new Date(date).toLocaleDateString(
+      "en-IN",
+      {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      }
+    );
+  };
+
+
+  if (loading) {
+    return (
+      <div className="text-center py-10 text-slate-500">
+        Loading shipment history...
+      </div>
+    );
+  }
+
 
   return (
     <div>
@@ -78,6 +130,10 @@ const ShipmentHistory = () => {
 
           <input
             type="text"
+            value={searchTerm}
+            onChange={(e) =>
+              setSearchTerm(e.target.value)
+            }
             placeholder="Search by tracking number"
             className="w-full pl-10 pr-4 py-2.5 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm"
           />
@@ -90,89 +146,98 @@ const ShipmentHistory = () => {
       {/* Shipment List */}
       <div className="space-y-4">
 
-        {shipments.map((shipment) => (
+        {filteredShipments.length === 0 ? (
 
-          <div
-            key={shipment.trackingNumber}
-            className="bg-white border border-slate-200 rounded-xl shadow-sm p-4 md:p-5 hover:border-emerald-200 transition"
-          >
+          <div className="text-center py-10 text-slate-500">
+            No shipments found.
+          </div>
 
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        ) : (
 
-              {/* Shipment Information */}
-              <div className="flex items-start gap-3">
+          filteredShipments.map((shipment) => (
 
-                <div className="w-10 h-10 bg-emerald-50 rounded-lg flex items-center justify-center shrink-0">
+            <div
+              key={shipment.trackingNumber}
+              className="bg-white border border-slate-200 rounded-xl shadow-sm p-4 md:p-5 hover:border-emerald-200 transition"
+            >
 
-                  <Package
-                    size={20}
-                    className="text-emerald-600"
+              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+
+                {/* Tracking Information */}
+                <div className="flex items-start gap-3">
+
+                  <div className="w-10 h-10 bg-emerald-50 rounded-lg flex items-center justify-center shrink-0">
+
+                    <Package
+                      size={20}
+                      className="text-emerald-600"
+                    />
+
+                  </div>
+
+
+                  <div>
+
+                    <p className="font-semibold text-slate-800">
+                      {shipment.trackingNumber}
+                    </p>
+
+                    <p className="text-sm text-slate-500 mt-1">
+                      Receiver: {shipment.receiverName || "-"}
+                    </p>
+
+                  </div>
+
+                </div>
+
+
+                {/* Destination */}
+                <div className="flex items-center gap-2 text-sm text-slate-600">
+
+                  <MapPin
+                    size={17}
+                    className="text-emerald-600 shrink-0"
                   />
 
-                </div>
-
-
-                <div>
-
-                  <p className="font-semibold text-slate-800">
-                    {shipment.trackingNumber}
-                  </p>
-
-                  <p className="text-sm text-slate-500 mt-1">
-                    Receiver: {shipment.receiver}
-                  </p>
+                  <span>
+                    {shipment.deliveryAddress}
+                  </span>
 
                 </div>
 
-              </div>
+
+                {/* Date */}
+                <div className="flex items-center gap-2 text-sm text-slate-500">
+
+                  <Calendar size={16} />
+
+                  <span>
+                    {formatDate(shipment.createdAt)}
+                  </span>
+
+                </div>
 
 
-              {/* Destination */}
-              <div className="flex items-center gap-2 text-sm text-slate-600">
-
-                <MapPin
-                  size={17}
-                  className="text-emerald-600 shrink-0"
-                />
-
-                <span>
-                  {shipment.destination}
+                {/* Status */}
+                <span
+                  className={`w-fit px-3 py-1.5 rounded-full border text-xs font-semibold ${getStatusStyle(
+                    shipment.status
+                  )}`}
+                >
+                  {shipment.status?.replaceAll("_", " ")}
                 </span>
 
               </div>
-
-
-              {/* Date */}
-              <div className="flex items-center gap-2 text-sm text-slate-500">
-
-                <Calendar size={16} />
-
-                <span>
-                  {shipment.date}
-                </span>
-
-              </div>
-
-
-              {/* Status */}
-              <span
-                className={`w-fit px-3 py-1.5 rounded-full border text-xs font-semibold ${getStatusStyle(
-                  shipment.status
-                )}`}
-              >
-                {shipment.status}
-              </span>
 
             </div>
 
-          </div>
+          ))
 
-        ))}
+        )}
 
       </div>
 
 
-      {/* Footer */}
       <footer className="text-center text-xs text-slate-500 py-5">
         © 2026 QuickShip. All rights reserved.
       </footer>

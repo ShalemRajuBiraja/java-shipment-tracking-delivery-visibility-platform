@@ -48,8 +48,10 @@ import BusinessLayout from "./pages/Business/BusinessLayout";
 import BusinessDashboard from "./pages/Business/BusinessDashboard";
 import BusinessShipments from "./pages/Business/BusinessShipments";
 import CreateBusinessShipment from "./pages/Business/CreateBusinessShipment";
-import BusinessReports from "./pages/Business/BusinessReports";
 import BusinessSettings from "./pages/Business/BusinessSettings";
+import BusinessSupport from "./pages/Business/BusinessSupport";
+import BusinessShipmentDetails from "./pages/Business/BusinessShipmentDetails";
+import CustomerSupport from "./pages/Customer/CustomerSupport";
 
 function App() {
   return (
@@ -67,7 +69,9 @@ function App() {
         <Route path="/customer" element={ <ProtectedRoute allowedRole="CUSTOMER"> <CustomerLayout /> </ProtectedRoute> } >
         <Route path="dashboard" element={<CustomerDashboard />} />
         <Route path="shipment-history" element={<ShipmentHistory />} />
-        <Route path="settings"element={<CustomerSettings />}/></Route>
+        <Route path="settings"element={<CustomerSettings />}/>
+        <Route path="support" element={<CustomerSupport />}/>
+        </Route>
 
 
         {/*ADMIN ROUTES*/}
@@ -76,7 +80,8 @@ function App() {
         <Route path="settings" element={<Settings />}/>
         <Route path="users" element={<Users />} />
         <Route path="create-shipment"  element={<CreateShipment />} />
-        <Route path="shipments"  element={<Shipments />}/></Route>
+        <Route path="shipments"  element={<Shipments />}/>
+        </Route>
 
         {/* LOGISTICS OPERATOR ROUTES */}
         <Route path="/logistics-operator" element={<ProtectedRoute allowedRole="LOGISTICS_OPERATOR"><OperatorLayout /></ProtectedRoute>}>
@@ -84,7 +89,8 @@ function App() {
         <Route path="shipments" element={<OperatorShipments />} />
         <Route path="track" element={<TrackShipment />} />
         <Route path="reports" element={<Reports />} />
-        <Route path="settings" element={<OperatorSettings />} /></Route>
+        <Route path="settings" element={<OperatorSettings />} />
+        </Route>
 
         {/* SUPPORT AGENT ROUTES */}
       <Route path="/support-agent" element={<ProtectedRoute allowedRole="SUPPORT_AGENT"><SupportLayout /></ProtectedRoute>}>
@@ -100,10 +106,10 @@ function App() {
       <Route path="dashboard" element={<BusinessDashboard />} />
       <Route path="shipments" element={<BusinessShipments />} />
       <Route path="create-shipment" element={<CreateBusinessShipment />} /> 
-       <Route path="reports" element={<BusinessReports />} /> 
       <Route path="settings" element={<BusinessSettings />} />
-
-</Route>
+      <Route path="support" element={<BusinessSupport />}/>
+      <Route path="/business/shipments/:id" element={<BusinessShipmentDetails />}/>
+      </Route>
 
       </Routes>
 

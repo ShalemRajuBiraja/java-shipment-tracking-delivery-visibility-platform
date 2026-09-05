@@ -20,10 +20,15 @@ import com.ship_track_backend.repository.ShipmentRepository;
 import com.ship_track_backend.repository.ShipmentTrackingRepository;
 import com.ship_track_backend.repository.UserRepository;
 
+import jakarta.transaction.Transactional;
+
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.ship_track_backend.dto.ShipmentResponseDto;
+import com.ship_track_backend.dto.TrackingHistoryDto;
+import com.ship_track_backend.dto.TrackingResponseDto;
 import com.ship_track_backend.enums.Role;
 
 @Service
@@ -38,59 +43,162 @@ public class ShipmentService {
     @Autowired
     private AuthRepository authRepository;
 
+    
     private String generateTrackingNumber() {
 
         return "SHP-" + System.currentTimeMillis();
     }
+    
 
+    @Transactional
     public void createShipment(CreateShipmentData createShipmentData) {
 
-        // Get currently logged-in user's email
         String email = SecurityContextHolder
                 .getContext()
                 .getAuthentication()
                 .getName();
 
-        // Find logged-in Business Client
         UserEntity sender = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
                         "User not found"
                 ));
 
-        // Create shipment entity
         ShipmentEntity shipment = new ShipmentEntity();
+
+        // ================= SENDER =================
 
         shipment.setSender(sender);
 
-        shipment.setReceiverName(createShipmentData.getReceiverName());
 
-        shipment.setReceiverPhone(createShipmentData.getReceiverPhone());
-        
-        shipment.setPickupAddress(createShipmentData.getPickupAddress() );
-        
-        shipment.setDeliveryAddress(createShipmentData.getDeliveryAddress() );
-        
-        shipment.setPackageDescription( createShipmentData.getPackageDescription() );
+        // ================= RECEIVER DETAILS =================
 
-        shipment.setWeight(createShipmentData.getWeight() );
+        shipment.setReceiverName(
+                createShipmentData.getReceiverName()
+        );
 
-        shipment.setStatus(ShipmentStatus.CREATED);
+        shipment.setReceiverPhone(
+                createShipmentData.getReceiverPhone()
+        );
 
-        shipment.setCreatedAt(LocalDateTime.now());
 
-        shipment.setUpdatedAt(LocalDateTime.now());
+        // ================= PICKUP LOCATION =================
 
-        shipment.setTrackingNumber(generateTrackingNumber());
-        
-        // Save shipment
-        shipmentRepository.save(shipment);
+        shipment.setPickupAddress(
+                createShipmentData.getPickupAddress()
+        );
+
+        shipment.setPickupCity(
+                createShipmentData.getPickupCity()
+        );
+
+        shipment.setPickupState(
+                createShipmentData.getPickupState()
+        );
+
+        shipment.setPickupPincode(
+                createShipmentData.getPickupPincode()
+        );
+
+
+        // ================= DELIVERY LOCATION =================
+
+        shipment.setDeliveryAddress(
+                createShipmentData.getDeliveryAddress()
+        );
+
+        shipment.setDeliveryCity(
+                createShipmentData.getDeliveryCity()
+        );
+
+        shipment.setDeliveryState(
+                createShipmentData.getDeliveryState()
+        );
+
+        shipment.setDeliveryPincode(
+                createShipmentData.getDeliveryPincode()
+        );
+
+
+        // ================= PACKAGE DETAILS =================
+
+        shipment.setPackageDescription(
+                createShipmentData.getPackageDescription()
+        );
+
+        shipment.setWeight(
+                createShipmentData.getWeight()
+        );
+
+
+        // ================= STATUS =================
+
+        shipment.setStatus(
+                ShipmentStatus.CREATED
+        );
+
+
+        // ================= TIMESTAMPS =================
+
+        shipment.setCreatedAt(
+                LocalDateTime.now()
+        );
+
+        shipment.setUpdatedAt(
+                LocalDateTime.now()
+        );
+
+
+        // ================= TRACKING NUMBER =================
+
+        shipment.setTrackingNumber(
+                generateTrackingNumber()
+        );
+
+
+        // ================= SAVE SHIPMENT =================
+
+        ShipmentEntity savedShipment =
+                shipmentRepository.save(shipment);
+
+
+        // ================= INITIAL TRACKING HISTORY =================
+
+        ShipmentTrackingEntity tracking =
+                new ShipmentTrackingEntity();
+
+        tracking.setShipment(savedShipment);
+
+        tracking.setStatus(
+                ShipmentStatus.CREATED
+        );
+
+        // More meaningful than only the street address
+        tracking.setLocation(
+                savedShipment.getPickupCity()
+                        + ", "
+                        + savedShipment.getPickupState()
+        );
+
+        tracking.setDescription(
+                "Shipment created"
+        );
+
+        tracking.setUpdatedBy(sender);
+
+        tracking.setCreatedAt(
+                LocalDateTime.now()
+        );
+
+        shipmentTrackingRepository.save(tracking);
     }
     
     public List<ShipmentResponseDto> getAllShipments(String email) {
 
+
         List<ShipmentEntity> shipments =
-                shipmentRepository.findBySender_Email(email);
+                shipmentRepository.findBySenderId_Email(email);
+
 
         return shipments.stream()
                 .map(shipment -> {
@@ -101,36 +209,30 @@ public class ShipmentService {
                     responseDto.setId(shipment.getId());
                     responseDto.setTrackingNumber(shipment.getTrackingNumber());
 
-                    // Sender
                     responseDto.setSenderName(
                             shipment.getSender().getName()
                     );
 
-                    // Receiver
                     responseDto.setReceiverName(shipment.getReceiverName());
                     responseDto.setReceiverPhone(shipment.getReceiverPhone());
 
-                    // Addresses
                     responseDto.setPickupAddress(shipment.getPickupAddress());
                     responseDto.setDeliveryAddress(shipment.getDeliveryAddress());
 
-                    // Package
                     responseDto.setPackageDescription(
                             shipment.getPackageDescription()
                     );
+
                     responseDto.setWeight(shipment.getWeight());
 
-                    // Status
                     responseDto.setStatus(shipment.getStatus());
 
-                    // Assigned Operator
                     if (shipment.getAssignedOperator() != null) {
                         responseDto.setAssignedOperatorName(
                                 shipment.getAssignedOperator().getName()
                         );
                     }
 
-                    // Dates
                     responseDto.setCreatedAt(shipment.getCreatedAt());
                     responseDto.setUpdatedAt(shipment.getUpdatedAt());
 
@@ -139,277 +241,135 @@ public class ShipmentService {
                 .collect(Collectors.toList());
     }
     
-    public ShipmentResponseDto getShipmentById(Long shipmentId) {
+    public TrackingResponseDto getTrackingDetails(String trackingNumber) {
 
-        ShipmentEntity shipment = shipmentRepository.findById(shipmentId)
+        // Find shipment
+        ShipmentEntity shipment = shipmentRepository
+                .findByTrackingNumber(trackingNumber)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
-                        "Shipment not found"
+                        "Tracking number not found"
                 ));
 
-        String email = SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getName();
+        // Find tracking history
+        List<ShipmentTrackingEntity> trackingRecords =
+                shipmentTrackingRepository
+                        .findByShipmentTrackingNumberOrderByCreatedAtAsc(
+                                trackingNumber
+                        );
 
-        UserEntity loggedInUser = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "User not found"
-                ));
+        // Create response
+        TrackingResponseDto response = new TrackingResponseDto();
 
-        boolean hasAccess = false;
-
-        if (loggedInUser.getRole() == Role.ADMIN ||
-                loggedInUser.getRole() == Role.SUPPORT_AGENT) {
-
-            hasAccess = true;
-
-        } else if (loggedInUser.getRole() == Role.BUSINESS_CLIENT) {
-
-            hasAccess = shipment.getSender()
-                    .getId()
-                    .equals(loggedInUser.getId());
-
-        } else if (loggedInUser.getRole() == Role.LOGISTICS_OPERATOR) {
-
-            hasAccess = shipment.getAssignedOperator() != null &&
-                    shipment.getAssignedOperator()
-                            .getId()
-                            .equals(loggedInUser.getId());
-        }
-
-        if (!hasAccess) {
-            throw new ResponseStatusException(
-                    HttpStatus.FORBIDDEN,
-                    "You are not authorized to view this shipment"
-            );
-        }
-
-        ShipmentResponseDto response = new ShipmentResponseDto();
-
-        response.setId(shipment.getId());
         response.setTrackingNumber(shipment.getTrackingNumber());
-        response.setSenderName(shipment.getSender().getName());
-        response.setReceiverName(shipment.getReceiverName());
-        response.setReceiverPhone(shipment.getReceiverPhone());
-        response.setPickupAddress(shipment.getPickupAddress());
-        response.setDeliveryAddress(shipment.getDeliveryAddress());
-        response.setPackageDescription(shipment.getPackageDescription());
-        response.setWeight(shipment.getWeight());
-        response.setStatus(shipment.getStatus());
-        if (shipment.getAssignedOperator() != null) {
-            response.setAssignedOperatorName(
-                shipment.getAssignedOperator().getName()
-            );
-        }
+
+        response.setCurrentStatus(shipment.getStatus());
+
         response.setCreatedAt(shipment.getCreatedAt());
-        response.setUpdatedAt(shipment.getUpdatedAt());
+
+        response.setSenderName(shipment.getSender().getName());
+
+        response.setReceiverName(shipment.getReceiverName());
+
+        response.setReceiverPhone(shipment.getReceiverPhone());
+
+        response.setPackageDescription(shipment.getPackageDescription());
+
+        response.setWeight(shipment.getWeight());
+
+        response.setPickupAddress(shipment.getPickupAddress());
+
+        response.setDeliveryAddress(shipment.getDeliveryAddress());
+
+        // Convert tracking entities to DTO
+        List<TrackingHistoryDto> trackingHistory =
+                trackingRecords.stream()
+                        .map(tracking -> {
+
+                            TrackingHistoryDto historyDto =
+                                    new TrackingHistoryDto();
+
+                            historyDto.setStatus(tracking.getStatus());
+                            historyDto.setLocation(tracking.getLocation());
+                            historyDto.setDescription(
+                                    tracking.getDescription()
+                            );
+                            historyDto.setCreatedAt(
+                                    tracking.getCreatedAt()
+                            );
+
+                            return historyDto;
+                        })
+                        .collect(Collectors.toList());
+
+        response.setTrackingHistory(trackingHistory);
 
         return response;
     }
     
-    public void updateShipment(Long shipmentId, UpdateShipmentData updateShipmentData) {
+    
+    public ShipmentResponseDto getShipmentById(Long id) {
 
-        // Find shipment
-        ShipmentEntity shipment = shipmentRepository.findById(shipmentId)
+        // ================= FIND SHIPMENT =================
+
+        ShipmentEntity shipment = shipmentRepository
+                .findById(id)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
                         "Shipment not found"
                 ));
 
-        // Get logged-in user's email
-        String email = SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getName();
 
-        // Find logged-in user
-        UserEntity loggedInUser = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "User not found"
-                ));
+        // ================= CREATE RESPONSE DTO =================
 
-        // Check authorization
-        boolean isAdmin = loggedInUser.getRole() == Role.ADMIN;
+        ShipmentResponseDto responseDto = new ShipmentResponseDto();
 
-        boolean isShipmentOwner =
-                shipment.getSender().getId().equals(loggedInUser.getId());
 
-        if (!isAdmin && !isShipmentOwner) {
-            throw new ResponseStatusException(
-                    HttpStatus.FORBIDDEN,
-                    "You are not authorized to update this shipment"
+        // ================= BASIC DETAILS =================
+
+        responseDto.setId(shipment.getId());
+
+        responseDto.setTrackingNumber(shipment.getTrackingNumber());
+
+			// ================= SENDER =================
+			responseDto.setSenderName(shipment.getSender().getName());
+			 // ================= RECEIVER =================
+			 responseDto.setReceiverName(shipment.getReceiverName());
+			 responseDto.setReceiverPhone(shipment.getReceiverPhone());
+			// ================= PICKUP LOCATION =================
+			responseDto.setPickupAddress(shipment.getPickupAddress());
+			 responseDto.setPickupCity(shipment.getPickupCity());
+			 responseDto.setPickupState(shipment.getPickupState());
+			 responseDto.setPickupPincode(shipment.getPickupPincode());
+			 // ================= DELIVERY LOCATION =================
+			responseDto.setDeliveryAddress(shipment.getDeliveryAddress());
+			responseDto.setDeliveryCity(shipment.getDeliveryCity());
+			 responseDto.setDeliveryState(shipment.getDeliveryState());
+			 responseDto.setDeliveryPincode(shipment.getDeliveryPincode());
+			// ================= PACKAGE DETAILS =================
+			responseDto.setPackageDescription(shipment.getPackageDescription());
+			responseDto.setWeight(shipment.getWeight());
+			// ================= STATUS =================
+			responseDto.setStatus(shipment.getStatus());
+			// ================= ASSIGNED OPERATOR =================
+
+ if (shipment.getAssignedOperator() != null) {
+
+            responseDto.setAssignedOperatorName(
+                    shipment.getAssignedOperator().getName()
             );
         }
 
-        // Business client can update only when shipment is CREATED
-        if (!isAdmin && shipment.getStatus() != ShipmentStatus.CREATED) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Shipment cannot be updated after processing has started"
-            );
-        }
 
-        // Update shipment details
-        shipment.setReceiverName(updateShipmentData.getReceiverName());
-        shipment.setReceiverPhone(updateShipmentData.getReceiverPhone());
-        shipment.setPickupAddress(updateShipmentData.getPickupAddress());
-        shipment.setDeliveryAddress(updateShipmentData.getDeliveryAddress());
-        shipment.setPackageDescription(updateShipmentData.getPackageDescription());
-        shipment.setWeight(updateShipmentData.getWeight());
+        // ================= DATES =================
 
-        shipment.setUpdatedAt(LocalDateTime.now());
+        responseDto.setCreatedAt(shipment.getCreatedAt());
 
-        shipmentRepository.save(shipment);
+        responseDto.setUpdatedAt(shipment.getUpdatedAt());
+
+
+        return responseDto;
     }
     
-    public void assignOperator(Long shipmentId) {
-
-        // Get logged-in user's email
-        String email = SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getName();
-
-        // Find logged-in user
-        UserEntity loggedInUser = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "User not found"
-                ));
-
-        // Only ADMIN can assign operator
-        if (loggedInUser.getRole() != Role.ADMIN) {
-            throw new ResponseStatusException(
-                    HttpStatus.FORBIDDEN,
-                    "Only admin can assign logistics operator"
-            );
-        }
-
-        // Find shipment
-        ShipmentEntity shipment = shipmentRepository.findById(shipmentId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Shipment not found"
-                ));
-
-        // Find the single logistics operator
-        UserEntity operator = userRepository
-                .findByRole(Role.LOGISTICS_OPERATOR)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Logistics operator not found"
-                ));
-
-        // Assign operator
-        shipment.setAssignedOperator(operator);
-
-        shipment.setUpdatedAt(LocalDateTime.now());
-
-        shipmentRepository.save(shipment);
-    }
-    public void cancelShipment(Long shipmentId) {
-
-        // Find shipment
-        ShipmentEntity shipment = shipmentRepository.findById(shipmentId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Shipment not found"
-                ));
-
-        // Get logged-in user's email
-        String email = SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getName();
-
-        // Find logged-in user
-        UserEntity loggedInUser = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "User not found"
-                ));
-
-        // Check authorization
-        boolean isAdmin = loggedInUser.getRole() == Role.ADMIN;
-
-        boolean isShipmentOwner =
-                shipment.getSender().getId().equals(loggedInUser.getId());
-
-        if (!isAdmin && !isShipmentOwner) {
-            throw new ResponseStatusException(
-                    HttpStatus.FORBIDDEN,
-                    "You are not authorized to cancel this shipment"
-            );
-        }
-
-        // Prevent cancelling already delivered shipment
-        if (shipment.getStatus() == ShipmentStatus.DELIVERED) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Delivered shipment cannot be cancelled"
-            );
-        }
-
-        // Prevent cancelling already cancelled shipment
-        if (shipment.getStatus() == ShipmentStatus.CANCELLED) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Shipment is already cancelled"
-            );
-        }
-
-        // Cancel shipment
-        shipment.setStatus(ShipmentStatus.CANCELLED);
-
-        shipment.setUpdatedAt(LocalDateTime.now());
-
-        shipmentRepository.save(shipment);
-    }
-    
-    public void updateShipmentStatus(
-            Long shipmentId,
-            UpdateShipmentStatusData updateShipmentStatusData,
-            String userEmail) {
-
-        // Find shipment
-        ShipmentEntity shipment = shipmentRepository.findById(shipmentId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Shipment not found"
-                ));
-
-        // Find logged-in user
-        UserEntity user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "User not found"
-                ));
-
-        // Only logistics operator can update status
-        if (user.getRole() != Role.LOGISTICS_OPERATOR) {
-            throw new ResponseStatusException(
-                    HttpStatus.FORBIDDEN,
-                    "Only logistics operator can update shipment status"
-            );
-        }
-
-        // Update status
-        shipment.setStatus(updateShipmentStatusData.getStatus());
-
-        shipment.setUpdatedAt(LocalDateTime.now());
-
-        shipmentRepository.save(shipment);
-        
-        ShipmentTrackingEntity tracking = new ShipmentTrackingEntity();
-
-        tracking.setShipment(shipment);
-        tracking.setStatus(updateShipmentStatusData.getStatus());
-        tracking.setUpdatedBy(user);
-        tracking.setCreatedAt(LocalDateTime.now());
-
-        shipmentTrackingRepository.save(tracking);
-    }
+ 
 }

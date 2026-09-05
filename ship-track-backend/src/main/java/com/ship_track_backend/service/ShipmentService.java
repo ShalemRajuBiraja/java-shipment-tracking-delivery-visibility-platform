@@ -371,5 +371,40 @@ public class ShipmentService {
         return responseDto;
     }
     
+    public List<ShipmentResponseDto> getShipmentHistory(String email) {
+
+        List<ShipmentStatus> historyStatuses = List.of(
+                ShipmentStatus.DELIVERED,
+                ShipmentStatus.CANCELLED
+        );
+
+        List<ShipmentEntity> shipments =
+                shipmentRepository.findByReceiverId_EmailAndStatusIn(
+                        email,
+                        historyStatuses
+                );
+
+        return shipments.stream()
+                .map(shipment -> {
+
+                    ShipmentResponseDto dto = new ShipmentResponseDto();
+
+                    // Use your existing DTO mapping code here
+
+                    dto.setId(shipment.getId());
+                    dto.setTrackingNumber(shipment.getTrackingNumber());
+                    dto.setReceiverName(shipment.getReceiverName());
+                    dto.setPickupCity(shipment.getPickupCity());
+                    dto.setDeliveryCity(shipment.getDeliveryCity());
+                    dto.setStatus(shipment.getStatus());
+                    dto.setCreatedAt(shipment.getCreatedAt());
+                    dto.setUpdatedAt(shipment.getUpdatedAt());
+
+                    return dto;
+
+                })
+                .toList();
+    }
+    
  
 }

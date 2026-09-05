@@ -25,6 +25,10 @@ public class ShipmentEntity {
     @ManyToOne
     @JoinColumn(name = "sender_id", nullable = false)
     private UserEntity sender;
+    
+    @ManyToOne
+    @JoinColumn(name = "receiver_id")
+    private UserEntity receiver;
 
     @Column(name = "receiver_name", nullable = false)
     private String receiverName;

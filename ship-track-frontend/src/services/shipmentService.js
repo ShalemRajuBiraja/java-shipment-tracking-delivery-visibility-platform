@@ -36,3 +36,7 @@ export const trackShipmentApi = async (trackingNumber) => {
     `${API_END_POINTS.TRACK_SHIPMENT}/${trackingNumber}`
   );
 };
+
+export const getShipmentHistoryApi = async () => {
+  return await axiosInstance.get(API_END_POINTS.SHIPMENT_HISTORY);
+};

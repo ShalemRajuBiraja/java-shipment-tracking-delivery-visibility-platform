@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import com.ship_track_backend.entity.ShipmentEntity;
 import com.ship_track_backend.entity.UserEntity;
+import com.ship_track_backend.enums.ShipmentStatus;
 
 @Repository
 public interface ShipmentRepository extends JpaRepository<ShipmentEntity, Long> {
@@ -18,7 +19,10 @@ public interface ShipmentRepository extends JpaRepository<ShipmentEntity, Long> 
     List<ShipmentEntity> findBySenderId_Email(String email);
     
     Optional<ShipmentEntity> findByTrackingNumber(String trackingNumber);
-
-
+    
+    List<ShipmentEntity> findByReceiverId_EmailAndStatusIn(
+            String email,
+            List<ShipmentStatus> statuses
+    );
 
 }

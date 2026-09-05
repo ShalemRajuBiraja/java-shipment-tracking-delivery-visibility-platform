@@ -112,5 +112,24 @@ public class ShipmentController {
     }
     
     
+    @GetMapping("/api/shipment-history")
+    public ResponseEntity<ApiResponse<List<ShipmentResponseDto>>> getShipmentHistory(
+            Authentication authentication) {
+
+        String email = authentication.getName();
+
+        List<ShipmentResponseDto> shipments =
+                shipmentService.getShipmentHistory(email);
+
+        ApiResponse<List<ShipmentResponseDto>> response =
+                new ApiResponse<>(
+                        true,
+                        "Shipment history fetched successfully",
+                        shipments
+                );
+
+        return ResponseEntity.ok(response);
+    }
+    
 
 }

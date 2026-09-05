@@ -10,6 +10,7 @@ export const API_END_POINTS = {
     SUPPORT_REQUEST: "/api/support-requests",
     TRACK_SHIPMENT: "/api/track",
     GET_SHIPMENT_BY_ID: "/api/shipments",
+    SHIPMENT_HISTORY: "/api/shipment-history"
 
 
 }

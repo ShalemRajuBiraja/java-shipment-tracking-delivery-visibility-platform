@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Search,
   Eye,
@@ -13,91 +13,116 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { deleteShipmentApi, getAdminShipmentsApi } from "../../services/adminService";
 
 const Shipments = () => {
   const navigate = useNavigate();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
+  const [shipments, setShipments] = useState([ ]);
+  const [loading, setLoading] = useState(true);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedShipmentId, setSelectedShipmentId] = useState(null);
 
-  const [shipments, setShipments] = useState([
-    {
-      id: 1,
-      trackingNumber: "TRK100001",
-      senderName: "ABC Electronics",
-      receiverName: "Ramesh Kumar",
-      packageDescription: "Electronics Package",
-      deliveryAddress: "Hyderabad, Telangana",
-      status: "ON_GOING",
-      createdAt: "01 Sep 2026",
-    },
-    {
-      id: 2,
-      trackingNumber: "TRK100002",
-      senderName: "Tech Solutions",
-      receiverName: "Priya Sharma",
-      packageDescription: "Laptop Accessories",
-      deliveryAddress: "Bangalore, Karnataka",
-      status: "DELIVERED",
-      createdAt: "30 Aug 2026",
-    },
-    {
-      id: 3,
-      trackingNumber: "TRK100003",
-      senderName: "Global Traders",
-      receiverName: "Amit Kumar",
-      packageDescription: "Documents",
-      deliveryAddress: "Chennai, Tamil Nadu",
-      status: "ORDER_PLACED",
-      createdAt: "30 Aug 2026",
-    },
-    {
-      id: 4,
-      trackingNumber: "TRK100004",
-      senderName: "Quick Mart",
-      receiverName: "Sneha Reddy",
-      packageDescription: "Clothing Package",
-      deliveryAddress: "Mumbai, Maharashtra",
-      status: "OUT_FOR_DELIVERY",
-      createdAt: "29 Aug 2026",
-    },
-    {
-      id: 5,
-      trackingNumber: "TRK100005",
-      senderName: "Office Supplies",
-      receiverName: "Arjun Patel",
-      packageDescription: "Office Equipment",
-      deliveryAddress: "Delhi",
-      status: "PACKED",
-      createdAt: "29 Aug 2026",
-    },
-  ]);
+
+
+  useEffect(() => {
+
+  const fetchShipments = async () => {
+
+    try {
+
+      const response = await getAdminShipmentsApi();
+
+      console.log(
+        "Admin Shipments Response:",
+        response.data
+      );
+
+      if (response.data.success) {
+
+        setShipments(response.data.data || []);
+
+      } else {
+
+        toast.error(
+          response.data.message || "Failed to fetch shipments"
+        );
+
+      }
+
+    } catch (error) {
+
+      console.error(
+        "Error fetching admin shipments:",
+        error
+      );
+
+      toast.error("Failed to fetch shipments");
+
+    } finally {
+
+      setLoading(false);
+
+    }
+
+  };
+
+  fetchShipments();
+
+}, []);
 
   const getStatusLabel = (status) => {
-    const labels = {
-      ORDER_PLACED: "Order Placed",
-      PACKED: "Packed",
-      PICKED: "Picked",
-      ON_GOING: "On Going",
-      OUT_FOR_DELIVERY: "Out for Delivery",
-      DELIVERED: "Delivered",
-    };
 
-    return labels[status] || status;
+  const labels = {
+
+    CREATED: "Created",
+
+    PICKED_UP: "Picked Up",
+
+    IN_TRANSIT: "In Transit",
+
+    OUT_FOR_DELIVERY: "Out for Delivery",
+
+    DELIVERED: "Delivered",
+
+    CANCELLED: "Cancelled",
+
   };
+
+  return labels[status] || status;
+
+};
 
   const getStatusStyle = (status) => {
-    const styles = {
-      ORDER_PLACED: "bg-slate-100 text-slate-700",
-      PACKED: "bg-yellow-50 text-yellow-700",
-      PICKED: "bg-blue-50 text-blue-700",
-      ON_GOING: "bg-purple-50 text-purple-700",
-      OUT_FOR_DELIVERY: "bg-orange-50 text-orange-700",
-      DELIVERED: "bg-emerald-50 text-emerald-700",
-    };
 
-    return styles[status] || "bg-slate-100 text-slate-700";
+  const styles = {
+
+    CREATED:
+      "bg-purple-50 text-purple-700",
+
+    PICKED_UP:
+      "bg-blue-50 text-blue-700",
+
+    IN_TRANSIT:
+      "bg-indigo-50 text-indigo-700",
+
+    OUT_FOR_DELIVERY:
+      "bg-orange-50 text-orange-700",
+
+    DELIVERED:
+      "bg-emerald-50 text-emerald-700",
+
+    CANCELLED:
+      "bg-red-50 text-red-700",
+
   };
+
+  return styles[status] ||
+    "bg-slate-100 text-slate-700";
+
+};
 
   const filteredShipments = shipments.filter((shipment) => {
     const search = searchTerm.toLowerCase();
@@ -132,19 +157,59 @@ const Shipments = () => {
       shipment.status === "PACKED"
   ).length;
 
-  const handleDelete = (id) => {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this shipment?"
+
+  //DELETE SHIPMENT FUNCTION
+  const handleDelete = async () => {
+
+  if (!selectedShipmentId) return;
+
+  try {
+
+    const response = await deleteShipmentApi(
+      selectedShipmentId
     );
 
-    if (!confirmed) return;
+    if (response.data.success === true) {
 
-    setShipments((previous) =>
-      previous.filter((shipment) => shipment.id !== id)
+      toast.success(
+        "Shipment deleted successfully"
+      );
+
+      setShipments((previous) =>
+        previous.filter(
+          (shipment) =>
+            shipment.id !== selectedShipmentId
+        )
+      );
+
+      setShowDeleteModal(false);
+
+      setSelectedShipmentId(null);
+
+    } else {
+
+      toast.error(
+        response.data.message ||
+        "Failed to delete shipment"
+      );
+
+    }
+
+  } catch (error) {
+
+    console.error(
+      "Error deleting shipment:",
+      error
     );
 
-    toast.success("Shipment deleted successfully");
-  };
+    toast.error(
+      error.response?.data?.message ||
+      "Failed to delete shipment"
+    );
+
+  }
+
+};
 
   const handleView = (shipment) => {
     console.log("View Shipment:", shipment);
@@ -319,41 +384,43 @@ const Shipments = () => {
           </div>
 
 
-          <select
-            value={statusFilter}
-            onChange={(event) =>
-              setStatusFilter(event.target.value)
-            }
-            className="w-full md:w-52 px-3 py-2.5 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
-          >
-            <option value="ALL">
-              All Status
-            </option>
+         <select
+  value={statusFilter}
+  onChange={(event) =>
+    setStatusFilter(event.target.value)
+  }
+  className="w-full md:w-52 px-3 py-2.5 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+>
 
-            <option value="ORDER_PLACED">
-              Order Placed
-            </option>
+  <option value="ALL">
+    All Status
+  </option>
 
-            <option value="PACKED">
-              Packed
-            </option>
+  <option value="CREATED">
+    Created
+  </option>
 
-            <option value="PICKED">
-              Picked
-            </option>
+  <option value="PICKED_UP">
+    Picked Up
+  </option>
 
-            <option value="ON_GOING">
-              On Going
-            </option>
+  <option value="IN_TRANSIT">
+    In Transit
+  </option>
 
-            <option value="OUT_FOR_DELIVERY">
-              Out for Delivery
-            </option>
+  <option value="OUT_FOR_DELIVERY">
+    Out for Delivery
+  </option>
 
-            <option value="DELIVERED">
-              Delivered
-            </option>
-          </select>
+  <option value="DELIVERED">
+    Delivered
+  </option>
+
+  <option value="CANCELLED">
+    Cancelled
+  </option>
+
+</select>
 
         </div>
 
@@ -473,9 +540,10 @@ const Shipments = () => {
 
 
                         <button
-                          onClick={() =>
-                            handleDelete(shipment.id)
-                          }
+                         onClick={() => {
+                          setSelectedShipmentId(shipment.id);
+                          setShowDeleteModal(true);
+                          }}
                           title="Delete Shipment"
                           className="w-8 h-8 flex items-center justify-center rounded-lg text-red-500 hover:bg-red-50 transition"
                         >
@@ -516,6 +584,90 @@ const Shipments = () => {
 
       </section>
 
+              {/* Delete Confirmation Modal */}
+
+{showDeleteModal && (
+
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+
+    <div className="w-full max-w-md bg-white rounded-xl shadow-xl">
+
+      {/* Modal Header */}
+
+      <div className="flex items-center gap-3 px-6 py-5 border-b border-slate-200">
+
+        <div className="w-11 h-11 rounded-full bg-red-100 flex items-center justify-center">
+
+          <Trash2
+            size={22}
+            className="text-red-600"
+          />
+
+        </div>
+
+        <div>
+
+          <h2 className="text-lg font-bold text-slate-800">
+            Delete Shipment
+          </h2>
+
+          <p className="text-sm text-slate-500 mt-1">
+            This action cannot be undone.
+          </p>
+
+        </div>
+
+      </div>
+
+
+      {/* Modal Content */}
+
+      <div className="px-6 py-5">
+
+        <p className="text-sm text-slate-600">
+
+          Are you sure you want to permanently delete
+          this shipment?
+
+        </p>
+
+      </div>
+
+
+      {/* Modal Actions */}
+
+      <div className="flex justify-end gap-3 px-6 py-4 border-t border-slate-200">
+
+        <button
+          type="button"
+          onClick={() => {
+
+            setShowDeleteModal(false);
+
+            setSelectedShipmentId(null);
+
+          }}
+          className="px-4 py-2.5 text-sm font-medium text-slate-700 border border-slate-300 rounded-lg hover:bg-slate-50 transition"
+        >
+          Cancel
+        </button>
+
+
+        <button
+          type="button"
+          onClick={handleDelete}
+          className="px-4 py-2.5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition"
+        >
+          Delete Shipment
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+)}
     </div>
   );
 };

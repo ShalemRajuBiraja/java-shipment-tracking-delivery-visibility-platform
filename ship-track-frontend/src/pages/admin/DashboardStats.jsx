@@ -1,20 +1,10 @@
-import {
-  Package,
-  Users,
-} from "lucide-react";
+import { Package, Users,} from "lucide-react";
 
-import {
-  useEffect,
-  useState,
-} from "react";
+import { useEffect, useState,} from "react";
 
-import {
-  useNavigate,
-} from "react-router-dom";
+import { useNavigate,} from "react-router-dom";
 
-import {
-  getAdminDashboardStatsApi,
-} from "../../services/adminService";
+import {getAdminDashboardStatsApi,getAdminShipmentsApi} from "../../services/adminService";
 
 
 const DashboardStats = () => {
@@ -37,20 +27,13 @@ const DashboardStats = () => {
 
       try {
 
-        const response =
-          await getAdminDashboardStatsApi();
+        const response = await getAdminDashboardStatsApi();
+        console.log( "Dashboard Stats:", response.data.data );
 
 
-        console.log(
-          "Dashboard Stats:",
-          response.data
-        );
-
-
-        if (response.data.success) {
-
+        if (response.data.success === true) {
           setStats(
-            response.data.data
+           response.data.data
           );
 
         }

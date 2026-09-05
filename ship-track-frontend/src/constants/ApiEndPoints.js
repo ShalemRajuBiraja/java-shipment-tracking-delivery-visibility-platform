@@ -23,4 +23,8 @@ UPDATE_SUPPORT_REQUEST_STATUS: "/api/support-requests",
 
 SUPPORT_SHIPMENT_LOOKUP: "/api/support-agent/shipment-lookup",
 ADMIN_DASHBOARD_STATS: "/api/admin/dashboard-stats",
+GET_ADMIN_SHIPMENTS: "/api/admin/dashboard-shipments",
+DELETE_SHIPMENT: "/api/admin/delete-shipment",
+ADMIN_USER_DELETE: "/api/admin/delete-user",
+GET_USERS: "/api/admin/users",
 }

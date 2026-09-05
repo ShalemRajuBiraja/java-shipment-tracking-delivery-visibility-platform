@@ -8,6 +8,8 @@ import com.ship_track_backend.service.AdminService;
 
 import jakarta.validation.Valid;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -43,6 +45,45 @@ public class AdminController {
         return ResponseEntity.ok(response);
     }
     
+    @GetMapping("api/admin/dashboard-shipments")
+    public ResponseEntity<?> getDashboardShipments() {
+
+		var dashboardShipments =  adminService.getDashboardShipments();
+		
+		ApiResponse<?> response = new ApiResponse<>(true, "Dashboard shipments fetched successfully", dashboardShipments);
+
+		return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+    
+    @DeleteMapping("/api/admin/delete-shipment/{id}")
+    public ResponseEntity<?> deleteShipment(@PathVariable Long id) {
+    	
+    	adminService.deleteShipment(id);
+		
+		ApiResponse<Void> response = new ApiResponse<>(true, "Shipment deleted successfully", null);
+		
+		return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+    @DeleteMapping("/api/admin/delete-user/{id}")
+    public ResponseEntity<?> deleteUser(  @PathVariable Long id ) {
+
+        adminService.deleteUser(id);
+
+        ApiResponse<?> response = new ApiResponse<>( true, "User deleted successfully", null ); 
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+    
+    @GetMapping("/api/admin/users")
+    public ResponseEntity<?> getUsers() {
+
+        var users = adminService.getUsers();
+
+        ApiResponse<?> response = new ApiResponse<>( true,  "Users fetched successfully", users );
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+		
 }
     
     

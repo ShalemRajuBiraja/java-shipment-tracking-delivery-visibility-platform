@@ -2,7 +2,10 @@ package com.ship_track_backend.service;
 
 import com.ship_track_backend.dto.AdminDashboardResponse;
 import com.ship_track_backend.dto.AdminLoginResponse;
+import com.ship_track_backend.dto.ShipmentResponseDto;
 import com.ship_track_backend.entity.AdminEntity;
+import com.ship_track_backend.entity.ShipmentEntity;
+import com.ship_track_backend.entity.UserEntity;
 import com.ship_track_backend.pojo.AdminLoginRequest;
 import com.ship_track_backend.repository.AdminRepository;
 import com.ship_track_backend.repository.ShipmentRepository;
@@ -12,6 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.nio.file.attribute.UserDefinedFileAttributeView;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -87,4 +92,141 @@ public class AdminService {
 
         return dashboardDto;
     }
+    
+    public List<ShipmentResponseDto> getDashboardShipments() {
+
+        List<ShipmentEntity> shipments = shipmentRepository.findAll();
+
+        List<ShipmentResponseDto> responseList = new ArrayList<>();
+
+        for (ShipmentEntity shipment : shipments) {
+
+            ShipmentResponseDto responseDto =
+                    new ShipmentResponseDto();
+
+            responseDto.setId(
+                    shipment.getId()
+            );
+
+            responseDto.setTrackingNumber(
+                    shipment.getTrackingNumber()
+            );
+
+            // Sender
+            responseDto.setSenderName(
+                    shipment.getSender().getName()
+            );
+
+            // Receiver
+            responseDto.setReceiverName(
+                    shipment.getReceiverName()
+            );
+
+            responseDto.setReceiverPhone(
+                    shipment.getReceiverPhone()
+            );
+
+            // Pickup Location
+            responseDto.setPickupAddress(
+                    shipment.getPickupAddress()
+            );
+
+            responseDto.setPickupCity(
+                    shipment.getPickupCity()
+            );
+
+            responseDto.setPickupState(
+                    shipment.getPickupState()
+            );
+
+            responseDto.setPickupPincode(
+                    shipment.getPickupPincode()
+            );
+
+            // Delivery Location
+            responseDto.setDeliveryAddress(
+                    shipment.getDeliveryAddress()
+            );
+
+            responseDto.setDeliveryCity(
+                    shipment.getDeliveryCity()
+            );
+
+            responseDto.setDeliveryState(
+                    shipment.getDeliveryState()
+            );
+
+            responseDto.setDeliveryPincode(
+                    shipment.getDeliveryPincode()
+            );
+
+            // Package
+            responseDto.setPackageDescription(
+                    shipment.getPackageDescription()
+            );
+
+            responseDto.setWeight(
+                    shipment.getWeight()
+            );
+
+            // Status
+            responseDto.setStatus(
+                    shipment.getStatus()
+            );
+
+            // Assigned Operator
+            if (shipment.getAssignedOperator() != null) {
+
+                responseDto.setAssignedOperatorName(
+                        shipment.getAssignedOperator().getName()
+                );
+            }
+
+            // Dates
+            responseDto.setCreatedAt(
+                    shipment.getCreatedAt()
+            );
+
+            responseDto.setUpdatedAt(
+                    shipment.getUpdatedAt()
+            );
+
+            responseList.add(
+                    responseDto
+            );
+        }
+
+        return responseList;
+    }
+    
+    public void deleteShipment(Long shipmentId) {
+
+		ShipmentEntity shipment = shipmentRepository.findById(shipmentId)
+				.orElseThrow(() ->
+						new ResponseStatusException(
+								HttpStatus.NOT_FOUND,
+								"Shipment not found"
+						)
+				);
+
+		shipmentRepository.delete(shipment);
+	}
+    
+    public void deleteUser(Long id) {
+
+        UserEntity user = userRepository
+                .findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "User not found"
+                ));
+
+        userRepository.delete(user);
+    }
+    
+    public List<UserEntity> getUsers() {
+
+        return userRepository.findAll();
+    }
+    
 }

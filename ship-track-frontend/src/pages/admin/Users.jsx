@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Search,
   UsersRound,
@@ -9,51 +9,42 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { toast } from "react-toastify";
+import { adminDeleteUserApi, getUsersApi } from "../../services/adminService";
 
 const Users = () => {
+
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRole, setSelectedRole] = useState("ALL");
-
-  // Controls 3-dot dropdown
   const [activeMenu, setActiveMenu] = useState(null);
-
-  // Controls delete confirmation modal
   const [selectedUser, setSelectedUser] = useState(null);
+  const [users, setUsers] = useState([]);
 
-  // Temporary static data
-  // Later replace this with API data
-  const [users, setUsers] = useState([
-    {
-      id: 1,
-      name: "Raju Kumar",
-      email: "raju@gmail.com",
-      role: "CUSTOMER",
-    },
-    {
-      id: 2,
-      name: "ABC Logistics",
-      email: "abc@logistics.com",
-      role: "BUSINESS_CLIENT",
-    },
-    {
-      id: 3,
-      name: "Suresh Kumar",
-      email: "suresh@gmail.com",
-      role: "LOGISTICS_OPERATOR",
-    },
-    {
-      id: 4,
-      name: "Anjali Sharma",
-      email: "anjali@gmail.com",
-      role: "SUPPORT_AGENT",
-    },
-    {
-      id: 5,
-      name: "Rahul Kumar",
-      email: "rahul@gmail.com",
-      role: "CUSTOMER",
-    },
-  ]);
+  useEffect(() => {
+
+  const fetchUsers = async () => {
+
+    try {
+
+      const response = await getUsersApi();
+
+      if (response.data.success === true) {
+
+        setUsers(response.data.data);
+        console.log( "Users fetched:", response.data.data );
+      } else {
+
+        console.error("Failed to fetch users:",  response.data.message );
+      }
+
+    } catch (error) {
+        console.error( "Error fetching users:", error );
+    }
+
+  };
+
+  fetchUsers();
+
+}, []);
 
   // Filter users
   const filteredUsers = users.filter((user) => {
@@ -95,21 +86,55 @@ const Users = () => {
   };
 
   // Delete user
-  const confirmDeleteUser = () => {
-    if (!selectedUser) return;
+ const confirmDeleteUser = async () => {
 
-    setUsers((previousUsers) =>
-      previousUsers.filter(
-        (user) => user.id !== selectedUser.id
-      )
+  if (!selectedUser) return;
+
+  try {
+
+    const response = await adminDeleteUserApi(
+      selectedUser.id
     );
 
-    toast.success(
-      `${selectedUser.name} deleted successfully`
+    if (response.data.success === true) {
+
+      // Remove deleted user from table
+      setUsers((prevUsers) =>
+        prevUsers.filter(
+          (user) => user.id !== selectedUser.id
+        )
+      );
+
+      // Show success message
+      toast.success(
+        `${selectedUser.name} deleted successfully`
+      );
+
+      // Close delete confirmation modal
+      setSelectedUser(null);
+
+    } else {
+
+      toast.error(
+        response.data.message || "Failed to delete user"
+      );
+
+    }
+
+  } catch (error) {
+
+    console.error(
+      "Error deleting user:",
+      error
     );
 
-    setSelectedUser(null);
-  };
+    toast.error(
+      "Failed to delete user. Please try again."
+    );
+
+  }
+
+};
 
   return (
     <div className="space-y-5">

@@ -219,13 +219,7 @@ const Shipments = () => {
     );
   };
 
-  const handleEdit = (shipment) => {
-    console.log("Edit Shipment:", shipment);
-
-    toast.info(
-      `Editing shipment: ${shipment.trackingNumber}`
-    );
-  };
+ 
 
   return (
     <div className="w-full">
@@ -516,29 +510,7 @@ const Shipments = () => {
                     <td className="px-5 py-4">
 
                       <div className="flex items-center justify-center gap-2">
-
-                        <button
-                          onClick={() =>
-                            handleView(shipment)
-                          }
-                          title="View Shipment"
-                          className="w-8 h-8 flex items-center justify-center rounded-lg text-blue-600 hover:bg-blue-50 transition"
-                        >
-                          <Eye size={18} />
-                        </button>
-
-
-                        <button
-                          onClick={() =>
-                            handleEdit(shipment)
-                          }
-                          title="Edit Shipment"
-                          className="w-8 h-8 flex items-center justify-center rounded-lg text-emerald-600 hover:bg-emerald-50 transition"
-                        >
-                          <Pencil size={18} />
-                        </button>
-
-
+                        
                         <button
                          onClick={() => {
                           setSelectedShipmentId(shipment.id);

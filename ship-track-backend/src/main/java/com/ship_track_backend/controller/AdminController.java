@@ -1,6 +1,8 @@
 package com.ship_track_backend.controller;
 
+import com.ship_track_backend.dto.AdminDashboardResponse;
 import com.ship_track_backend.dto.AdminLoginResponse;
+import com.ship_track_backend.payload.ApiResponse;
 import com.ship_track_backend.pojo.AdminLoginRequest;
 import com.ship_track_backend.service.AdminService;
 
@@ -28,4 +30,19 @@ public class AdminController {
 
         return ResponseEntity.ok(response);
     }
+    
+    // ================= ADMIN DASHBOARD =================
+
+    @GetMapping("api/admin/dashboard-stats")
+    public ResponseEntity<?> getDashboardStats() {
+
+        AdminDashboardResponse dashboardStats =  adminService.getDashboardStats();
+        
+        ApiResponse<AdminDashboardResponse> response = new ApiResponse<>(true, "Dashboard stats fetched successfully", dashboardStats);
+
+        return ResponseEntity.ok(response);
+    }
+    
 }
+    
+    

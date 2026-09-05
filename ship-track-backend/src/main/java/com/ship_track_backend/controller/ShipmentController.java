@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ship_track_backend.dto.ShipmentLookupResponse;
 import com.ship_track_backend.dto.ShipmentResponseDto;
 import com.ship_track_backend.dto.TrackingResponseDto;
 import com.ship_track_backend.payload.ApiResponse;
@@ -126,6 +127,29 @@ public class ShipmentController {
                         true,
                         "Shipment history fetched successfully",
                         shipments
+                );
+
+        return ResponseEntity.ok(response);
+    }
+    
+ // ================= SUPPORT AGENT SHIPMENT LOOKUP =================
+
+    @GetMapping("/api/support-agent/shipment-lookup/{trackingNumber}")
+    public ResponseEntity<ApiResponse<ShipmentLookupResponse>>
+    getShipmentForSupportAgent(
+            @PathVariable String trackingNumber) {
+
+        ShipmentLookupResponse shipment =
+                shipmentService
+                        .getShipmentForSupportAgent(
+                                trackingNumber
+                        );
+
+        ApiResponse<ShipmentLookupResponse> response =
+                new ApiResponse<>(
+                        true,
+                        "Shipment details fetched successfully",
+                        shipment
                 );
 
         return ResponseEntity.ok(response);

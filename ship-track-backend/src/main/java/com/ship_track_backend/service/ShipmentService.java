@@ -30,6 +30,8 @@ import com.ship_track_backend.dto.ShipmentResponseDto;
 import com.ship_track_backend.dto.TrackingHistoryDto;
 import com.ship_track_backend.dto.TrackingResponseDto;
 import com.ship_track_backend.enums.Role;
+import com.ship_track_backend.dto.ShipmentLookupResponse;
+
 
 @Service
 public class ShipmentService {
@@ -307,6 +309,79 @@ public class ShipmentService {
         return response;
     }
     
+    
+ // ================= SUPPORT AGENT SHIPMENT LOOKUP =================
+
+    public ShipmentLookupResponse
+    getShipmentForSupportAgent(String trackingNumber) {
+
+        // FIND SHIPMENT
+
+        ShipmentEntity shipment =
+                shipmentRepository
+                        .findByTrackingNumber(trackingNumber)
+                        .orElseThrow(() ->
+                                new ResponseStatusException(
+                                        HttpStatus.NOT_FOUND,
+                                        "Shipment not found"
+                                )
+                        );
+
+
+        // FIND LATEST TRACKING LOCATION
+
+        ShipmentTrackingEntity latestTracking =
+                shipmentTrackingRepository
+                        .findTopByShipmentTrackingNumberOrderByCreatedAtDesc(
+                                trackingNumber
+                        )
+                        .orElse(null);
+
+
+        // CREATE RESPONSE
+
+        ShipmentLookupResponse response =
+                new ShipmentLookupResponse();
+
+        response.setTrackingNumber(
+                shipment.getTrackingNumber()
+        );
+
+        response.setCustomer(
+                shipment.getSender().getName()
+        );
+
+        response.setStatus(
+                shipment.getStatus()
+        );
+
+        response.setOrigin(
+                shipment.getPickupCity()
+        );
+
+        response.setDestination(
+                shipment.getDeliveryCity()
+        );
+
+
+        // SET CURRENT LOCATION
+
+        if (latestTracking != null) {
+
+            response.setCurrentLocation(
+                    latestTracking.getLocation()
+            );
+
+        } else {
+
+            response.setCurrentLocation(
+                    shipment.getPickupCity()
+            );
+        }
+
+
+        return response;
+    }
     
     public ShipmentResponseDto getShipmentById(Long id) {
 

@@ -1,12 +1,19 @@
 package com.ship_track_backend.service;
 
+import com.ship_track_backend.dto.AdminDashboardResponse;
 import com.ship_track_backend.dto.AdminLoginResponse;
 import com.ship_track_backend.entity.AdminEntity;
 import com.ship_track_backend.pojo.AdminLoginRequest;
 import com.ship_track_backend.repository.AdminRepository;
+import com.ship_track_backend.repository.ShipmentRepository;
+import com.ship_track_backend.repository.UserRepository;
+
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.nio.file.attribute.UserDefinedFileAttributeView;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
 @Service
@@ -14,6 +21,12 @@ public class AdminService {
 
     private final AdminRepository adminRepository;
     private final JwtService jwtService;
+    @Autowired
+    UserRepository userRepository;
+    @Autowired
+    ShipmentService shipmentService;
+    @Autowired
+    ShipmentRepository shipmentRepository;
     
 
     public AdminService(AdminRepository adminRepository,JwtService jwtService) {
@@ -54,5 +67,24 @@ public class AdminService {
         response.setToken(jwtToken);
 
         return response;
+    }
+    
+    // ================= ADMIN DASHBOARD STATS =================
+
+    public AdminDashboardResponse getDashboardStats() {
+
+        Long totalShipments = shipmentRepository.count();
+
+        Long totalUsers = userRepository.count();
+
+
+        AdminDashboardResponse dashboardDto = new AdminDashboardResponse();
+
+        dashboardDto.setTotalShipments(totalShipments);
+
+        dashboardDto.setTotalUsers(totalUsers);
+
+
+        return dashboardDto;
     }
 }

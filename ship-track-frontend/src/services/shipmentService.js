@@ -40,3 +40,14 @@ export const trackShipmentApi = async (trackingNumber) => {
 export const getShipmentHistoryApi = async () => {
   return await axiosInstance.get(API_END_POINTS.SHIPMENT_HISTORY);
 };
+
+
+
+// SUPPORT AGENT SHIPMENT LOOKUP
+export const supportShipmentLookupApi = async (
+  trackingNumber
+) => {
+  return await axiosInstance.get(
+    `${API_END_POINTS.SUPPORT_SHIPMENT_LOOKUP}/${trackingNumber}`
+  );
+};

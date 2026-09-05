@@ -158,7 +158,7 @@ const CustomerSupport = () => {
               name="description"
               value={formData.description}
               onChange={handleChange}
-              placeholder="Explain your issue..."
+              placeholder="Enter your tracking number and explain your issue..."
               className="w-full border border-slate-300 rounded-lg px-4 py-3 text-sm outline-none resize-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
             />
 

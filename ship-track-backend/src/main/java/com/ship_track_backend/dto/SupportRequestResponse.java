@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-public class SupportRequestDto {
+public class SupportRequestResponse {
 
     private Long id;
 
@@ -22,4 +22,5 @@ public class SupportRequestDto {
     private String status;
 
     private LocalDateTime createdAt;
+
 }

@@ -1,29 +1,32 @@
 package com.ship_track_backend.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import com.ship_track_backend.dto.SupportRequestDto;
-import com.ship_track_backend.entity.SupportRequest;
-import com.ship_track_backend.pojo.SupportRequestPojo;
-import com.ship_track_backend.repository.SupportRequestRepository;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.ship_track_backend.dto.SupportRequestResponse;
+import com.ship_track_backend.dto.SupportStatsResponse;
+import com.ship_track_backend.entity.SupportRequest;
+import com.ship_track_backend.pojo.SupportRequestPojo;
+import com.ship_track_backend.repository.SupportRequestRepository;
+
 @Service
 public class SupportRequestService {
 
-	@Autowired
-    private  SupportRequestRepository supportRequestRepository;
+    @Autowired
+    private SupportRequestRepository supportRequestRepository;
 
 
-    // CREATE SUPPORT REQUEST
+    // ================= CREATE SUPPORT REQUEST =================
 
-    public void createSupportRequest( SupportRequestPojo  supportRequestPojo) {
+    public void createSupportRequest(
+            SupportRequestPojo supportRequestPojo) {
 
-        SupportRequest supportRequest = new SupportRequest();
+        SupportRequest supportRequest =
+                new SupportRequest();
 
         supportRequest.setName(
                 supportRequestPojo.getName()
@@ -47,27 +50,32 @@ public class SupportRequestService {
                 LocalDateTime.now()
         );
 
-        System.out.println("Support request created: " + supportRequest);
-        supportRequestRepository.save(supportRequest);
-       System.out.println("Support request saved to the database." + supportRequest);
-
+        supportRequestRepository.save(
+                supportRequest
+        );
     }
 
 
-    // GET ALL SUPPORT REQUESTS
+    // ================= GET ALL ACTIVE SUPPORT REQUESTS =================
 
-    public List<SupportRequestDto> getAllSupportRequests() {
+    public List<SupportRequestResponse>
+    getAllSupportRequests() {
 
         return supportRequestRepository.findAll()
                 .stream()
-                .map(this::convertToDto)
+                .filter(request ->
+                        !request.getStatus()
+                                .equals("RESOLVED")
+                )
+                .map(this::convertToResponse)
                 .collect(Collectors.toList());
     }
 
 
-    // GET SUPPORT REQUEST BY ID
+    // ================= GET SUPPORT REQUEST BY ID =================
 
-    public SupportRequestDto getSupportRequestById(Long id) {
+    public SupportRequestResponse
+    getSupportRequestById(Long id) {
 
         SupportRequest supportRequest =
                 supportRequestRepository.findById(id)
@@ -77,15 +85,33 @@ public class SupportRequestService {
                                 )
                         );
 
-        return convertToDto(supportRequest);
+        return convertToResponse(
+                supportRequest
+        );
     }
 
 
-    // UPDATE STATUS
+    // ================= SEARCH SUPPORT REQUESTS =================
 
-    public SupportRequestDto updateStatus(
-            Long id,
-            String status) {
+    public List<SupportRequestResponse>
+    searchSupportRequests(String name) {
+
+        return supportRequestRepository
+                .findByNameContainingIgnoreCase(name)
+                .stream()
+                .filter(request ->
+                        !request.getStatus()
+                                .equals("RESOLVED")
+                )
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+    }
+
+
+    // ================= UPDATE REQUEST STATUS =================
+
+    public SupportRequestResponse
+    updateStatus(Long id, String status) {
 
         SupportRequest supportRequest =
                 supportRequestRepository.findById(id)
@@ -95,16 +121,66 @@ public class SupportRequestService {
                                 )
                         );
 
-        supportRequest.setStatus(status);
+        supportRequest.setStatus(
+                status.toUpperCase()
+        );
 
         SupportRequest updatedRequest =
-                supportRequestRepository.save(supportRequest);
+                supportRequestRepository.save(
+                        supportRequest
+                );
 
-        return convertToDto(updatedRequest);
+        return convertToResponse(
+                updatedRequest
+        );
     }
 
 
-    // DELETE SUPPORT REQUEST
+    // ================= GET RESOLVED REQUESTS =================
+
+    public List<SupportRequestResponse>
+    getResolvedRequests() {
+
+        return supportRequestRepository
+                .findByStatus("RESOLVED")
+                .stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+    }
+
+
+    // ================= GET DASHBOARD STATISTICS =================
+
+    public SupportStatsResponse
+    getSupportRequestStats() {
+
+        SupportStatsResponse stats =
+                new SupportStatsResponse();
+
+        stats.setTotalRequests(
+                supportRequestRepository.count()
+        );
+
+        stats.setOpenRequests(
+                supportRequestRepository
+                        .countByStatus("OPEN")
+        );
+
+        stats.setInProgressRequests(
+                supportRequestRepository
+                        .countByStatus("IN_PROGRESS")
+        );
+
+        stats.setResolvedRequests(
+                supportRequestRepository
+                        .countByStatus("RESOLVED")
+        );
+
+        return stats;
+    }
+
+
+    // ================= DELETE SUPPORT REQUEST =================
 
     public void deleteSupportRequest(Long id) {
 
@@ -119,38 +195,43 @@ public class SupportRequestService {
     }
 
 
-    // ENTITY TO DTO
+    // ================= ENTITY TO RESPONSE =================
 
-    private SupportRequestDto convertToDto(
+    private SupportRequestResponse
+    convertToResponse(
             SupportRequest supportRequest) {
 
-        SupportRequestDto dto =
-                new SupportRequestDto();
+        SupportRequestResponse response =
+                new SupportRequestResponse();
 
-        dto.setId(supportRequest.getId());
+        response.setId(
+                supportRequest.getId()
+        );
 
-        dto.setName(supportRequest.getName());
+        response.setName(
+                supportRequest.getName()
+        );
 
-        dto.setPhoneNumber(
+        response.setPhoneNumber(
                 supportRequest.getPhoneNumber()
         );
 
-        dto.setIssue(
+        response.setIssue(
                 supportRequest.getIssue()
         );
 
-        dto.setDescription(
+        response.setDescription(
                 supportRequest.getDescription()
         );
 
-        dto.setStatus(
+        response.setStatus(
                 supportRequest.getStatus()
         );
 
-        dto.setCreatedAt(
+        response.setCreatedAt(
                 supportRequest.getCreatedAt()
         );
 
-        return dto;
+        return response;
     }
 }

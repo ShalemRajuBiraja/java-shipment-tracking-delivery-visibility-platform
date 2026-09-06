@@ -33,3 +33,8 @@ export const getUsersApi = async () => {
 export const adminUpdateProfileApi = async (profileData) => {
   return await axiosInstance.put( API_END_POINTS.UPDATE_ADMIN_PROFILE, profileData );
 };
+
+export const updateAdminPasswordApi = async (currentPassword, newPassword) => {
+  return await axiosInstance.put( API_END_POINTS.UPDATE_ADMIN_PASSWORD, { currentPassword, newPassword } );
+};
+

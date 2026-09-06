@@ -1,166 +1,319 @@
 import { useState, useEffect } from "react";
+
 import {
   Search,
   UsersRound,
   Shield,
-  MoreVertical,
   Trash2,
   X,
   AlertTriangle,
+  Eye,
+  Mail,
+  Phone,
+  Building2,
+  ReceiptText,
+  Truck,
+  BadgeCheck,
+  Calendar,
+  User,
 } from "lucide-react";
+
 import { toast } from "react-toastify";
-import { adminDeleteUserApi, getUsersApi } from "../../services/adminService";
+
+import {
+  adminDeleteUserApi,
+  getUsersApi,
+} from "../../services/adminService";
+
 
 const Users = () => {
 
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedRole, setSelectedRole] = useState("ALL");
-  const [activeMenu, setActiveMenu] = useState(null);
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [users, setUsers] = useState([]);
+  const [searchTerm, setSearchTerm] =
+    useState("");
+
+  const [selectedRole, setSelectedRole] =
+    useState("ALL");
+
+  const [selectedUser, setSelectedUser] =
+    useState(null);
+
+  const [viewUser, setViewUser] =
+    useState(null);
+
+  const [users, setUsers] =
+    useState([]);
+
+
+  // ================= FETCH USERS =================
 
   useEffect(() => {
 
-  const fetchUsers = async () => {
+    const fetchUsers = async () => {
+
+      try {
+
+        const response =
+          await getUsersApi();
+
+        if (
+          response.data.success === true
+        ) {
+
+          setUsers(
+            response.data.data
+          );
+
+          console.log(
+            "Users fetched:",
+            response.data.data
+          );
+
+        } else {
+
+          console.error(
+            "Failed to fetch users:",
+            response.data.message
+          );
+
+        }
+
+      } catch (error) {
+
+        console.error(
+          "Error fetching users:",
+          error
+        );
+
+        toast.error(
+          "Failed to fetch users."
+        );
+
+      }
+
+    };
+
+    fetchUsers();
+
+  }, []);
+
+
+  // ================= FILTER USERS =================
+
+  const filteredUsers =
+    users.filter((user) => {
+
+      const matchesSearch =
+
+        user.name
+          ?.toLowerCase()
+          .includes(
+            searchTerm.toLowerCase()
+          )
+
+        ||
+
+        user.email
+          ?.toLowerCase()
+          .includes(
+            searchTerm.toLowerCase()
+          );
+
+
+      const matchesRole =
+
+        selectedRole === "ALL"
+
+        ||
+
+        user.role === selectedRole;
+
+
+      return (
+        matchesSearch &&
+        matchesRole
+      );
+
+    });
+
+
+  // ================= ROLE STYLE =================
+
+  const getRoleStyle = (role) => {
+
+    switch (role) {
+
+      case "CUSTOMER":
+
+        return "bg-blue-50 text-blue-700";
+
+
+      case "BUSINESS_CLIENT":
+
+        return "bg-amber-50 text-amber-700";
+
+
+      case "LOGISTICS_OPERATOR":
+
+        return "bg-emerald-50 text-emerald-700";
+
+
+      case "SUPPORT_AGENT":
+
+        return "bg-purple-50 text-purple-700";
+
+
+      default:
+
+        return "bg-slate-100 text-slate-700";
+
+    }
+
+  };
+
+
+  // ================= OPEN DELETE MODAL =================
+
+  const handleDeleteClick = (user) => {
+
+    setSelectedUser(user);
+
+  };
+
+
+  // ================= OPEN USER DETAILS =================
+
+  const handleViewUser = (user) => {
+
+    setViewUser(user);
+
+  };
+
+
+  // ================= DELETE USER =================
+
+  const confirmDeleteUser = async () => {
+
+    if (!selectedUser) return;
+
 
     try {
 
-      const response = await getUsersApi();
+      const response =
+        await adminDeleteUserApi(
+          selectedUser.id
+        );
 
-      if (response.data.success === true) {
 
-        setUsers(response.data.data);
-        console.log( "Users fetched:", response.data.data );
+      if (
+        response.data.success === true
+      ) {
+
+        setUsers((previousUsers) =>
+
+          previousUsers.filter(
+
+            (user) =>
+              user.id !==
+              selectedUser.id
+
+          )
+
+        );
+
+
+        toast.success(
+
+          `${selectedUser.name} deleted successfully`
+
+        );
+
+
+        setSelectedUser(null);
+
+
       } else {
 
-        console.error("Failed to fetch users:",  response.data.message );
+        toast.error(
+
+          response.data.message
+          ||
+          "Failed to delete user"
+
+        );
+
       }
 
+
     } catch (error) {
-        console.error( "Error fetching users:", error );
-    }
 
-  };
+      console.error(
 
-  fetchUsers();
+        "Error deleting user:",
 
-}, []);
+        error
 
-  // Filter users
-  const filteredUsers = users.filter((user) => {
-    const matchesSearch =
-      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase());
-
-    const matchesRole =
-      selectedRole === "ALL" ||
-      user.role === selectedRole;
-
-    return matchesSearch && matchesRole;
-  });
-
-  // Role badge styling
-  const getRoleStyle = (role) => {
-    switch (role) {
-      case "CUSTOMER":
-        return "bg-blue-50 text-blue-700";
-
-      case "BUSINESS_CLIENT":
-        return "bg-amber-50 text-amber-700";
-
-      case "LOGISTICS_OPERATOR":
-        return "bg-emerald-50 text-emerald-700";
-
-      case "SUPPORT_AGENT":
-        return "bg-purple-50 text-purple-700";
-
-      default:
-        return "bg-slate-100 text-slate-700";
-    }
-  };
-
-  // Open delete confirmation
-  const handleDeleteClick = (user) => {
-    setSelectedUser(user);
-    setActiveMenu(null);
-  };
-
-  // Delete user
- const confirmDeleteUser = async () => {
-
-  if (!selectedUser) return;
-
-  try {
-
-    const response = await adminDeleteUserApi(
-      selectedUser.id
-    );
-
-    if (response.data.success === true) {
-
-      // Remove deleted user from table
-      setUsers((prevUsers) =>
-        prevUsers.filter(
-          (user) => user.id !== selectedUser.id
-        )
       );
 
-      // Show success message
-      toast.success(
-        `${selectedUser.name} deleted successfully`
-      );
-
-      // Close delete confirmation modal
-      setSelectedUser(null);
-
-    } else {
 
       toast.error(
-        response.data.message || "Failed to delete user"
+
+        "Failed to delete user. Please try again."
+
       );
 
     }
 
-  } catch (error) {
+  };
 
-    console.error(
-      "Error deleting user:",
-      error
-    );
 
-    toast.error(
-      "Failed to delete user. Please try again."
-    );
+  // ================= FORMAT DATE =================
 
-  }
+  const formatDate = (date) => {
 
-};
+    if (!date) return "-";
+
+    return new Date(date).toLocaleString();
+
+  };
+
 
   return (
+
     <div className="space-y-5">
+
 
       {/* ================= PAGE HEADER ================= */}
 
       <div>
+
         <h1 className="text-xl md:text-2xl font-bold text-slate-800">
+
           Users Management
+
         </h1>
 
+
         <p className="text-sm text-slate-500 mt-1">
+
           View and manage all registered users.
+
         </p>
+
       </div>
+
 
 
       {/* ================= SUMMARY CARDS ================= */}
 
       <div className="flex flex-wrap gap-3">
 
-        {/* Total Users */}
+
+        {/* TOTAL USERS */}
 
         <div className="w-full sm:w-64 bg-white border border-slate-200 rounded-lg px-3 py-2 shadow-sm">
 
           <div className="flex items-center gap-2">
+
 
             <div className="w-8 h-8 rounded-md bg-emerald-50 flex items-center justify-center">
 
@@ -171,14 +324,20 @@ const Users = () => {
 
             </div>
 
+
             <div>
 
               <p className="text-xs text-slate-500">
+
                 Total Users
+
               </p>
 
+
               <h3 className="text-base font-bold text-slate-800">
+
                 {users.length}
+
               </h3>
 
             </div>
@@ -188,11 +347,13 @@ const Users = () => {
         </div>
 
 
-        {/* User Roles */}
+
+        {/* USER ROLES */}
 
         <div className="w-full sm:w-64 bg-white border border-slate-200 rounded-lg px-3 py-2 shadow-sm">
 
           <div className="flex items-center gap-2">
+
 
             <div className="w-8 h-8 rounded-md bg-emerald-50 flex items-center justify-center">
 
@@ -203,14 +364,20 @@ const Users = () => {
 
             </div>
 
+
             <div>
 
               <p className="text-xs text-slate-500">
+
                 User Roles
+
               </p>
 
+
               <h3 className="text-base font-bold text-slate-800">
+
                 4
+
               </h3>
 
             </div>
@@ -222,34 +389,45 @@ const Users = () => {
       </div>
 
 
+
       {/* ================= USERS TABLE ================= */}
 
       <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
 
-        {/* Table Header */}
+
+        {/* TABLE HEADER */}
 
         <div className="p-4 border-b border-slate-200">
 
+
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+
 
             <div>
 
               <h2 className="text-base font-bold text-slate-800">
+
                 All Users
+
               </h2>
 
+
               <p className="text-xs text-slate-500 mt-1">
+
                 Manage registered users and their roles.
+
               </p>
 
             </div>
 
 
-            {/* Search and Filter */}
+
+            {/* SEARCH AND FILTER */}
 
             <div className="flex flex-col sm:flex-row gap-3">
 
-              {/* Search */}
+
+              {/* SEARCH */}
 
               <div className="relative">
 
@@ -258,12 +436,15 @@ const Users = () => {
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
                 />
 
+
                 <input
                   type="text"
                   placeholder="Search users..."
                   value={searchTerm}
                   onChange={(event) =>
-                    setSearchTerm(event.target.value)
+                    setSearchTerm(
+                      event.target.value
+                    )
                   }
                   className="w-full sm:w-56 pl-9 pr-4 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                 />
@@ -271,14 +452,21 @@ const Users = () => {
               </div>
 
 
-              {/* Role Filter */}
+
+              {/* ROLE FILTER */}
 
               <select
+
                 value={selectedRole}
+
                 onChange={(event) =>
-                  setSelectedRole(event.target.value)
+                  setSelectedRole(
+                    event.target.value
+                  )
                 }
+
                 className="px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+
               >
 
                 <option value="ALL">
@@ -310,11 +498,14 @@ const Users = () => {
         </div>
 
 
+
         {/* ================= TABLE ================= */}
 
         <div className="overflow-x-auto">
 
+
           <table className="w-full text-sm">
+
 
             <thead className="bg-slate-50 border-b border-slate-200">
 
@@ -341,31 +532,45 @@ const Users = () => {
             </thead>
 
 
+
             <tbody>
+
 
               {filteredUsers.length > 0 ? (
 
+
                 filteredUsers.map((user) => (
 
+
                   <tr
+
                     key={user.id}
+
                     className="border-b border-slate-100 hover:bg-slate-50 transition-colors"
+
                   >
 
-                    {/* User */}
+
+                    {/* USER */}
 
                     <td className="px-5 py-4">
 
                       <div className="flex items-center gap-3">
 
+
                         <div className="w-9 h-9 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center font-semibold text-sm">
 
-                          {user.name.charAt(0).toUpperCase()}
+                          {user.name
+                            ?.charAt(0)
+                            .toUpperCase()}
 
                         </div>
 
+
                         <span className="font-medium text-slate-800">
+
                           {user.name}
+
                         </span>
 
                       </div>
@@ -373,75 +578,85 @@ const Users = () => {
                     </td>
 
 
-                    {/* Email */}
+
+                    {/* EMAIL */}
 
                     <td className="px-5 py-4 text-slate-600">
+
                       {user.email}
+
                     </td>
 
 
-                    {/* Role */}
+
+                    {/* ROLE */}
 
                     <td className="px-5 py-4">
 
                       <span
+
                         className={`inline-flex px-2.5 py-1 rounded-md text-xs font-medium ${getRoleStyle(
                           user.role
                         )}`}
+
                       >
-                        {user.role.replaceAll("_", " ")}
+
+                        {user.role?.replaceAll(
+                          "_",
+                          " "
+                        )}
+
                       </span>
 
                     </td>
 
 
-                    {/* ================= ACTION MENU ================= */}
 
-                    <td className="px-5 py-4 text-center">
+                    {/* ================= ACTION BUTTONS ================= */}
 
-                      <div className="relative inline-block">
+                    <td className="px-5 py-4">
 
-                        {/* Three Dot Button */}
+                      <div className="flex items-center justify-center gap-2">
+
+
+                        {/* VIEW DETAILS */}
 
                         <button
+
                           onClick={() =>
-                            setActiveMenu(
-                              activeMenu === user.id
-                                ? null
-                                : user.id
-                            )
+                            handleViewUser(user)
                           }
-                          className="p-2 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition"
-                          title="User options"
+
+                          className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition"
+
                         >
 
-                          <MoreVertical size={18} />
+                          <Eye size={16} />
+
+                          View Details
 
                         </button>
 
 
-                        {/* Dropdown */}
 
-                        {activeMenu === user.id && (
+                        {/* DELETE USER */}
 
-                          <div className="absolute right-0 top-10 w-36 bg-white border border-slate-200 rounded-lg shadow-lg z-20 py-1">
+                        <button
 
-                            <button
-                              onClick={() =>
-                                handleDeleteClick(user)
-                              }
-                              className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition"
-                            >
+                          onClick={() =>
+                            handleDeleteClick(user)
+                          }
 
-                              <Trash2 size={16} />
+                          className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition"
 
-                              Delete User
+                        >
 
-                            </button>
+                          <Trash2 size={16} />
 
-                          </div>
+                          Delete User
 
-                        )}
+                        </button>
+
 
                       </div>
 
@@ -456,10 +671,15 @@ const Users = () => {
                 <tr>
 
                   <td
+
                     colSpan="4"
+
                     className="text-center py-10 text-sm text-slate-500"
+
                   >
+
                     No users found.
+
                   </td>
 
                 </tr>
@@ -473,17 +693,424 @@ const Users = () => {
         </div>
 
 
-        {/* Bottom Info */}
+
+        {/* BOTTOM INFO */}
 
         <div className="bg-slate-50 px-5 py-3 border-t border-slate-200">
 
           <p className="text-xs text-slate-500">
+
             Showing {filteredUsers.length} of {users.length} users
+
           </p>
 
         </div>
 
       </div>
+
+
+
+      {/* ================= USER DETAILS MODAL ================= */}
+
+      {viewUser && (
+
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+
+
+          <div
+
+            className="absolute inset-0 bg-black/50"
+
+            onClick={() =>
+              setViewUser(null)
+            }
+
+          />
+
+
+          <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white rounded-xl shadow-xl">
+
+
+            {/* MODAL HEADER */}
+
+            <div className="flex items-center justify-between px-6 py-5 border-b border-slate-200">
+
+
+              <div className="flex items-center gap-3">
+
+
+                <div className="w-11 h-11 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+
+                  {viewUser.name
+                    ?.charAt(0)
+                    .toUpperCase()}
+
+                </div>
+
+
+                <div>
+
+                  <h2 className="text-lg font-bold text-slate-800">
+                    User Details
+                  </h2>
+
+                  <p className="text-sm text-slate-500">
+                    Complete registration information
+                  </p>
+
+                </div>
+
+              </div>
+
+
+              <button
+
+                onClick={() =>
+                  setViewUser(null)
+                }
+
+                className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition"
+
+              >
+
+                <X size={20} />
+
+              </button>
+
+            </div>
+
+
+
+            {/* USER DETAILS */}
+
+            <div className="p-6 space-y-6">
+
+
+              {/* BASIC INFORMATION */}
+
+              <div>
+
+                <h3 className="text-sm font-bold text-slate-800 mb-4">
+                  Basic Information
+                </h3>
+
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+
+                  <div className="border border-slate-200 rounded-lg p-3">
+
+                    <div className="flex items-center gap-2 text-slate-400 mb-1">
+
+                      <User size={16} />
+
+                      <span className="text-xs">
+                        Full Name
+                      </span>
+
+                    </div>
+
+                    <p className="text-sm font-medium text-slate-800">
+                      {viewUser.name || "-"}
+                    </p>
+
+                  </div>
+
+
+
+                  <div className="border border-slate-200 rounded-lg p-3">
+
+                    <div className="flex items-center gap-2 text-slate-400 mb-1">
+
+                      <Mail size={16} />
+
+                      <span className="text-xs">
+                        Email Address
+                      </span>
+
+                    </div>
+
+                    <p className="text-sm font-medium text-slate-800 break-all">
+                      {viewUser.email || "-"}
+                    </p>
+
+                  </div>
+
+
+
+                  <div className="border border-slate-200 rounded-lg p-3">
+
+                    <div className="flex items-center gap-2 text-slate-400 mb-1">
+
+                      <Phone size={16} />
+
+                      <span className="text-xs">
+                        Phone Number
+                      </span>
+
+                    </div>
+
+                    <p className="text-sm font-medium text-slate-800">
+                      {viewUser.phoneNumber || "-"}
+                    </p>
+
+                  </div>
+
+
+
+                  <div className="border border-slate-200 rounded-lg p-3">
+
+                    <div className="flex items-center gap-2 text-slate-400 mb-1">
+
+                      <Shield size={16} />
+
+                      <span className="text-xs">
+                        Account Role
+                      </span>
+
+                    </div>
+
+                    <span
+
+                      className={`inline-flex px-2.5 py-1 rounded-md text-xs font-medium ${getRoleStyle(
+                        viewUser.role
+                      )}`}
+
+                    >
+
+                      {viewUser.role?.replaceAll(
+                        "_",
+                        " "
+                      )}
+
+                    </span>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+
+
+              {/* BUSINESS CLIENT */}
+
+              {viewUser.role === "BUSINESS_CLIENT" && (
+
+                <div>
+
+                  <h3 className="text-sm font-bold text-slate-800 mb-4">
+                    Business Information
+                  </h3>
+
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+
+                    <div className="border border-slate-200 rounded-lg p-3">
+
+                      <div className="flex items-center gap-2 text-slate-400 mb-1">
+
+                        <Building2 size={16} />
+
+                        <span className="text-xs">
+                          Company Name
+                        </span>
+
+                      </div>
+
+                      <p className="text-sm font-medium text-slate-800">
+                        {viewUser.companyName || "-"}
+                      </p>
+
+                    </div>
+
+
+
+                    <div className="border border-slate-200 rounded-lg p-3">
+
+                      <div className="flex items-center gap-2 text-slate-400 mb-1">
+
+                        <ReceiptText size={16} />
+
+                        <span className="text-xs">
+                          GST ID
+                        </span>
+
+                      </div>
+
+                      <p className="text-sm font-medium text-slate-800">
+                        {viewUser.gstId || "-"}
+                      </p>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+              )}
+
+
+
+              {/* LOGISTICS OPERATOR */}
+
+              {viewUser.role === "LOGISTICS_OPERATOR" && (
+
+                <div>
+
+                  <h3 className="text-sm font-bold text-slate-800 mb-4">
+                    Logistics Information
+                  </h3>
+
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+
+                    <div className="border border-slate-200 rounded-lg p-3">
+
+                      <div className="flex items-center gap-2 text-slate-400 mb-1">
+
+                        <Truck size={16} />
+
+                        <span className="text-xs">
+                          Logistics Company
+                        </span>
+
+                      </div>
+
+                      <p className="text-sm font-medium text-slate-800">
+                        {viewUser.logisticsCompanyName || "-"}
+                      </p>
+
+                    </div>
+
+
+
+                    <div className="border border-slate-200 rounded-lg p-3">
+
+                      <div className="flex items-center gap-2 text-slate-400 mb-1">
+
+                        <BadgeCheck size={16} />
+
+                        <span className="text-xs">
+                          Transport License Number
+                        </span>
+
+                      </div>
+
+                      <p className="text-sm font-medium text-slate-800">
+                        {viewUser.transportLicenseNumber || "-"}
+                      </p>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+              )}
+
+
+
+              {/* SUPPORT AGENT */}
+
+              {viewUser.role === "SUPPORT_AGENT" && (
+
+                <div>
+
+                  <h3 className="text-sm font-bold text-slate-800 mb-4">
+                    Employee Information
+                  </h3>
+
+
+                  <div className="border border-slate-200 rounded-lg p-3">
+
+                    <div className="flex items-center gap-2 text-slate-400 mb-1">
+
+                      <BadgeCheck size={16} />
+
+                      <span className="text-xs">
+                        Employee ID
+                      </span>
+
+                    </div>
+
+                    <p className="text-sm font-medium text-slate-800">
+                      {viewUser.employeeId || "-"}
+                    </p>
+
+                  </div>
+
+                </div>
+
+              )}
+
+
+
+              {/* ACCOUNT INFORMATION */}
+
+              <div>
+
+                <h3 className="text-sm font-bold text-slate-800 mb-4">
+                  Account Information
+                </h3>
+
+
+                <div className="border border-slate-200 rounded-lg p-3">
+
+                  <div className="flex items-center gap-2 text-slate-400 mb-1">
+
+                    <Calendar size={16} />
+
+                    <span className="text-xs">
+                      Registered On
+                    </span>
+
+                  </div>
+
+                  <p className="text-sm font-medium text-slate-800">
+
+                    {formatDate(
+                      viewUser.createdAt
+                    )}
+
+                  </p>
+
+                </div>
+
+              </div>
+
+            </div>
+
+
+
+            {/* MODAL FOOTER */}
+
+            <div className="flex justify-end px-6 py-4 border-t border-slate-200">
+
+              <button
+
+                onClick={() =>
+                  setViewUser(null)
+                }
+
+                className="px-5 py-2.5 text-sm font-medium bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition"
+
+              >
+
+                Close
+
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      )}
+
 
 
       {/* ================= DELETE CONFIRMATION MODAL ================= */}
@@ -492,23 +1119,29 @@ const Users = () => {
 
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
 
-          {/* Overlay */}
 
           <div
+
             className="absolute inset-0 bg-black/50"
-            onClick={() => setSelectedUser(null)}
+
+            onClick={() =>
+              setSelectedUser(null)
+            }
+
           />
 
 
-          {/* Modal */}
-
           <div className="relative w-full max-w-md bg-white rounded-xl shadow-xl p-6">
 
-            {/* Close Button */}
 
             <button
-              onClick={() => setSelectedUser(null)}
+
+              onClick={() =>
+                setSelectedUser(null)
+              }
+
               className="absolute right-4 top-4 text-slate-400 hover:text-slate-700"
+
             >
 
               <X size={20} />
@@ -516,7 +1149,6 @@ const Users = () => {
             </button>
 
 
-            {/* Warning Icon */}
 
             <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mb-4">
 
@@ -528,9 +1160,11 @@ const Users = () => {
             </div>
 
 
+
             <h2 className="text-lg font-bold text-slate-800">
               Delete User?
             </h2>
+
 
 
             <p className="text-sm text-slate-500 mt-2">
@@ -546,21 +1180,32 @@ const Users = () => {
             </p>
 
 
-            {/* Buttons */}
 
             <div className="flex justify-end gap-3 mt-6">
 
+
               <button
-                onClick={() => setSelectedUser(null)}
+
+                onClick={() =>
+                  setSelectedUser(null)
+                }
+
                 className="px-4 py-2.5 text-sm font-medium border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 transition"
+
               >
+
                 Cancel
+
               </button>
 
 
+
               <button
+
                 onClick={confirmDeleteUser}
+
                 className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold bg-red-600 hover:bg-red-700 text-white rounded-lg transition"
+
               >
 
                 <Trash2 size={17} />
@@ -578,7 +1223,10 @@ const Users = () => {
       )}
 
     </div>
+
   );
+
 };
+
 
 export default Users;

@@ -81,7 +81,6 @@ function App() {
         <Route path="users" element={<Users />} />
         <Route path="create-shipment"  element={<CreateShipment />} />
         <Route path="shipments"  element={<Shipments />}/>
-/>
         </Route>
 
         {/* LOGISTICS OPERATOR ROUTES */}

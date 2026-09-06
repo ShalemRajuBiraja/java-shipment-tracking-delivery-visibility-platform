@@ -189,40 +189,6 @@ public class AuthService {
 		
 	}//jogin closes
 	
-	// ADMIN LOGIN FUNCATION
-//		public LoginResponseDto adminLogin( AdminLoginApiData adminLoginApiData) {
-//			
-//			Optional<UserEntity> ifEmailExist =	authRepository.findByEmail(adminLoginApiData.getEmail());
-//			
-//			if(ifEmailExist.isEmpty()) {
-//				throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Invalid Credentials");
-//			}
-//			
-//			UserEntity adminData = ifEmailExist.get();
-//
-//			
-//			if(!adminData.getPassword().equals(adminLoginApiData.getPassword())) {
-//				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid password");
-//			}
-//			
-//			
-//			if (!adminData.getRole().equals("ADMIN")) {
-//			        throw new ResponseStatusException(
-//			            HttpStatus.FORBIDDEN, "Access denied. Not an admin.");
-//			}
-//			 
-//			String jwtToken = jwtService.generateJwtToken(adminData);
-//			
-//			Map<String, Object> response = new HashMap<>();
-//			response.put("token", jwtToken);
-//			response.put("adminData", adminData);
-//			
-//			LoginResponseDto loginResponseDto = new LoginResponseDto();
-//			loginResponseDto.setUserData(adminData);
-//			loginResponseDto.setToken(jwtToken);
-//			
-//			return loginResponseDto;
-//			
-//		}//jogin closes
+
 
 }

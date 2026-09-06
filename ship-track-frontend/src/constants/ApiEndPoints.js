@@ -11,21 +11,17 @@ export const API_END_POINTS = {
     TRACK_SHIPMENT: "/api/track",
     GET_SHIPMENT_BY_ID: "/api/shipments",
     SHIPMENT_HISTORY: "/api/shipment-history",
-SUPPORT_STATS: "/api/support-requests/stats",
-
-GET_SUPPORT_REQUESTS: "/api/support-requests",
-
-SEARCH_SUPPORT_REQUESTS: "/api/support-requests/search",
-
-RESOLVED_SUPPORT_REQUESTS: "/api/support-requests/resolved",
-
-UPDATE_SUPPORT_REQUEST_STATUS: "/api/support-requests",
-
-SUPPORT_SHIPMENT_LOOKUP: "/api/support-agent/shipment-lookup",
-ADMIN_DASHBOARD_STATS: "/api/admin/dashboard-stats",
-GET_ADMIN_SHIPMENTS: "/api/admin/dashboard-shipments",
-DELETE_SHIPMENT: "/api/admin/delete-shipment",
-ADMIN_USER_DELETE: "/api/admin/delete-user",
-GET_USERS: "/api/admin/users",
-UPDATE_ADMIN_PROFILE: "/api/admin/profile",
+    SUPPORT_STATS: "/api/support-requests/stats",
+    GET_SUPPORT_REQUESTS: "/api/support-requests",
+    SEARCH_SUPPORT_REQUESTS: "/api/support-requests/search",
+    RESOLVED_SUPPORT_REQUESTS: "/api/support-requests/resolved",
+    UPDATE_SUPPORT_REQUEST_STATUS: "/api/support-requests",
+    SUPPORT_SHIPMENT_LOOKUP: "/api/support-agent/shipment-lookup",
+    ADMIN_DASHBOARD_STATS: "/api/admin/dashboard-stats",
+    GET_ADMIN_SHIPMENTS: "/api/admin/dashboard-shipments",
+    DELETE_SHIPMENT: "/api/admin/delete-shipment",
+    ADMIN_USER_DELETE: "/api/admin/delete-user",
+    GET_USERS: "/api/admin/users",
+    UPDATE_ADMIN_PROFILE: "/api/admin/profile",
+    UPDATE_ADMIN_PASSWORD: "/api/admin/update-password",
 }

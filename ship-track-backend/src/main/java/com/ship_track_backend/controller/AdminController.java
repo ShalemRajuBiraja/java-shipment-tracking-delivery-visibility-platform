@@ -4,6 +4,7 @@ import com.ship_track_backend.dto.AdminDashboardResponse;
 import com.ship_track_backend.dto.AdminLoginResponse;
 import com.ship_track_backend.payload.ApiResponse;
 import com.ship_track_backend.pojo.AdminLoginRequest;
+import com.ship_track_backend.pojo.AdminPasswordUpdateRequest;
 import com.ship_track_backend.service.AdminService;
 
 import jakarta.validation.Valid;
@@ -11,6 +12,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -83,7 +85,20 @@ public class AdminController {
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+    
+    @PutMapping("/api/admin/update-password")
+    public ResponseEntity<?> updateAdminPassword( @RequestBody AdminPasswordUpdateRequest adminPasswordUpdateRequest, 
+    		Authentication authentication ) {
+
+    	String emailString = authentication.getName();
+		adminService.updateAdminPassword(adminPasswordUpdateRequest, emailString);
+
+		ApiResponse<Void> response = new ApiResponse<>(true, "Admin password updated successfully", null);
+
+		return ResponseEntity.status(HttpStatus.OK).body(response);
+	}
 		
+    
 }
     
     

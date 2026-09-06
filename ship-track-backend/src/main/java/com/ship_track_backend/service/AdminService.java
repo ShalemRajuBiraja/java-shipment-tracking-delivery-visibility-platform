@@ -7,6 +7,7 @@ import com.ship_track_backend.entity.AdminEntity;
 import com.ship_track_backend.entity.ShipmentEntity;
 import com.ship_track_backend.entity.UserEntity;
 import com.ship_track_backend.pojo.AdminLoginRequest;
+import com.ship_track_backend.pojo.AdminPasswordUpdateRequest;
 import com.ship_track_backend.repository.AdminRepository;
 import com.ship_track_backend.repository.ShipmentRepository;
 import com.ship_track_backend.repository.UserRepository;
@@ -38,6 +39,8 @@ public class AdminService {
         this.adminRepository = adminRepository;
         this.jwtService = jwtService;
     }
+    
+    
     public AdminLoginResponse login(AdminLoginRequest request) {
 
         AdminEntity admin = adminRepository.findByEmail(request.getEmail())
@@ -229,4 +232,25 @@ public class AdminService {
         return userRepository.findAll();
     }
     
+    public void updateAdminPassword(AdminPasswordUpdateRequest adminPasswordUpdateRequest, String email) {
+
+		AdminEntity admin = adminRepository
+				.findByEmail(email)
+				.orElseThrow(() -> new ResponseStatusException(
+						HttpStatus.NOT_FOUND,
+						"Admin not found"
+				));
+
+		if (!admin.getPassword().equals(adminPasswordUpdateRequest.getCurrentPassword())) {
+			throw new ResponseStatusException(
+					HttpStatus.BAD_REQUEST,
+					"Old password is incorrect"
+			);
+		}
+
+		admin.setPassword(adminPasswordUpdateRequest.getNewPassword());
+		adminRepository.save(admin);
+	}
+
+		
 }

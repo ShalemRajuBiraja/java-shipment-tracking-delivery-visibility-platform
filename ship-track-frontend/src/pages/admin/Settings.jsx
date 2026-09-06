@@ -5,6 +5,8 @@ import {
   Eye,
   EyeOff,
 } from "lucide-react";
+import { updateAdminPasswordApi } from "../../services/adminService";
+import { toast } from "react-toastify";
 
 const Settings = () => {
 
@@ -14,84 +16,76 @@ const Settings = () => {
     confirmPassword: "",
   });
 
-  const [showCurrentPassword, setShowCurrentPassword] =
-    useState(false);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const [showNewPassword, setShowNewPassword] =
-    useState(false);
-
-  const [showConfirmPassword, setShowConfirmPassword] =
-    useState(false);
-
+  const handlePasswordChange = (e) => {
+    const { name, value } = e.target;
+    setPasswordData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  }
 
   // ================= PASSWORD CHANGE =================
 
-  const handlePasswordChange = (event) => {
-
-    const { name, value } = event.target;
-
-    setPasswordData((previous) => ({
-      ...previous,
-      [name]: value,
-    }));
-
-  };
-
-
-  // ================= UPDATE PASSWORD =================
-
-  const handlePasswordSubmit = (event) => {
-
-    event.preventDefault();
-
-    if (
-      !passwordData.currentPassword ||
-      !passwordData.newPassword ||
-      !passwordData.confirmPassword
-    ) {
-
-      alert("Please fill all password fields.");
-      return;
-
-    }
-
-
-    if (
-      passwordData.newPassword !==
-      passwordData.confirmPassword
-    ) {
-
-      alert("New passwords do not match!");
-      return;
-
-    }
-
-
-    if (passwordData.newPassword.length < 6) {
-
-      alert(
-        "Password must contain at least 6 characters."
-      );
-
-      return;
-
-    }
-
-
-    // Backend API integration later
-    console.log("Password Updated");
-
-
-    setPasswordData({
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: "",
-    });
-
-
-    alert("Password updated successfully!");
-
-  };
+  const handlePasswordSubmit = async (e) => {
+ 
+     e.preventDefault();
+ 
+     if (
+       !passwordData.currentPassword ||
+       !passwordData.newPassword ||
+       !passwordData.confirmPassword
+     ) {
+ 
+       toast.error("Please fill all password fields.");
+       return;
+ 
+     }
+ 
+ 
+     if (
+       passwordData.newPassword !==
+       passwordData.confirmPassword
+     ) {
+ 
+       toast.error("New passwords do not match.");
+       return;
+ 
+     }
+ 
+ 
+     if (passwordData.newPassword.length < 6) {
+ 
+       toast.error(
+         "Password must contain at least 6 characters."
+       );
+ 
+       return;
+ 
+     }
+ 
+      try {
+           const response = await updateAdminPasswordApi(passwordData.currentPassword, passwordData.newPassword);
+     
+           if (response.data.success === true) {
+             toast.success("Password updated successfully!");
+             setPasswordData({
+               currentPassword: "",
+               newPassword: "",
+               confirmPassword: "",
+             });
+           } else {
+             toast.error("Failed to update password. Please try again.");
+           }
+     
+         } catch (error) {
+           console.error("Error updating password:", error);
+           toast.error("Failed to update password. Please try again.");
+         }
+   };
 
 
   return (

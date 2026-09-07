@@ -1,47 +1,35 @@
 import { useState } from "react";
 import {
-  UserRound,
-  Mail,
-  Phone,
   Lock,
-  Save,
   ShieldCheck,
-  Send,
-  IdCard,
-  MessageSquare,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { toast } from "react-toastify";
+import { updatePasswordApi } from "../../services/authService";
 
 const OperatorSettings = () => {
-  const [profileData, setProfileData] = useState({
-    name: "Logistics Operator",
-    email: "operator@email.com",
-    phone: "+91 98765 43210",
-    licenseId: "LIC-2026-001",
-  });
-
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
 
-  const [contactData, setContactData] = useState({
-    name: "",
-    email: "",
-    operatorId: "",
-    issue: "",
+  // ================= SHOW/HIDE PASSWORD =================
+  const [showPassword, setShowPassword] = useState({
+    currentPassword: false,
+    newPassword: false,
+    confirmPassword: false,
   });
 
-  const handleProfileChange = (event) => {
-    const { name, value } = event.target;
-
-    setProfileData((previous) => ({
+  const toggleShowPassword = (field) => {
+    setShowPassword((previous) => ({
       ...previous,
-      [name]: value,
+      [field]: !previous[field],
     }));
   };
 
+  // ================= PASSWORD CHANGE =================
   const handlePasswordChange = (event) => {
     const { name, value } = event.target;
 
@@ -51,57 +39,49 @@ const OperatorSettings = () => {
     }));
   };
 
-  const handleContactChange = (event) => {
-    const { name, value } = event.target;
-
-    setContactData((previous) => ({
-      ...previous,
-      [name]: value,
-    }));
-  };
-
-  const handleProfileSubmit = (event) => {
-    event.preventDefault();
-
-    console.log("Profile Data:", profileData);
-    toast.success("Profile updated successfully!");
-  };
-
-  const handlePasswordSubmit = (event) => {
-    event.preventDefault();
-
-    if (
-      passwordData.newPassword !==
-      passwordData.confirmPassword
-    ) {
-      toast.error("New passwords do not match!");
-      return;
-    }
-
-    console.log("Password Data:", passwordData);
-    toast.success("Password updated successfully!");
-
-    setPasswordData({
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: "",
-    });
-  };
-
-  const handleContactSubmit = (event) => {
-    event.preventDefault();
-
-    console.log("Contact Admin:", contactData);
-    toast.success("Your request has been sent to the administrator!");
-
-    setContactData({
-      name: "",
-      email: "",
-      operatorId: "",
-      issue: "",
-    });
-  };
-
+  // ================= UPDATE PASSWORD =================
+  const handlePasswordSubmit = async (e) => {
+      e.preventDefault();
+  
+      if (
+        !passwordData.currentPassword ||
+        !passwordData.newPassword ||
+        !passwordData.confirmPassword
+      ) {
+        toast.error("Please fill all password fields.");
+        return;
+      }
+  
+      if (passwordData.newPassword !== passwordData.confirmPassword) {
+        toast.error("New passwords do not match.");
+        return;
+      }
+  
+      if (passwordData.newPassword.length < 6) {
+        toast.error("Password must contain at least 6 characters.");
+        return;
+      }
+  
+      try {
+        const response = await updatePasswordApi(passwordData.currentPassword, passwordData.newPassword);
+  
+        if (response.data.success === true) {
+          toast.success("Password updated successfully!");
+          setPasswordData({
+            currentPassword: "",
+            newPassword: "",
+            confirmPassword: "",
+          });
+        } else {
+          toast.error("Failed to update password. Please try again.");
+        }
+  
+      } catch (error) {
+        console.error("Error updating password:", error);
+        toast.error("Failed to update password. Please try again.");
+      }
+      
+    };
   return (
     <div className="space-y-5">
 
@@ -112,432 +92,182 @@ const OperatorSettings = () => {
         </h1>
 
         <p className="mt-1 text-sm text-slate-500">
-          Manage your operator profile, security, and administrator support.
+          Manage your account security settings.
         </p>
       </div>
 
 
-      {/* ================= TOP TWO CARDS ================= */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
+      {/* ================= PASSWORD & SECURITY ================= */}
+      <section className="bg-white border border-slate-200 rounded-xl shadow-sm p-5 max-w-lg">
+
+        {/* Header */}
+        <div className="flex items-center gap-3 mb-5 pb-4 border-b border-slate-200">
+
+          <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center">
+            <ShieldCheck
+              size={20}
+              className="text-emerald-600"
+            />
+          </div>
+
+          <div>
+            <h2 className="font-bold text-slate-800">
+              Password & Security
+            </h2>
+
+            <p className="text-sm text-slate-500">
+              Keep your account secure.
+            </p>
+          </div>
+
+        </div>
 
 
-        {/* ================= OPERATOR PROFILE ================= */}
-        <section className="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
+        {/* ================= PASSWORD FORM ================= */}
+        <form onSubmit={handlePasswordSubmit}>
 
-          {/* Header */}
-          <div className="flex items-center gap-3 mb-5 pb-4 border-b border-slate-200">
+          <div className="space-y-4">
 
-            <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center">
-              <UserRound
-                size={20}
-                className="text-emerald-600"
-              />
+            {/* Current Password */}
+            <div>
+
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                Current Password
+              </label>
+
+              <div className="relative">
+
+                <Lock
+                  size={17}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                />
+
+                <input
+                  type={showPassword.currentPassword ? "text" : "password"}
+                  name="currentPassword"
+                  placeholder="Enter current password"
+                  value={passwordData.currentPassword}
+                  onChange={handlePasswordChange}
+                  className="w-full pl-10 pr-10 py-2.5 text-sm border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+
+                <button
+                  type="button"
+                  onClick={() => toggleShowPassword("currentPassword")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                >
+                  {showPassword.currentPassword ? (
+                    <EyeOff size={17} />
+                  ) : (
+                    <Eye size={17} />
+                  )}
+                </button>
+
+              </div>
+
             </div>
 
-            <div>
-              <h2 className="font-bold text-slate-800">
-                Operator Profile
-              </h2>
 
-              <p className="text-sm text-slate-500">
-                Update your operator information.
-              </p>
+            {/* New Password */}
+            <div>
+
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                New Password
+              </label>
+
+              <div className="relative">
+
+                <Lock
+                  size={17}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                />
+
+                <input
+                  type={showPassword.newPassword ? "text" : "password"}
+                  name="newPassword"
+                  placeholder="Enter new password"
+                  value={passwordData.newPassword}
+                  onChange={handlePasswordChange}
+                  className="w-full pl-10 pr-10 py-2.5 text-sm border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+
+                <button
+                  type="button"
+                  onClick={() => toggleShowPassword("newPassword")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                >
+                  {showPassword.newPassword ? (
+                    <EyeOff size={17} />
+                  ) : (
+                    <Eye size={17} />
+                  )}
+                </button>
+
+              </div>
+
+            </div>
+
+
+            {/* Confirm Password */}
+            <div>
+
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                Confirm New Password
+              </label>
+
+              <div className="relative">
+
+                <Lock
+                  size={17}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                />
+
+                <input
+                  type={showPassword.confirmPassword ? "text" : "password"}
+                  name="confirmPassword"
+                  placeholder="Confirm new password"
+                  value={passwordData.confirmPassword}
+                  onChange={handlePasswordChange}
+                  className="w-full pl-10 pr-10 py-2.5 text-sm border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+
+                <button
+                  type="button"
+                  onClick={() => toggleShowPassword("confirmPassword")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                >
+                  {showPassword.confirmPassword ? (
+                    <EyeOff size={17} />
+                  ) : (
+                    <Eye size={17} />
+                  )}
+                </button>
+
+              </div>
+
             </div>
 
           </div>
 
 
-          {/* Profile Form */}
-          <form onSubmit={handleProfileSubmit}>
+          {/* Update Password */}
+          <div className="flex justify-end mt-5">
 
-            <div className="space-y-4">
+            <button
+              type="submit"
+              className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-lg text-sm font-semibold transition"
+            >
+              <Lock size={17} />
 
-
-              {/* Operator Name */}
-              <div>
-
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Operator Name
-                </label>
-
-                <div className="relative">
-
-                  <UserRound
-                    size={17}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-                  />
-
-                  <input
-                    type="text"
-                    name="name"
-                    value={profileData.name}
-                    onChange={handleProfileChange}
-                    className="w-full pl-10 pr-4 py-2.5 text-sm border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-emerald-500"
-                  />
-
-                </div>
-
-              </div>
-
-
-              {/* Email */}
-              <div>
-
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Email Address
-                </label>
-
-                <div className="relative">
-
-                  <Mail
-                    size={17}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-                  />
-
-                  <input
-                    type="email"
-                    name="email"
-                    value={profileData.email}
-                    onChange={handleProfileChange}
-                    className="w-full pl-10 pr-4 py-2.5 text-sm border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-emerald-500"
-                  />
-
-                </div>
-
-              </div>
-
-
-              {/* Phone */}
-              <div>
-
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Phone Number
-                </label>
-
-                <div className="relative">
-
-                  <Phone
-                    size={17}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-                  />
-
-                  <input
-                    type="text"
-                    name="phone"
-                    value={profileData.phone}
-                    onChange={handleProfileChange}
-                    className="w-full pl-10 pr-4 py-2.5 text-sm border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-emerald-500"
-                  />
-
-                </div>
-
-              </div>
-
-
-              {/* License ID */}
-              <div>
-
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  License ID
-                </label>
-
-                <div className="relative">
-
-                  <IdCard
-                    size={17}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-                  />
-
-                  <input
-                    type="text"
-                    name="licenseId"
-                    value={profileData.licenseId}
-                    onChange={handleProfileChange}
-                    className="w-full pl-10 pr-4 py-2.5 text-sm border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-emerald-500"
-                  />
-
-                </div>
-
-              </div>
-
-            </div>
-
-
-            {/* Save */}
-            <div className="flex justify-end mt-5">
-
-              <button
-                type="submit"
-                className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-lg text-sm font-semibold transition"
-              >
-                <Save size={17} />
-
-                Save Profile
-              </button>
-
-            </div>
-
-          </form>
-
-        </section>
-
-
-        {/* ================= PASSWORD & SECURITY ================= */}
-        <section className="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
-
-          {/* Header */}
-          <div className="flex items-center gap-3 mb-5 pb-4 border-b border-slate-200">
-
-            <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center">
-              <ShieldCheck
-                size={20}
-                className="text-emerald-600"
-              />
-            </div>
-
-            <div>
-              <h2 className="font-bold text-slate-800">
-                Password & Security
-              </h2>
-
-              <p className="text-sm text-slate-500">
-                Keep your account secure.
-              </p>
-            </div>
+              Update Password
+            </button>
 
           </div>
 
+        </form>
 
-          {/* Password Form */}
-          <form onSubmit={handlePasswordSubmit}>
+      </section>
 
-            <div className="space-y-4">
-
-
-              {/* Current Password */}
-              <div>
-
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Current Password
-                </label>
-
-                <div className="relative">
-
-                  <Lock
-                    size={17}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-                  />
-
-                  <input
-                    type="password"
-                    name="currentPassword"
-                    placeholder="Enter current password"
-                    value={passwordData.currentPassword}
-                    onChange={handlePasswordChange}
-                    className="w-full pl-10 pr-4 py-2.5 text-sm border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-emerald-500"
-                  />
-
-                </div>
-
-              </div>
-
-
-              {/* New Password */}
-              <div>
-
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  New Password
-                </label>
-
-                <div className="relative">
-
-                  <Lock
-                    size={17}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-                  />
-
-                  <input
-                    type="password"
-                    name="newPassword"
-                    placeholder="Enter new password"
-                    value={passwordData.newPassword}
-                    onChange={handlePasswordChange}
-                    className="w-full pl-10 pr-4 py-2.5 text-sm border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-emerald-500"
-                  />
-
-                </div>
-
-              </div>
-
-
-              {/* Confirm Password */}
-              <div>
-
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Confirm New Password
-                </label>
-
-                <div className="relative">
-
-                  <Lock
-                    size={17}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-                  />
-
-                  <input
-                    type="password"
-                    name="confirmPassword"
-                    placeholder="Confirm new password"
-                    value={passwordData.confirmPassword}
-                    onChange={handlePasswordChange}
-                    className="w-full pl-10 pr-4 py-2.5 text-sm border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-emerald-500"
-                  />
-
-                </div>
-
-              </div>
-
-            </div>
-
-
-            {/* Update Password */}
-            <div className="flex justify-end mt-5">
-
-              <button
-                type="submit"
-                className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-lg text-sm font-semibold transition"
-              >
-                <Lock size={17} />
-
-                Update Password
-              </button>
-
-            </div>
-
-          </form>
-
-        </section>
-
-      </div>
-
-
-             {/* ================= CONTACT ADMIN ================= */}
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
-
-            <section className="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
-
-                {/* Header */}
-                <div className="flex items-center gap-3 mb-5 pb-4 border-b border-slate-200">
-
-                <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center">
-                    <MessageSquare
-                    size={20}
-                    className="text-emerald-600"
-                    />
-                </div>
-
-                <div>
-                    <h2 className="font-bold text-slate-800">
-                    Contact Administrator
-                    </h2>
-
-                    <p className="text-sm text-slate-500">
-                    Send your issue directly to the administrator.
-                    </p>
-                </div>
-
-                </div>
-
-
-                {/* Contact Form */}
-                <form onSubmit={handleContactSubmit}>
-
-                <div className="space-y-4">
-
-                    <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
-                        Full Name
-                    </label>
-
-                    <input
-                        type="text"
-                        name="name"
-                        placeholder="Enter your name"
-                        value={contactData.name}
-                        onChange={handleContactChange}
-                        className="w-full px-4 py-2.5 text-sm border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-emerald-500"
-                    />
-                    </div>
-
-
-                    <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
-                        Email Address
-                    </label>
-
-                    <input
-                        type="email"
-                        name="email"
-                        placeholder="Enter your email"
-                        value={contactData.email}
-                        onChange={handleContactChange}
-                        className="w-full px-4 py-2.5 text-sm border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-emerald-500"
-                    />
-                    </div>
-
-
-                    <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
-                        Operator ID
-                    </label>
-
-                    <input
-                        type="text"
-                        name="operatorId"
-                        placeholder="Enter your operator ID"
-                        value={contactData.operatorId}
-                        onChange={handleContactChange}
-                        className="w-full px-4 py-2.5 text-sm border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-emerald-500"
-                    />
-                    </div>
-
-
-                    <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
-                        Describe Your Issue
-                    </label>
-
-                    <textarea
-                        name="issue"
-                        rows="4"
-                        placeholder="Explain your issue clearly..."
-                        value={contactData.issue}
-                        onChange={handleContactChange}
-                        className="w-full px-4 py-3 text-sm border border-slate-300 rounded-lg outline-none resize-none focus:ring-2 focus:ring-emerald-500"
-                    />
-                    </div>
-
-                </div>
-
-
-                <div className="flex justify-end mt-5">
-
-                    <button
-                    type="submit"
-                    className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-lg text-sm font-semibold transition"
-                    >
-                    <Send size={17} />
-
-                    Send Request
-                    </button>
-
-                </div>
-
-                </form>
-
-            </section>
-
-            </div>
 
       {/* Footer */}
       <footer className="text-center text-xs text-slate-500 py-2">

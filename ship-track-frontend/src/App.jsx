@@ -29,6 +29,8 @@ import OperatorShipments from "./pages/LogisticsOperator/OperatorShipments";
 import OperatorSettings from "./pages/LogisticsOperator/OperatorSettings";
 import OperatorShipmentDetails from "./pages/LogisticsOperator/OperatorShipmentDetails";
 import OperatorLayout from "./pages/LogisticsOperator/OperatorLayout";
+import OperatorSupport from "./pages/LogisticsOperator/OperatorSupport";
+
 
 // Authentication
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -87,6 +89,7 @@ function App() {
         <Route path="shipments" element={<OperatorShipments />} />
         <Route path="settings" element={<OperatorSettings />} />
         <Route path="shipments/:id" element={<OperatorShipmentDetails />}/>
+        <Route path="support" element={<OperatorSupport />}/>``
         </Route>
 
         {/* SUPPORT AGENT ROUTES */}

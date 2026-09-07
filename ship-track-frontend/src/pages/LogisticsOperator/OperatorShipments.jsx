@@ -1,62 +1,92 @@
-import { useState } from "react";
-import { Search, Package, MapPin } from "lucide-react";
-
-const shipmentsData = [
-  {
-    id: "SHP001",
-    customer: "ABC Logistics",
-    origin: "Hyderabad",
-    destination: "Bangalore",
-    status: "In Transit",
-  },
-  {
-    id: "SHP002",
-    customer: "Global Traders",
-    origin: "Chennai",
-    destination: "Mumbai",
-    status: "Delivered",
-  },
-  {
-    id: "SHP003",
-    customer: "Fast Freight",
-    origin: "Delhi",
-    destination: "Hyderabad",
-    status: "Pending",
-  },
-  {
-    id: "SHP004",
-    customer: "Express Cargo",
-    origin: "Mumbai",
-    destination: "Pune",
-    status: "In Transit",
-  },
-];
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Search, Package, MapPin, Eye } from "lucide-react";
+import { getAllOperatorShipments } from "../../services/operatorService";
 
 const OperatorShipments = () => {
-  const [searchTerm, setSearchTerm] = useState("");
 
-  const filteredShipments = shipmentsData.filter((shipment) =>
-    shipment.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    shipment.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    shipment.origin.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    shipment.destination.toLowerCase().includes(searchTerm.toLowerCase())
+  const navigate = useNavigate();
+
+  const [shipments, setShipments] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(true);
+
+
+  useEffect(() => {
+    fetchShipments();
+  }, []);
+
+
+  const fetchShipments = async () => {
+    try {
+      const response = await getAllOperatorShipments();
+
+      if (response.data.success === true) {
+        setShipments(response.data.data);
+      }
+
+    } catch (error) {
+      console.error("Error fetching shipments:", error);
+
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  const filteredShipments = shipments.filter((shipment) =>
+    shipment.trackingNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    shipment.senderName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    shipment.receiverName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    shipment.pickupCity?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    shipment.deliveryCity?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
 
   const getStatusStyle = (status) => {
     switch (status) {
-      case "Delivered":
+
+      case "DELIVERED":
         return "bg-green-100 text-green-700";
 
-      case "In Transit":
+      case "IN_TRANSIT":
         return "bg-blue-100 text-blue-700";
 
-      case "Pending":
+      case "CREATED":
         return "bg-amber-100 text-amber-700";
+
+      case "PICKED_UP":
+        return "bg-purple-100 text-purple-700";
+
+      case "OUT_FOR_DELIVERY":
+        return "bg-orange-100 text-orange-700";
+
+      case "CANCELLED":
+        return "bg-red-100 text-red-700";
 
       default:
         return "bg-slate-100 text-slate-700";
     }
   };
+
+
+  const formatStatus = (status) => {
+    return status
+      ?.replaceAll("_", " ")
+      .toLowerCase()
+      .replace(/\b\w/g, (char) => char.toUpperCase());
+  };
+
+
+  const handleViewDetails = (id) => {
+    navigate(`/logistics-operator/shipments/${id}`);
+  };
+
+
+  if (loading) {
+    return <div>Loading shipments...</div>;
+  }
+
 
   return (
     <div className="space-y-5">
@@ -68,7 +98,7 @@ const OperatorShipments = () => {
         </h1>
 
         <p className="mt-1 text-sm text-slate-500">
-          View and manage shipments assigned to you.
+          View and manage all shipments.
         </p>
       </div>
 
@@ -85,11 +115,11 @@ const OperatorShipments = () => {
 
         <div>
           <p className="text-xs text-slate-500">
-            Assigned Shipments
+            Total Shipments
           </p>
 
           <p className="text-lg font-semibold text-slate-800">
-            {shipmentsData.length}
+            {shipments.length}
           </p>
         </div>
 
@@ -108,7 +138,7 @@ const OperatorShipments = () => {
             </h2>
 
             <p className="mt-1 text-xs text-slate-500">
-              Monitor your assigned shipments.
+              Monitor and manage all shipments in the system.
             </p>
           </div>
 
@@ -139,17 +169,22 @@ const OperatorShipments = () => {
         {/* Table */}
         <div className="overflow-x-auto">
 
-          <table className="w-full min-w-[700px]">
+          <table className="w-full min-w-[900px]">
 
             <thead className="border-b border-slate-200 bg-slate-50">
 
               <tr>
+
                 <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500">
-                  Shipment ID
+                  Tracking Number
                 </th>
 
                 <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500">
-                  Customer
+                  Sender
+                </th>
+
+                <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500">
+                  Receiver
                 </th>
 
                 <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500">
@@ -159,6 +194,11 @@ const OperatorShipments = () => {
                 <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500">
                   Status
                 </th>
+
+                <th className="px-5 py-3 text-center text-xs font-semibold text-slate-500">
+                  Action
+                </th>
+
               </tr>
 
             </thead>
@@ -174,12 +214,17 @@ const OperatorShipments = () => {
                 >
 
                   <td className="px-5 py-4 text-sm font-semibold text-emerald-600">
-                    {shipment.id}
+                    {shipment.trackingNumber}
                   </td>
 
 
                   <td className="px-5 py-4 text-sm text-slate-700">
-                    {shipment.customer}
+                    {shipment.senderName}
+                  </td>
+
+
+                  <td className="px-5 py-4 text-sm text-slate-700">
+                    {shipment.receiverName}
                   </td>
 
 
@@ -193,7 +238,7 @@ const OperatorShipments = () => {
                       />
 
                       <span>
-                        {shipment.origin}
+                        {shipment.pickupCity}
                       </span>
 
                       <span className="text-slate-400">
@@ -201,7 +246,7 @@ const OperatorShipments = () => {
                       </span>
 
                       <span>
-                        {shipment.destination}
+                        {shipment.deliveryCity}
                       </span>
 
                     </div>
@@ -216,8 +261,25 @@ const OperatorShipments = () => {
                         shipment.status
                       )}`}
                     >
-                      {shipment.status}
+                      {formatStatus(shipment.status)}
                     </span>
+
+                  </td>
+
+
+                  {/* View Details */}
+                  <td className="px-5 py-4 text-center">
+
+                    <button
+                      onClick={() =>
+                        handleViewDetails(shipment.id)
+                      }
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 px-3 py-1.5 text-xs font-medium text-emerald-600 transition hover:bg-emerald-50"
+                    >
+                      <Eye size={15} />
+
+                      View Details
+                    </button>
 
                   </td>
 

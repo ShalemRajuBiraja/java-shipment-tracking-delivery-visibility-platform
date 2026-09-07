@@ -24,4 +24,8 @@ export const API_END_POINTS = {
     GET_USERS: "/api/admin/users",
     UPDATE_ADMIN_PROFILE: "/api/admin/profile",
     UPDATE_ADMIN_PASSWORD: "/api/admin/update-password",
+    GET_LOGISTICS_OPERATOR_DASHBOARD_STATS: "/api/operator/dashboard",
+    GET_LOGISTICS_OPERATOR_SHIPMENTS: "/api/operator/shipments",
+    GET_OPERATOR_SHIPMENT_BY_ID: (id) =>`/api/operator/shipments/${id}`,
+    UPDATE_OPERATOR_SHIPMENT_STATUS: (id) =>`/api/operator/shipments/${id}/status`,
 }

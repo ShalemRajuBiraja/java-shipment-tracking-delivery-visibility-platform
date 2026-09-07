@@ -5,35 +5,36 @@ import {
   Clock,
 } from "lucide-react";
 
-const OperatorStats = () => {
+const OperatorStats = ({ dashboardData }) => {
+
   const stats = [
     {
-      title: "Assigned",
-      value: "24",
+      title: "Total Shipments",
+      value: dashboardData?.totalShipments || 0,
       icon: Package,
-      color: "text-blue-600",
       bg: "bg-blue-50",
+      color: "text-blue-600",
     },
     {
       title: "In Transit",
-      value: "12",
+      value: dashboardData?.inTransit || 0,
       icon: Truck,
-      color: "text-amber-600",
-      bg: "bg-amber-50",
+      bg: "bg-orange-50",
+      color: "text-orange-600",
     },
     {
       title: "Delivered",
-      value: "8",
+      value: dashboardData?.delivered || 0,
       icon: CheckCircle,
-      color: "text-emerald-600",
-      bg: "bg-emerald-50",
+      bg: "bg-green-50",
+      color: "text-green-600",
     },
     {
-      title: "Pending",
-      value: "4",
+      title: "Out for Delivery",
+      value: dashboardData?.outForDelivery || 0,
       icon: Clock,
-      color: "text-purple-600",
       bg: "bg-purple-50",
+      color: "text-purple-600",
     },
   ];
 

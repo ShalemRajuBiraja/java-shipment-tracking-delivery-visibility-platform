@@ -1,30 +1,47 @@
+import { useEffect, useState } from "react";
+
 import OperatorHeader from "./OperatorHeader";
 import OperatorStats from "./OperatorStats";
 import AssignedShipments from "./AssignedShipments";
-// import QuickActions from "./QuickActions";
+import { getDashboardData } from "../../services/operatorService";
 
 const OperatorDashboard = () => {
+  const [dashboardData, setDashboardData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      const response = await getDashboardData();
+
+      if(response.data.success === true){
+        setDashboardData(response.data.data);
+      }
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return <div>Loading dashboard...</div>;
+  }
+
   return (
     <>
       {/* Dashboard Header */}
       <OperatorHeader />
 
       {/* Statistics */}
-      <OperatorStats />
+      <OperatorStats dashboardData={dashboardData} />
 
-      {/* Main Content */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-5 mt-5">
-
-        {/* Assigned Shipments */}
-        <div className="xl:col-span-2">
-          <AssignedShipments />
-        </div>
-
-        {/* Quick Actions
-        <div>
-          <QuickActions />
-        </div> */}
-
+      {/* Assigned Shipments */}
+      <div className="mt-5">
+        <AssignedShipments />
       </div>
 
       {/* Footer */}

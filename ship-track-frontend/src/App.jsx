@@ -26,10 +26,8 @@ import Shipments from "./pages/Admin/Shipments";
 // Operator Pages
 import LogisticsOperatorDashboard from "./pages/LogisticsOperator/OperatorDashboard";
 import OperatorShipments from "./pages/LogisticsOperator/OperatorShipments";
-import TrackShipment from "./pages/LogisticsOperator/TrackShipment";
-import Reports from "./pages/LogisticsOperator/Reports";
 import OperatorSettings from "./pages/LogisticsOperator/OperatorSettings";
-
+import OperatorShipmentDetails from "./pages/LogisticsOperator/OperatorShipmentDetails";
 import OperatorLayout from "./pages/LogisticsOperator/OperatorLayout";
 
 // Authentication
@@ -87,9 +85,8 @@ function App() {
         <Route path="/logistics-operator" element={<ProtectedRoute allowedRole="LOGISTICS_OPERATOR"><OperatorLayout /></ProtectedRoute>}>
         <Route path="dashboard" element={<LogisticsOperatorDashboard />} />
         <Route path="shipments" element={<OperatorShipments />} />
-        <Route path="track" element={<TrackShipment />} />
-        <Route path="reports" element={<Reports />} />
         <Route path="settings" element={<OperatorSettings />} />
+        <Route path="shipments/:id" element={<OperatorShipmentDetails />}/>
         </Route>
 
         {/* SUPPORT AGENT ROUTES */}

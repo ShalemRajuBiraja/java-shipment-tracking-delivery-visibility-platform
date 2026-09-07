@@ -312,8 +312,7 @@ public class ShipmentService {
     
  // ================= SUPPORT AGENT SHIPMENT LOOKUP =================
 
-    public ShipmentLookupResponse
-    getShipmentForSupportAgent(String trackingNumber) {
+    public ShipmentLookupResponse getShipmentForSupportAgent(String trackingNumber) {
 
         // FIND SHIPMENT
 

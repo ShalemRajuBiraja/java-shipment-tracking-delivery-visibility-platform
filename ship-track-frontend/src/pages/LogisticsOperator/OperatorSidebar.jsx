@@ -30,16 +30,6 @@ const OperatorSidebar = () => {
       icon: Package,
       path: "/logistics-operator/shipments",
     },
-    {
-      name: "Track Shipment",
-      icon: Search,
-      path: "/logistics-operator/track",
-    },
-    {
-      name: "Reports",
-      icon: BarChart3,
-      path: "/logistics-operator/reports",
-    },
      { 
     name: "Settings", 
     icon: Settings, 

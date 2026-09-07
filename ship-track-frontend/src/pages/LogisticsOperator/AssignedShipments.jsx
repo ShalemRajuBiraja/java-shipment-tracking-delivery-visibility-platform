@@ -1,35 +1,19 @@
-const AssignedShipments = () => {
-  const shipments = [
-    {
-      trackingNumber: "TRK100234",
-      receiver: "Rahul Kumar",
-      destination: "Bangalore",
-      status: "In Transit",
-    },
-    {
-      trackingNumber: "TRK100235",
-      receiver: "Priya Sharma",
-      destination: "Hyderabad",
-      status: "Pending",
-    },
-    {
-      trackingNumber: "TRK100236",
-      receiver: "Arjun Reddy",
-      destination: "Chennai",
-      status: "Delivered",
-    },
-    {
-      trackingNumber: "TRK100237",
-      receiver: "Sneha Patel",
-      destination: "Mumbai",
-      status: "In Transit",
-    },
-  ];
+const AssignedShipments = ({ shipments = [] }) => {
+
+  const formatStatus = (status) => {
+    return status
+      ?.replaceAll("_", " ")
+      .toLowerCase()
+      .replace(/\b\w/g, (char) => char.toUpperCase());
+  };
 
   const statusStyle = {
-    "In Transit": "bg-blue-50 text-blue-700",
-    Pending: "bg-amber-50 text-amber-700",
-    Delivered: "bg-emerald-50 text-emerald-700",
+    CREATED: "bg-amber-50 text-amber-700",
+    PICKED_UP: "bg-blue-50 text-blue-700",
+    IN_TRANSIT: "bg-blue-50 text-blue-700",
+    OUT_FOR_DELIVERY: "bg-purple-50 text-purple-700",
+    DELIVERED: "bg-emerald-50 text-emerald-700",
+    CANCELLED: "bg-red-50 text-red-700",
   };
 
   return (
@@ -40,11 +24,11 @@ const AssignedShipments = () => {
 
         <div>
           <h2 className="font-bold text-slate-800">
-            Assigned Shipments
+            Shipments
           </h2>
 
           <p className="text-xs text-slate-500 mt-1">
-            Shipments assigned to you
+            Recent shipments in the system
           </p>
         </div>
 
@@ -85,40 +69,55 @@ const AssignedShipments = () => {
 
           <tbody>
 
-            {shipments.map((shipment) => (
+            {shipments.length === 0 ? (
 
-              <tr
-                key={shipment.trackingNumber}
-                className="border-t border-slate-100"
-              >
-
-                <td className="px-4 py-4 text-sm font-medium text-emerald-600">
-                  {shipment.trackingNumber}
+              <tr>
+                <td
+                  colSpan="4"
+                  className="px-4 py-8 text-center text-sm text-slate-500"
+                >
+                  No shipments found
                 </td>
-
-                <td className="px-4 py-4 text-sm text-slate-700">
-                  {shipment.receiver}
-                </td>
-
-                <td className="px-4 py-4 text-sm text-slate-600">
-                  {shipment.destination}
-                </td>
-
-                <td className="px-4 py-4">
-
-                  <span
-                    className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-                      statusStyle[shipment.status]
-                    }`}
-                  >
-                    {shipment.status}
-                  </span>
-
-                </td>
-
               </tr>
 
-            ))}
+            ) : (
+
+              shipments.map((shipment) => (
+
+                <tr
+                  key={shipment.id}
+                  className="border-t border-slate-100"
+                >
+
+                  <td className="px-4 py-4 text-sm font-medium text-emerald-600">
+                    {shipment.trackingNumber}
+                  </td>
+
+                  <td className="px-4 py-4 text-sm text-slate-700">
+                    {shipment.receiverName}
+                  </td>
+
+                  <td className="px-4 py-4 text-sm text-slate-600">
+                    {shipment.deliveryCity}
+                  </td>
+
+                  <td className="px-4 py-4">
+
+                    <span
+                      className={`px-2.5 py-1 rounded-full text-xs font-medium ${
+                        statusStyle[shipment.status] ||
+                        "bg-slate-100 text-slate-600"
+                      }`}
+                    >
+                      {formatStatus(shipment.status)}
+                    </span>
+
+                  </td>
+
+                </tr>
+
+              ))
+            )}
 
           </tbody>
 

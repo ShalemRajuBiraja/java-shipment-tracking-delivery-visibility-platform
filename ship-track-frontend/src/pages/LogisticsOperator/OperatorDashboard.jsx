@@ -1,55 +1,60 @@
-import { useEffect, useState } from "react";
+// import { useEffect, useState } from "react";
 
-import OperatorHeader from "./OperatorHeader";
-import OperatorStats from "./OperatorStats";
-import AssignedShipments from "./AssignedShipments";
-import { getDashboardData } from "../../services/operatorService";
+// import OperatorHeader from "./OperatorHeader";
+// import OperatorStats from "./OperatorStats";
+// import AssignedShipments from "./AssignedShipments";
 
-const OperatorDashboard = () => {
-  const [dashboardData, setDashboardData] = useState(null);
-  const [loading, setLoading] = useState(true);
+// import {
+//   getDashboardData,
+//   getAllOperatorShipments,
+// } from "../../services/operatorService";
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
+// const OperatorDashboard = () => {
+//   const [dashboardData, setDashboardData] = useState(null);
+//   const [loading, setLoading] = useState(true);
 
-  const fetchDashboardData = async () => {
-    try {
-      const response = await getDashboardData();
+//   useEffect(() => {
+//     fetchDashboardData();
+//   }, []);
 
-      if(response.data.success === true){
-        setDashboardData(response.data.data);
-      }
-    } catch (error) {
-      console.error("Error fetching dashboard data:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+//   const fetchDashboardData = async () => {
+//     try {
+//       // Fetch dashboard statistics
+//       const response = await getDashboardData();
 
-  if (loading) {
-    return <div>Loading dashboard...</div>;
-  }
+//       if (response.data.success === true) {
+//         setDashboardData(response.data.data);
+//       }
+//     } catch (error) {
+//       console.error("Error fetching dashboard data:", error);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
 
-  return (
-    <>
-      {/* Dashboard Header */}
-      <OperatorHeader />
+//   if (loading) {
+//     return <div>Loading dashboard...</div>;
+//   }
 
-      {/* Statistics */}
-      <OperatorStats dashboardData={dashboardData} />
+//   return (
+//     <>
+//       {/* Dashboard Header */}
+//       <OperatorHeader />
 
-      {/* Assigned Shipments */}
-      <div className="mt-5">
-        <AssignedShipments />
-      </div>
+//       {/* Statistics */}
+//       <OperatorStats dashboardData={dashboardData} />
 
-      {/* Footer */}
-      <footer className="text-center text-xs text-slate-500 py-5">
-        © 2026 QuickShip. All rights reserved.
-      </footer>
-    </>
-  );
-};
+//       {/* Assigned Shipments */}
+//       <div className="mt-5">
+//         <AssignedShipments />
+//       </div>
 
-export default OperatorDashboard;
+//       {/* Footer */}
+//       <footer className="text-center text-xs text-slate-500 py-5">
+//         © 2026 QuickShip. All rights reserved.
+//       </footer>
+//     </>
+//   );
+// };
+
+// export default OperatorDashboard;

@@ -22,11 +22,6 @@ const OperatorSidebar = () => {
 
   const menuItems = [
     {
-      name: "Dashboard",
-      icon: LayoutDashboard,
-      path: "/logistics-operator/dashboard",
-    },
-    {
       name: "My Shipments",
       icon: Package,
       path: "/logistics-operator/shipments",

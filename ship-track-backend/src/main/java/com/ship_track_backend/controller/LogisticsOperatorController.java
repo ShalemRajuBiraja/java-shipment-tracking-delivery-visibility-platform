@@ -26,25 +26,6 @@ public class LogisticsOperatorController {
     private LogisticsOperatorService logisticsOperatorService;
 
 
-    // ================= OPERATOR DASHBOARD =================
-
-    @GetMapping("/api/operator/dashboard")
-    public ResponseEntity<ApiResponse<OperatorDashboardResponse>>
-    getDashboardStatistics() {
-
-        OperatorDashboardResponse dashboardData =
-                logisticsOperatorService.getDashboardStatistics();
-
-        ApiResponse<OperatorDashboardResponse> response =
-                new ApiResponse<>(
-                        true,
-                        "Dashboard statistics fetched successfully",
-                        dashboardData
-                );
-
-        return ResponseEntity.ok(response);
-    }
-    
  // ================= OPERATOR SHIPMENTS =================
 
     @GetMapping("/api/operator/shipments")

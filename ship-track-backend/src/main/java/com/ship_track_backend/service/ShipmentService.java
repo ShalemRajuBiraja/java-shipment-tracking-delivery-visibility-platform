@@ -195,6 +195,7 @@ public class ShipmentService {
         shipmentTrackingRepository.save(tracking);
     }
     
+    // ASSIGN OPERATOR TAKES PLACE IN THIS METHOD
     public List<ShipmentResponseDto> getAllShipments(String email) {
 
 

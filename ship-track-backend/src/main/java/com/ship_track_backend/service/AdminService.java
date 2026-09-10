@@ -6,6 +6,7 @@ import com.ship_track_backend.dto.ShipmentResponseDto;
 import com.ship_track_backend.entity.AdminEntity;
 import com.ship_track_backend.entity.ShipmentEntity;
 import com.ship_track_backend.entity.UserEntity;
+import com.ship_track_backend.enums.Role;
 import com.ship_track_backend.pojo.AdminLoginRequest;
 import com.ship_track_backend.pojo.AdminPasswordUpdateRequest;
 import com.ship_track_backend.repository.AdminRepository;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.nio.file.attribute.UserDefinedFileAttributeView;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -251,6 +253,40 @@ public class AdminService {
 		admin.setPassword(adminPasswordUpdateRequest.getNewPassword());
 		adminRepository.save(admin);
 	}
+    
+ // ================= ASSIGN LOGISTICS OPERATOR =================
+
+    public void assignOperator(Long shipmentId) {
+
+        // Find shipment
+        ShipmentEntity shipment = shipmentRepository
+                .findById(shipmentId)
+                .orElseThrow(() ->
+                        new ResponseStatusException(
+                                HttpStatus.NOT_FOUND,
+                                "Shipment not found"
+                        )
+                );
+
+        // Find a Logistics Operator
+        UserEntity operator = userRepository
+                .findByRole(Role.LOGISTICS_OPERATOR)
+                .orElseThrow(() ->
+                        new ResponseStatusException(
+                                HttpStatus.NOT_FOUND,
+                                "No logistics operator found"
+                        )
+                );
+
+        // Assign operator
+        shipment.setAssignedOperator(operator);
+
+        // Update timestamp
+        shipment.setUpdatedAt(LocalDateTime.now());
+
+        // Save shipment
+        shipmentRepository.save(shipment);
+    }
 
 		
 }

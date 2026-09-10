@@ -24,7 +24,6 @@ import CreateShipment from "./pages/Admin/CreateShipment";
 import Shipments from "./pages/Admin/Shipments";
 
 // Operator Pages
-import LogisticsOperatorDashboard from "./pages/LogisticsOperator/OperatorDashboard";
 import OperatorShipments from "./pages/LogisticsOperator/OperatorShipments";
 import OperatorSettings from "./pages/LogisticsOperator/OperatorSettings";
 import OperatorShipmentDetails from "./pages/LogisticsOperator/OperatorShipmentDetails";
@@ -85,7 +84,6 @@ function App() {
 
         {/* LOGISTICS OPERATOR ROUTES */}
         <Route path="/logistics-operator" element={<ProtectedRoute allowedRole="LOGISTICS_OPERATOR"><OperatorLayout /></ProtectedRoute>}>
-        <Route path="dashboard" element={<LogisticsOperatorDashboard />} />
         <Route path="shipments" element={<OperatorShipments />} />
         <Route path="settings" element={<OperatorSettings />} />
         <Route path="shipments/:id" element={<OperatorShipmentDetails />}/>

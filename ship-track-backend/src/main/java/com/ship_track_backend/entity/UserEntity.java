@@ -36,7 +36,31 @@ public class UserEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
     private Role role;
+    
+ // Common field for all users
+    @Column(name = "phone_number", nullable = false, length = 15)
+    private String phoneNumber;
 
+
+    // Business Client fields
+    @Column(name = "company_name", length = 150)
+    private String companyName;
+
+    @Column(name = "gst_id", length = 30)
+    private String gstId;
+
+
+    // Logistics Operator fields
+    @Column(name = "logistics_company_name", length = 150)
+    private String logisticsCompanyName;
+
+    @Column(name = "transport_license_number", length = 100)
+    private String transportLicenseNumber;
+
+
+    // Support Agent field
+    @Column(name = "employee_id", length = 100)
+    private String employeeId;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

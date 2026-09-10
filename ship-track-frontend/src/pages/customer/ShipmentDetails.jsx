@@ -1,117 +1,246 @@
 import {
   UserRound,
   Phone,
-  CalendarDays,
+  Package,
+  MapPin,
+  Hash,
+  CircleCheck,
+  Calendar,
+  Weight,
 } from "lucide-react";
 
-const ShipmentDetails = () => {
+const ShipmentDetails = ({ shipment }) => {
+
+  const formatDate = (dateTime) => {
+
+    if (!dateTime) return "-";
+
+    return new Date(dateTime).toLocaleString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+
+  const formatStatus = (status) => {
+    return status?.replaceAll("_", " ") || "-";
+  };
+
+
   return (
     <section className="bg-white border border-slate-200 rounded-xl shadow-sm p-4 md:p-5">
-      <div className="grid grid-cols-1 lg:grid-cols-3">
 
-        {/* Sender */}
-        <div className="lg:border-r lg:border-slate-200 lg:pr-6">
-          <h3 className="text-base font-bold text-slate-800 mb-5">
-            Sender Details
-          </h3>
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5 pb-4 border-b border-slate-200">
 
-          <div className="flex gap-3">
-            <div className="w-11 h-11 bg-emerald-50 rounded-lg flex items-center justify-center shrink-0">
-              <UserRound size={21} className="text-emerald-600" />
-            </div>
+        <div>
 
-            <div>
-              <h4 className="font-bold text-base text-slate-800">
-                ABC Company
-              </h4>
+          <h2 className="text-lg font-bold text-slate-800">
+            Shipment Details
+          </h2>
 
-              <p className="text-slate-600 text-sm mt-2">
-                123, Industrial Area
-              </p>
+          <div className="flex items-center gap-1.5 mt-1">
 
-              <p className="text-slate-600 text-sm mt-1">
-                Hyderabad, Telangana - 500001
-              </p>
+            <Hash
+              size={15}
+              className="text-emerald-600"
+            />
 
-              <p className="text-slate-600 text-sm mt-1">
-                India
-              </p>
+            <span className="text-sm font-semibold text-emerald-600">
+              {shipment.trackingNumber}
+            </span>
 
-              <div className="flex items-center gap-2 mt-4 text-slate-600 text-sm">
-                <Phone size={16} className="text-emerald-600" />
-                +91 98765 43210
-              </div>
-            </div>
           </div>
+
         </div>
 
-        {/* Receiver */}
-        <div className="lg:border-r lg:border-slate-200 lg:px-6 py-6 lg:py-0">
-          <h3 className="text-base font-bold text-slate-800 mb-5">
-            Receiver Details
-          </h3>
 
-          <div className="flex gap-3">
-            <div className="w-11 h-11 bg-emerald-50 rounded-lg flex items-center justify-center shrink-0">
-              <UserRound size={21} className="text-emerald-600" />
-            </div>
+        {/* Current Status */}
+        <div className="flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-md w-fit">
 
-            <div>
-              <h4 className="font-bold text-base text-slate-800">
-                Ramesh Kumar
-              </h4>
+          <CircleCheck size={15} />
 
-              <p className="text-slate-600 text-sm mt-2">
-                45, MG Road
-              </p>
+          <span className="text-xs font-semibold">
+            {formatStatus(shipment.currentStatus)}
+          </span>
 
-              <p className="text-slate-600 text-sm mt-1">
-                Vijayawada, Andhra Pradesh - 520001
-              </p>
-
-              <p className="text-slate-600 text-sm mt-1">
-                India
-              </p>
-
-              <div className="flex items-center gap-2 mt-4 text-slate-600 text-sm">
-                <Phone size={16} className="text-emerald-600" />
-                +91 91234 56789
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Expected Delivery */}
-        <div className="lg:pl-6">
-          <h3 className="text-base font-bold text-slate-800 mb-5">
-            Expected Delivery
-          </h3>
-
-          <div className="flex gap-4 items-start">
-            <div className="w-11 h-11 bg-emerald-50 rounded-lg flex items-center justify-center shrink-0">
-              <CalendarDays
-                size={23}
-                className="text-emerald-600"
-              />
-            </div>
-
-            <div>
-              <h4 className="text-xl font-bold text-slate-800">
-                02 Sep 2025
-              </h4>
-
-              <p className="text-sm text-slate-500 mt-1">
-                By End of the Day
-              </p>
-
-              <span className="inline-block mt-3 bg-emerald-50 text-emerald-700 px-3 py-1 rounded-md text-xs font-medium">
-                Estimated Delivery
-              </span>
-            </div>
-          </div>
         </div>
 
       </div>
+
+
+      {/* Shipment Details Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 border border-slate-200 rounded-lg overflow-hidden">
+
+
+        {/* Sender */}
+        <div className="p-4 border-b border-slate-200 lg:border-r">
+
+          <div className="flex items-center gap-2 mb-3">
+
+            <UserRound
+              size={17}
+              className="text-emerald-600"
+            />
+
+            <h3 className="text-sm font-bold text-slate-700">
+              Sender
+            </h3>
+
+          </div>
+
+          <p className="font-semibold text-sm text-slate-800">
+            {shipment.senderName || "-"}
+          </p>
+
+        </div>
+
+
+        {/* Receiver */}
+        <div className="p-4 border-b border-slate-200 lg:border-r">
+
+          <div className="flex items-center gap-2 mb-3">
+
+            <UserRound
+              size={17}
+              className="text-emerald-600"
+            />
+
+            <h3 className="text-sm font-bold text-slate-700">
+              Receiver
+            </h3>
+
+          </div>
+
+          <p className="font-semibold text-sm text-slate-800">
+            {shipment.receiverName || "-"}
+          </p>
+
+          <div className="flex items-center gap-1.5 mt-2 text-xs text-slate-500">
+
+            <Phone
+              size={14}
+              className="text-emerald-600 shrink-0"
+            />
+
+            <span>
+              {shipment.receiverPhone || "-"}
+            </span>
+
+          </div>
+
+        </div>
+
+
+        {/* Package */}
+        <div className="p-4 border-b border-slate-200">
+
+          <div className="flex items-center gap-2 mb-3">
+
+            <Package
+              size={17}
+              className="text-emerald-600"
+            />
+
+            <h3 className="text-sm font-bold text-slate-700">
+              Package
+            </h3>
+
+          </div>
+
+          <p className="font-semibold text-sm text-slate-800">
+            {shipment.packageDescription || "-"}
+          </p>
+
+          <div className="flex items-center gap-1.5 mt-2 text-xs text-slate-500">
+
+            <Weight
+              size={14}
+              className="text-emerald-600"
+            />
+
+            <span>
+              Weight: {shipment.weight || "-"} kg
+            </span>
+
+          </div>
+
+        </div>
+
+
+        {/* Pickup Address */}
+        <div className="p-4 border-b border-slate-200 lg:border-r">
+
+          <div className="flex items-center gap-2 mb-3">
+
+            <MapPin
+              size={17}
+              className="text-emerald-600"
+            />
+
+            <h3 className="text-sm font-bold text-slate-700">
+              Pickup Address
+            </h3>
+
+          </div>
+
+          <p className="text-sm text-slate-600 leading-5">
+            {shipment.pickupAddress || "-"}
+          </p>
+
+        </div>
+
+
+        {/* Delivery Address */}
+        <div className="p-4 border-b border-slate-200 lg:border-r">
+
+          <div className="flex items-center gap-2 mb-3">
+
+            <MapPin
+              size={17}
+              className="text-emerald-600"
+            />
+
+            <h3 className="text-sm font-bold text-slate-700">
+              Delivery Address
+            </h3>
+
+          </div>
+
+          <p className="text-sm text-slate-600 leading-5">
+            {shipment.deliveryAddress || "-"}
+          </p>
+
+        </div>
+
+
+        {/* Created Date */}
+        <div className="p-4">
+
+          <div className="flex items-center gap-2 mb-3">
+
+            <Calendar
+              size={17}
+              className="text-emerald-600"
+            />
+
+            <h3 className="text-sm font-bold text-slate-700">
+              Shipment Created
+            </h3>
+
+          </div>
+
+          <p className="text-sm text-slate-600">
+            {formatDate(shipment.createdAt)}
+          </p>
+
+        </div>
+
+      </div>
+
     </section>
   );
 };

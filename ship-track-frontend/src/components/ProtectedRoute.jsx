@@ -11,13 +11,16 @@ const ProtectedRoute = ({ children, allowedRole }) => {
 
     // User is not logged in
     if (!token || !userData) {
+        console.log("REDIRECT: No token or userData");
         return <Navigate to="/home" replace />;
     }
 
     // User has wrong role
     if (userData.role !== allowedRole) {
+        console.log("REDIRECT: Role mismatch");
         return <Navigate to="/home" replace />;
     }
+
 
     return children;
 };

@@ -6,18 +6,22 @@ import { useNavigate } from "react-router-dom";
 import { loginApi } from "../../services/authService";
 import { toast } from "react-toastify";
 import { redirectBasedOnRole } from "../../utils/roleRedirect";
+import authBackground from "../../assets/images/bg-image.png";
+
 
 const LoginModal = ({ isOpen, onClose }) => {
 
   const [formData, setFormData] = useState({
-                                            email: "",
-                                            password: "",
-                                            });
+    email: "",
+    password: "",
+  });
+
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
 
   // Handle input changes
   const handleChange = (event) => {
+
     const { name, value } = event.target;
 
     setFormData((previous) => ({
@@ -32,11 +36,16 @@ const LoginModal = ({ isOpen, onClose }) => {
   };
 
   const validateForm = () => {
+
     const newErrors = {};
 
     if (!formData.email.trim()) {
       newErrors.email = "Email is required";
-    } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(formData.email)) {
+    } else if (
+      !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(
+        formData.email
+      )
+    ) {
       newErrors.email = "Enter a valid email address";
     }
 
@@ -52,43 +61,54 @@ const LoginModal = ({ isOpen, onClose }) => {
   };
 
   const handleSubmit = async (event) => {
+
     event.preventDefault();
 
     if (!validateForm()) {
       return;
     }
+
     try {
-            const loginApiResponse = await loginApi(formData);
 
-              if (loginApiResponse?.data?.success) {
+      const loginApiResponse = await loginApi(formData);
 
-                  // Get response data
-                  const userData = loginApiResponse.data.data.userData;
-                  const token = loginApiResponse.data.data.token;
+      if (loginApiResponse?.data?.success) {
 
-                  // Store login data
-                  localStorage.setItem( "userData", JSON.stringify(userData) );
-                  localStorage.setItem("token", token);
-                  // Show success message
-                  toast.success(loginApiResponse.data.message);
+        // Get response data
+        const userData = loginApiResponse.data.data.userData;
+        const token = loginApiResponse.data.data.token;
 
-                  // Redirect based on role
-                  redirectBasedOnRole(userData.role, navigate);
-              }
+        // Store login data
+        localStorage.setItem(
+          "userData",
+          JSON.stringify(userData)
+        );
 
-              } catch (error) {
+        localStorage.setItem("token", token);
 
-              console.log(error.response?.data?.message || "Login failed");
+        // Show success message
+        toast.success(loginApiResponse.data.message);
 
-              setErrors({
-                  ...errors,
-                  apiError: true
-              });
+        // Redirect based on role
+        redirectBasedOnRole(userData.role, navigate);
+      }
 
-              toast.error(
-                  error.response?.data?.message || "Something went wrong"
-              );}
+    } catch (error) {
 
+      console.log(
+        error.response?.data?.message || "Login failed"
+      );
+
+      setErrors((previous) => ({
+        ...previous,
+        apiError: true,
+      }));
+
+      toast.error(
+        error.response?.data?.message ||
+        "Something went wrong"
+      );
+    }
   };
 
   return (
@@ -98,16 +118,16 @@ const LoginModal = ({ isOpen, onClose }) => {
       title="Welcome back 🚀"
       size="sm"
     >
-      <div className="space-y-6">
-        {/* Header */}
-        <div>
-          <p className="text-sm leading-6 text-slate-500">
-            Sign in to your ShipTrack Pro account to continue.
-          </p>
-        </div>
+
+      <div className="space-y-6" >
 
         {/* Login Form */}
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-5"
+        >
+
+          {/* Email */}
           <Input
             id="login-email"
             name="email"
@@ -120,7 +140,10 @@ const LoginModal = ({ isOpen, onClose }) => {
             autoComplete="email"
           />
 
-          <Input
+          {/* Password */}
+          <div>
+
+            <Input
               id="login-password"
               name="password"
               type="password"
@@ -133,6 +156,23 @@ const LoginModal = ({ isOpen, onClose }) => {
               showPasswordToggle
             />
 
+            {/* Forgot Password */}
+            <div className="mt-2 text-right">
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  navigate("/auth/forgot-password");
+                }}
+                className="text-sm font-medium text-emerald-600 transition-colors hover:text-emerald-700 hover:underline"
+              >
+                Forgot password?
+              </button>
+            </div>
+
+          </div>
+
+          {/* Login Button */}
           <Button
             type="submit"
             variant="primary"
@@ -140,26 +180,32 @@ const LoginModal = ({ isOpen, onClose }) => {
           >
             Login
           </Button>
+
         </form>
 
         {/* Register */}
         <div className="border-t border-slate-200 pt-5 text-center">
+
           <p className="text-sm text-slate-500">
             Don't have an account?
           </p>
-                <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => {
-                        onClose();
-                        navigate("/register");
-                    }}
-                    className="mt-3 w-full"
-                    >
-                    Register
-                </Button>
+
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => {
+              onClose();
+              navigate("/register");
+            }}
+            className="mt-3 w-full"
+          >
+            Register
+          </Button>
+
         </div>
+
       </div>
+
     </Modal>
   );
 };

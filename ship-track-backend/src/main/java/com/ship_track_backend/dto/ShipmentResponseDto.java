@@ -16,33 +16,60 @@ public class ShipmentResponseDto {
 
     private String trackingNumber;
 
-    // Sender information
+
+    // ================= SENDER INFORMATION =================
+
     private String senderName;
 
-    private String senderEmail;
 
-    // Receiver information
+    // ================= RECEIVER INFORMATION =================
+
     private String receiverName;
 
     private String receiverPhone;
 
-    // Shipment addresses
+
+    // ================= PICKUP LOCATION =================
+
     private String pickupAddress;
+
+    private String pickupCity;
+
+    private String pickupState;
+
+    private String pickupPincode;
+
+
+    // ================= DELIVERY LOCATION =================
 
     private String deliveryAddress;
 
-    // Package information
+    private String deliveryCity;
+
+    private String deliveryState;
+
+    private String deliveryPincode;
+
+
+    // ================= PACKAGE INFORMATION =================
+
     private String packageDescription;
 
     private BigDecimal weight;
 
-    // Shipment status
+
+    // ================= SHIPMENT STATUS =================
+
     private ShipmentStatus status;
 
-    // Assigned operator
+
+    // ================= ASSIGNED OPERATOR =================
+
     private String assignedOperatorName;
 
-    // Dates
+
+    // ================= DATES =================
+
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;

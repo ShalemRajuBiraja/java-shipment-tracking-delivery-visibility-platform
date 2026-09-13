@@ -21,8 +21,7 @@ public class GoogleRoutesService {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    private static final String ROUTES_API_URL =
-            "https://routes.googleapis.com/directions/v2:computeRoutes";
+    private static final String ROUTES_API_URL = "https://routes.googleapis.com/directions/v2:computeRoutes";
 
 
     // ================= CALCULATE ROUTE =================
@@ -104,8 +103,8 @@ public class GoogleRoutesService {
         return response.getBody();
     }
     
+    
  // ================= CALCULATE ETA FROM CURRENT LOCATION =================
-
     public Map<String, Object> calculateEta(
             Double latitude,
             Double longitude,

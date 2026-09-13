@@ -39,19 +39,11 @@ public class ShipmentLocationService {
             Double longitude) {
 
         // ================= GET LOGGED-IN USER =================
-
-        String email = SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getName();
+    	String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
 
         // ================= FIND SHIPMENT =================
-
-        ShipmentEntity shipment =
-                shipmentRepository
-                        .findByTrackingNumber(trackingNumber)
-                        .orElseThrow(() ->
+    	ShipmentEntity shipment = shipmentRepository .findByTrackingNumber(trackingNumber) .orElseThrow(() ->
                                 new ResponseStatusException(
                                         HttpStatus.NOT_FOUND,
                                         "Shipment not found"
@@ -71,8 +63,6 @@ public class ShipmentLocationService {
                     "Shipment is not assigned to any logistics operator"
             );
         }
-        http://localhost:8080/api/shipments/SHP-1788772166740/location
-
         // ================= VERIFY OPERATOR =================
 
         if (!assignedOperator.getEmail().equalsIgnoreCase(email)) {
@@ -111,9 +101,22 @@ public class ShipmentLocationService {
 
 
     // ================= GET LATEST LOCATION =================
+    public ShipmentLocationResponseDto getLatestLocation( String trackingNumber) {
 
-    public ShipmentLocationResponseDto getLatestLocation(
-            String trackingNumber) {
+        // ================= GET LOGGED-IN USER =================
+        String email =  SecurityContextHolder.getContext().getAuthentication().getName();
+
+
+        // ================= FIND SHIPMENT =================
+        ShipmentEntity shipment = shipmentRepository
+                        .findByTrackingNumber(trackingNumber)
+                        .orElseThrow(() ->
+                                new ResponseStatusException(
+                                        HttpStatus.NOT_FOUND,
+                                        "Shipment not found"
+                                )
+                        );
+
 
         ShipmentLocationEntity location =
                 shipmentLocationRepository
@@ -126,6 +129,7 @@ public class ShipmentLocationService {
                                         "No location found for this shipment"
                                 )
                         );
+
 
         return convertToDto(location);
     }
@@ -159,6 +163,8 @@ public class ShipmentLocationService {
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
+    
+    // ================= GET ROAD-FOLLOWING ROUTE HISTORY =================
     public Map<String, Object> getRoadFollowingRouteHistory(
             String trackingNumber) {
 
@@ -239,4 +245,5 @@ public class ShipmentLocationService {
 
         return dto;
     }
+    
 }

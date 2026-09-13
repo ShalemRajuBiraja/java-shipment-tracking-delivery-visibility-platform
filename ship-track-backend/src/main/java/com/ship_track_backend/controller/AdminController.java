@@ -98,25 +98,7 @@ public class AdminController {
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
     
- // ================= ASSIGN LOGISTICS OPERATOR =================
 
-    @PutMapping("/api/admin/assign-operator/{shipmentId}")
-    public ResponseEntity<?> assignOperator(
-            @PathVariable Long shipmentId) {
-
-        adminService.assignOperator(shipmentId);
-
-        ApiResponse<Void> response =
-                new ApiResponse<>(
-                        true,
-                        "Shipment assigned to logistics operator successfully",
-                        null
-                );
-
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(response);
-    }
 		
     
 }

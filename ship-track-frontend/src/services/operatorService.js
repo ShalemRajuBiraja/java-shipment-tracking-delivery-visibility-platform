@@ -45,9 +45,7 @@ export const updateOperatorShipmentStatus = async (
 
 export const getLatestShipmentLocation = async (trackingNumber) => {
 
-  return await axiosInstance.get(
-    `${API_END_POINTS.GET_SHIPMENT_LOCATION}/${trackingNumber}/location/latest`
-  );
+  return await axiosInstance.get(`${API_END_POINTS.GET_SHIPMENT_LOCATION}/${trackingNumber}/location/latest` );
 
 };
 

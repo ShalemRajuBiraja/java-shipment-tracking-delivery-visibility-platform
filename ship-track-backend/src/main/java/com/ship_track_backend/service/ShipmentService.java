@@ -44,6 +44,8 @@ public class ShipmentService {
     private ShipmentTrackingRepository shipmentTrackingRepository;
     @Autowired
     private AuthRepository authRepository;
+    @Autowired
+    private GeocodeService geoCodeService;
 
     
     private String generateTrackingNumber() {
@@ -55,10 +57,7 @@ public class ShipmentService {
     @Transactional
     public void createShipment(CreateShipmentData createShipmentData) {
 
-        String email = SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getName();
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
         UserEntity sender = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResponseStatusException(
@@ -67,130 +66,69 @@ public class ShipmentService {
                 ));
 
         ShipmentEntity shipment = new ShipmentEntity();
+        
+        String pickupFullAddress =
+                createShipmentData.getPickupAddress() + ", " +
+                createShipmentData.getPickupCity() + ", " +
+                createShipmentData.getPickupState() + ", " +
+                createShipmentData.getPickupPincode() + ", India";
 
-        // ================= SENDER =================
+        String deliveryFullAddress =
+                createShipmentData.getDeliveryAddress() + ", " +
+                createShipmentData.getDeliveryCity() + ", " +
+                createShipmentData.getDeliveryState() + ", " +
+                createShipmentData.getDeliveryPincode() + ", India";
 
+
+        GeocodeService.GeoCodeResult pickup = geoCodeService.geocode(pickupFullAddress);
+        GeocodeService.GeoCodeResult delivery = geoCodeService.geocode(deliveryFullAddress);
+
+
+        shipment.setPickupLatitude(pickup.getLatitude());
+        shipment.setPickupLongitude(pickup.getLongitude());
+
+        shipment.setDeliveryLatitude(delivery.getLatitude());
+        shipment.setDeliveryLongitude(delivery.getLongitude());
+        
         shipment.setSender(sender);
+        shipment.setReceiverName( createShipmentData.getReceiverName());
+        shipment.setReceiverPhone(createShipmentData.getReceiverPhone());
+        shipment.setPickupAddress( createShipmentData.getPickupAddress());
+        shipment.setPickupCity(createShipmentData.getPickupCity());
+        shipment.setPickupState(createShipmentData.getPickupState());
+        shipment.setPickupPincode( createShipmentData.getPickupPincode());
+        shipment.setDeliveryAddress(createShipmentData.getDeliveryAddress());
+        shipment.setDeliveryCity( createShipmentData.getDeliveryCity());
+        shipment.setDeliveryState( createShipmentData.getDeliveryState());
+        shipment.setDeliveryPincode(createShipmentData.getDeliveryPincode());
+        shipment.setPackageDescription(createShipmentData.getPackageDescription());
+        shipment.setWeight(createShipmentData.getWeight());
+        shipment.setStatus( ShipmentStatus.CREATED);
+        shipment.setCreatedAt( LocalDateTime.now());
+        shipment.setUpdatedAt( LocalDateTime.now());
+        shipment.setTrackingNumber( generateTrackingNumber());
+        UserEntity operator = userRepository
+                .findByRole(Role.LOGISTICS_OPERATOR)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "No logistics operator found"
+                ));
+        shipment.setAssignedOperator(operator);
 
 
-        // ================= RECEIVER DETAILS =================
+        ShipmentEntity savedShipment = shipmentRepository.save(shipment);
 
-        shipment.setReceiverName(
-                createShipmentData.getReceiverName()
-        );
-
-        shipment.setReceiverPhone(
-                createShipmentData.getReceiverPhone()
-        );
-
-
-        // ================= PICKUP LOCATION =================
-
-        shipment.setPickupAddress(
-                createShipmentData.getPickupAddress()
-        );
-
-        shipment.setPickupCity(
-                createShipmentData.getPickupCity()
-        );
-
-        shipment.setPickupState(
-                createShipmentData.getPickupState()
-        );
-
-        shipment.setPickupPincode(
-                createShipmentData.getPickupPincode()
-        );
-
-
-        // ================= DELIVERY LOCATION =================
-
-        shipment.setDeliveryAddress(
-                createShipmentData.getDeliveryAddress()
-        );
-
-        shipment.setDeliveryCity(
-                createShipmentData.getDeliveryCity()
-        );
-
-        shipment.setDeliveryState(
-                createShipmentData.getDeliveryState()
-        );
-
-        shipment.setDeliveryPincode(
-                createShipmentData.getDeliveryPincode()
-        );
-
-
-        // ================= PACKAGE DETAILS =================
-
-        shipment.setPackageDescription(
-                createShipmentData.getPackageDescription()
-        );
-
-        shipment.setWeight(
-                createShipmentData.getWeight()
-        );
-
-
-        // ================= STATUS =================
-
-        shipment.setStatus(
-                ShipmentStatus.CREATED
-        );
-
-
-        // ================= TIMESTAMPS =================
-
-        shipment.setCreatedAt(
-                LocalDateTime.now()
-        );
-
-        shipment.setUpdatedAt(
-                LocalDateTime.now()
-        );
-
-
-        // ================= TRACKING NUMBER =================
-
-        shipment.setTrackingNumber(
-                generateTrackingNumber()
-        );
-
-
-        // ================= SAVE SHIPMENT =================
-
-        ShipmentEntity savedShipment =
-                shipmentRepository.save(shipment);
-
+        
+        
 
         // ================= INITIAL TRACKING HISTORY =================
-
-        ShipmentTrackingEntity tracking =
-                new ShipmentTrackingEntity();
-
+        ShipmentTrackingEntity tracking = new ShipmentTrackingEntity();
         tracking.setShipment(savedShipment);
-
-        tracking.setStatus(
-                ShipmentStatus.CREATED
-        );
-
-        // More meaningful than only the street address
-        tracking.setLocation(
-                savedShipment.getPickupCity()
-                        + ", "
-                        + savedShipment.getPickupState()
-        );
-
-        tracking.setDescription(
-                "Shipment created"
-        );
-
+        tracking.setStatus( ShipmentStatus.CREATED);
+        tracking.setLocation( savedShipment.getPickupCity() + ", " + savedShipment.getPickupState());
+        tracking.setDescription( "Shipment created");
         tracking.setUpdatedBy(sender);
-
-        tracking.setCreatedAt(
-                LocalDateTime.now()
-        );
+        tracking.setCreatedAt( LocalDateTime.now());
 
         shipmentTrackingRepository.save(tracking);
     }

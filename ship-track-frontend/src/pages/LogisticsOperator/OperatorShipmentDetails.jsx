@@ -46,27 +46,46 @@ const formatDuration = (duration) => {
 
 // MAIN FUNCTION
 const OperatorShipmentDetails = () => {
-
   const { id } = useParams();
   const navigate = useNavigate();
+
   const [shipment, setShipment] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedStatus, setSelectedStatus] = useState("");
   const [updating, setUpdating] = useState(false);
-  const [shipmentLocation, setShipmentLocation] = useState(null);
-  const [locationLoading, setLocationLoading] = useState(true);
+
+  const [shipmentLocation, setShipmentLocation] =
+    useState(null);
+  const [locationLoading, setLocationLoading] =
+    useState(true);
+
   const [route, setRoute] = useState(null);
-  const [routeLoading, setRouteLoading] = useState(true);
+  const [routeLoading, setRouteLoading] =
+    useState(true);
+
   const [eta, setEta] = useState(null);
-  const [etaLoading, setEtaLoading] = useState(true);
-  const [etaArrival, setEtaArrival] = useState(null);
-  const [delayPrediction, setDelayPrediction] = useState(null);
-  const [delayLoading, setDelayLoading] = useState(true);
-  const [locationHistory, setLocationHistory] = useState([]);
-  const [historyLoading, setHistoryLoading] = useState(false);
-  const [historyRoute, setHistoryRoute] = useState(null);
-  const [historyRouteLoading, setHistoryRouteLoading] = useState(false);
-  const [deliveryForecast, setDeliveryForecast] = useState(null);
+  const [etaLoading, setEtaLoading] =
+    useState(true);
+  const [etaArrival, setEtaArrival] =
+    useState(null);
+
+  const [delayPrediction, setDelayPrediction] =
+    useState(null);
+  const [delayLoading, setDelayLoading] =
+    useState(true);
+
+  const [locationHistory, setLocationHistory] =
+    useState([]);
+  const [historyLoading, setHistoryLoading] =
+    useState(false);
+
+  const [historyRoute, setHistoryRoute] =
+    useState(null);
+  const [historyRouteLoading, setHistoryRouteLoading] =
+    useState(false);
+
+  const [deliveryForecast, setDeliveryForecast] =
+    useState(null);
 
   // ================= SHIPMENT STATUS FLOW =================
 
@@ -115,7 +134,6 @@ const OperatorShipmentDetails = () => {
     fetchRoadFollowingRouteHistory(
       shipment.trackingNumber
     );
-
   }, [shipment?.trackingNumber]);
 
   const fetchShipmentDetails = async () => {
@@ -154,17 +172,11 @@ const OperatorShipmentDetails = () => {
 
   // ================= FETCH SHIPMENT LOCATION =================
 
-  const fetchShipmentLocation = async (
-    trackingNumber,
-    shipmentData
-  ) => {
+  const fetchShipmentLocation = async ( trackingNumber, shipmentData) => {
     try {
       setLocationLoading(true);
 
-      const response =
-        await getLatestShipmentLocation(
-          trackingNumber
-        );
+      const response =  await getLatestShipmentLocation( trackingNumber );
 
       if (response.data) {
         setShipmentLocation(
@@ -204,7 +216,6 @@ const OperatorShipmentDetails = () => {
       setLocationHistory(
         response.data || []
       );
-
     } catch (error) {
       console.error(
         "Error fetching shipment route history:",
@@ -234,7 +245,6 @@ const OperatorShipmentDetails = () => {
       setHistoryRoute(
         routeData || null
       );
-
     } catch (error) {
       console.error(
         "Error fetching road-following route history:",
@@ -506,7 +516,7 @@ const OperatorShipmentDetails = () => {
 
   if (loading) {
     return (
-      <div className="py-10 text-center text-sm text-slate-500">
+      <div className="flex h-[60vh] items-center justify-center text-sm text-slate-500">
         Loading shipment details...
       </div>
     );
@@ -516,7 +526,7 @@ const OperatorShipmentDetails = () => {
 
   if (!shipment) {
     return (
-      <div className="py-10 text-center text-sm text-slate-500">
+      <div className="flex h-[60vh] items-center justify-center text-sm text-slate-500">
         Shipment not found.
       </div>
     );
@@ -530,14 +540,34 @@ const OperatorShipmentDetails = () => {
   const isCancelled =
     shipment.status === "CANCELLED";
 
+  // ================= DELIVERY VALUES =================
+
+  const estimatedArrival =
+    etaArrival ||
+    deliveryForecast?.forecastedDeliveryTime;
+
+  const remainingDistance =
+    deliveryForecast?.estimatedDistanceMeters;
+
+  const remainingTime =
+    deliveryForecast?.estimatedTravelTimeMinutes;
+
+  const isDelayed =
+    delayPrediction?.prediction ===
+    "DELAYED";
+
+  const isOnTime =
+    delayPrediction?.prediction ===
+    "ON_TIME";
+
   return (
-    <div className="space-y-6">
+    <div className="mx-auto w-full max-w-6xl space-y-6 px-4 py-6 sm:px-6">
 
       {/* ================= BACK BUTTON ================= */}
 
       <button
         onClick={() => navigate(-1)}
-        className="flex items-center gap-2 text-sm text-slate-600 transition hover:text-emerald-600"
+        className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 transition hover:text-emerald-600"
       >
         <ArrowLeft size={18} />
         Back to Shipments
@@ -545,26 +575,30 @@ const OperatorShipmentDetails = () => {
 
       {/* ================= PAGE HEADER ================= */}
 
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
 
         <div>
+
           <h1 className="text-2xl font-bold text-slate-800">
             Shipment Details
           </h1>
 
-          <p className="mt-1 text-sm text-slate-500">
-            Tracking Number:
+          <p className="mt-1 flex flex-wrap items-center gap-1.5 text-sm text-slate-500">
 
-            <span className="ml-2 font-semibold text-emerald-600">
+            <span>
+              Tracking Number:
+            </span>
+
+            <span className="font-semibold text-emerald-600">
               {shipment.trackingNumber}
             </span>
+
           </p>
+
         </div>
 
-        {/* Current Status */}
-
         <span
-          className={`inline-flex w-fit rounded-full px-4 py-2 text-sm font-medium ${getStatusStyle(
+          className={`inline-flex w-fit items-center rounded-full px-4 py-2 text-sm font-medium ${getStatusStyle(
             shipment.status
           )}`}
         >
@@ -572,40 +606,43 @@ const OperatorShipmentDetails = () => {
             shipment.status
           )}
         </span>
+
       </div>
 
       {/* ================= STATUS UPDATE ================= */}
 
-      <div className="flex flex-col gap-4 border-b border-slate-200 pb-5 lg:flex-row lg:items-center lg:justify-between">
+      <div className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm lg:flex-row lg:items-center lg:justify-between">
 
-        {/* Status Information */}
+        <div className="flex items-start gap-3">
 
-        <div>
-          <div className="flex items-center gap-2">
+          <div className="rounded-lg bg-emerald-50 p-2">
 
             <Truck
               size={20}
               className="text-emerald-600"
             />
 
+          </div>
+
+          <div>
+
             <h2 className="font-semibold text-slate-800">
               Shipment Status
             </h2>
+
+            <p className="mt-1 text-sm text-slate-500">
+              Update the shipment as it progresses.
+            </p>
+
           </div>
 
-          <p className="mt-1 text-sm text-slate-500">
-            Update the shipment as it progresses.
-          </p>
         </div>
-
-        {/* Status Update Controls */}
 
         {!isCompleted &&
           !isCancelled &&
           nextStatus && (
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
 
-              {/* Status Select */}
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
 
               <select
                 value={selectedStatus}
@@ -614,8 +651,9 @@ const OperatorShipmentDetails = () => {
                     event.target.value
                   )
                 }
-                className="min-w-[220px] rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-emerald-500"
+                className="w-full min-w-[220px] rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none transition focus:border-emerald-500 sm:w-auto"
               >
+
                 <option value="">
                   Select next status
                 </option>
@@ -625,41 +663,47 @@ const OperatorShipmentDetails = () => {
                     nextStatus
                   )}
                 </option>
+
               </select>
 
-              {/* Update Button */}
-
               {selectedStatus && (
+
                 <button
                   onClick={
                     handleStatusUpdate
                   }
                   disabled={updating}
-                  className="rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="w-full rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
                 >
                   {updating
                     ? "Updating..."
                     : "Update Status"}
                 </button>
-              )}
-            </div>
-          )}
 
-        {/* Completed Message */}
+              )}
+
+            </div>
+
+          )}
 
         {(isCompleted ||
           isCancelled) && (
+
           <p className="text-sm font-medium text-slate-500">
+
             {isCompleted
               ? "Shipment has been delivered successfully."
               : "This shipment has been cancelled."}
+
           </p>
+
         )}
+
       </div>
 
       {/* ================= SENDER & RECEIVER ================= */}
 
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
 
         {/* Sender */}
 
@@ -682,13 +726,17 @@ const OperatorShipmentDetails = () => {
 
           </div>
 
-          <p className="text-sm text-slate-500">
-            Sender Name
-          </p>
+          <div>
 
-          <p className="mt-1 font-medium text-slate-800">
-            {shipment.senderName}
-          </p>
+            <p className="text-sm text-slate-500">
+              Sender Name
+            </p>
+
+            <p className="mt-1 font-medium text-slate-800">
+              {shipment.senderName}
+            </p>
+
+          </div>
 
         </div>
 
@@ -716,6 +764,7 @@ const OperatorShipmentDetails = () => {
           <div className="space-y-3">
 
             <div>
+
               <p className="text-sm text-slate-500">
                 Receiver Name
               </p>
@@ -723,6 +772,7 @@ const OperatorShipmentDetails = () => {
               <p className="mt-1 font-medium text-slate-800">
                 {shipment.receiverName}
               </p>
+
             </div>
 
             <div className="flex items-center gap-2">
@@ -746,7 +796,7 @@ const OperatorShipmentDetails = () => {
 
       {/* ================= PICKUP & DELIVERY ================= */}
 
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
 
         {/* Pickup Location */}
 
@@ -769,7 +819,7 @@ const OperatorShipmentDetails = () => {
 
           </div>
 
-          <div className="space-y-2 text-sm text-slate-700">
+          <div className="space-y-1.5 text-sm text-slate-700">
 
             <p>
               {shipment.pickupAddress}
@@ -780,7 +830,7 @@ const OperatorShipmentDetails = () => {
               {shipment.pickupState}
             </p>
 
-            <p>
+            <p className="text-slate-500">
               PIN: {shipment.pickupPincode}
             </p>
 
@@ -809,7 +859,7 @@ const OperatorShipmentDetails = () => {
 
           </div>
 
-          <div className="space-y-2 text-sm text-slate-700">
+          <div className="space-y-1.5 text-sm text-slate-700">
 
             <p>
               {shipment.deliveryAddress}
@@ -820,7 +870,7 @@ const OperatorShipmentDetails = () => {
               {shipment.deliveryState}
             </p>
 
-            <p>
+            <p className="text-slate-500">
               PIN: {shipment.deliveryPincode}
             </p>
 
@@ -852,7 +902,7 @@ const OperatorShipmentDetails = () => {
             </h2>
 
             <p className="text-sm text-slate-500">
-              Current location of the shipment
+              Current location and delivery progress
             </p>
 
           </div>
@@ -871,430 +921,262 @@ const OperatorShipmentDetails = () => {
 
         ) : shipmentLocation ? (
 
-          <>
+          <div>
+
+            {/* ================= MAP ================= */}
 
             <GoogleShipmentMap
-              latitude={shipmentLocation.latitude}
-              longitude={shipmentLocation.longitude}
-              encodedPolyline={
-                route?.polyline?.encodedPolyline
+              latitude={
+                shipmentLocation.latitude
               }
-              historyEncodedPolyline={
-                historyRoute?.polyline?.encodedPolyline
+              longitude={
+                shipmentLocation.longitude
+              }
+              encodedPolyline={
+                route?.polyline
+                  ?.encodedPolyline
               }
             />
 
-            {/* ================= ROUTE INFORMATION ================= */}
+            {/* =====================================================
+                COMPACT DELIVERY INFORMATION
+            ====================================================== */}
 
-            {route && (
-              <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="mt-4 overflow-hidden rounded-xl border border-slate-200">
 
-                <div className="rounded-lg bg-slate-50 p-4">
+              {/* ================= DELIVERY OVERVIEW ================= */}
 
-                  <p className="text-sm text-slate-500">
-                    Route Distance
-                  </p>
+              <div className="p-4">
 
-                  <p className="mt-1 text-lg font-semibold text-slate-800">
-                    {(
-                      route.distanceMeters /
-                      1000
-                    ).toFixed(1)}{" "}
-                    km
-                  </p>
+                <div className="mb-3">
+
+                  <h3 className="text-sm font-semibold text-slate-800">
+                    Delivery Overview
+                  </h3>
 
                 </div>
 
-                <div className="rounded-lg bg-slate-50 p-4">
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
 
-                  <p className="text-sm text-slate-500">
-                    Estimated Travel Time
-                  </p>
+                  {/* Current Status */}
 
-                  <p className="mt-1 text-lg font-semibold text-slate-800">
-                    {formatDuration(
-                      route.duration
-                    )}
-                  </p>
+                  <div className="rounded-lg bg-slate-50 p-3">
 
-                </div>
-
-              </div>
-            )}
-
-            {/* ================= ETA ================= */}
-
-            {etaLoading ? (
-
-              <div className="mt-4 rounded-lg bg-slate-50 p-4">
-
-                <p className="text-sm text-slate-500">
-                  Calculating estimated arrival time...
-                </p>
-
-              </div>
-
-            ) : eta ? (
-
-              <div className="mt-4 rounded-lg bg-emerald-50 p-4">
-
-                <p className="text-sm text-emerald-700">
-                  Estimated Arrival
-                </p>
-
-                <p className="mt-1 text-xl font-semibold text-emerald-800">
-
-                  {etaArrival
-                    ? new Date(
-                        etaArrival
-                      ).toLocaleTimeString(
-                        [],
-                        {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        }
-                      )
-                    : "N/A"}
-
-                </p>
-
-                <p className="mt-1 text-sm text-emerald-600">
-                  Based on current shipment location
-                </p>
-
-              </div>
-
-            ) : null}
-
-            {/* ================= DELAY PREDICTION ================= */}
-
-            <div className="mt-4 rounded-lg border border-slate-200 bg-white p-4">
-
-              <div className="mb-3">
-
-                <h3 className="font-semibold text-slate-800">
-                  Delay Prediction
-                </h3>
-
-                <p className="mt-1 text-sm text-slate-500">
-                  Current delivery prediction based on shipment progress.
-                </p>
-
-              </div>
-
-              {delayLoading ? (
-
-                <div className="rounded-lg bg-slate-50 p-4">
-
-                  <p className="text-sm text-slate-500">
-                    Calculating delay prediction...
-                  </p>
-
-                </div>
-
-              ) : delayPrediction ? (
-
-                <div className="space-y-4">
-
-                  {/* Prediction Status */}
-
-                  <div
-                    className={`rounded-lg p-4 ${
-                      delayPrediction.prediction ===
-                      "DELAYED"
-                        ? "bg-red-50"
-                        : delayPrediction.prediction ===
-                          "ON_TIME"
-                        ? "bg-emerald-50"
-                        : "bg-slate-50"
-                    }`}
-                  >
-
-                    <p className="text-sm text-slate-500">
-                      Prediction
+                    <p className="text-xs font-medium text-slate-400">
+                      Current Status
                     </p>
 
-                    <p
-                      className={`mt-1 text-lg font-semibold ${
-                        delayPrediction.prediction ===
-                        "DELAYED"
-                          ? "text-red-700"
-                          : delayPrediction.prediction ===
-                            "ON_TIME"
-                          ? "text-emerald-700"
-                          : "text-slate-700"
-                      }`}
+                    <span
+                      className={`mt-1 inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${getStatusStyle(
+                        shipment.status
+                      )}`}
                     >
-                      {delayPrediction.prediction ===
-                      "DELAYED"
-                        ? "Delayed"
-                        : delayPrediction.prediction ===
-                          "ON_TIME"
-                        ? "On Time"
-                        : "Not Started"}
+                      {formatStatus(
+                        shipment.status
+                      )}
+                    </span>
+
+                  </div>
+
+                  {/* Estimated Arrival */}
+
+                  <div className="rounded-lg bg-emerald-50 p-3">
+
+                    <p className="text-xs font-medium text-emerald-600">
+                      Estimated Arrival
+                    </p>
+
+                    <p className="mt-1 text-base font-bold text-emerald-800">
+
+                      {etaLoading
+                        ? "Calculating..."
+                        : estimatedArrival
+                        ? new Date(
+                            estimatedArrival
+                          ).toLocaleTimeString(
+                            [],
+                            {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            }
+                          )
+                        : "Not available"}
+
                     </p>
 
                   </div>
 
-                  {/* Arrival Information */}
+                  {/* Time Remaining */}
 
-                  {delayPrediction.expectedArrivalTime && (
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div className="rounded-lg bg-slate-50 p-3">
 
-                      <div className="rounded-lg bg-slate-50 p-4">
+                    <p className="text-xs font-medium text-slate-400">
+                      Time Left
+                    </p>
 
-                        <p className="text-sm text-slate-500">
-                          Expected Arrival
-                        </p>
+                    <p className="mt-1 text-base font-bold text-slate-800">
 
-                        <p className="mt-1 font-semibold text-slate-800">
-                          {new Date(
-                            delayPrediction.expectedArrivalTime
-                          ).toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                        </p>
+                      {remainingTime !==
+                        null &&
+                      remainingTime !==
+                        undefined
+                        ? remainingTime ===
+                          0
+                          ? "Arriving now"
+                          : `${remainingTime} min`
+                        : "Not available"}
 
-                      </div>
+                    </p>
 
-                      {delayPrediction.currentEstimatedArrivalTime && (
-                        <div className="rounded-lg bg-slate-50 p-4">
+                  </div>
 
-                          <p className="text-sm text-slate-500">
-                            Current Estimated Arrival
-                          </p>
+                  {/* Distance Remaining */}
 
-                          <p className="mt-1 font-semibold text-slate-800">
-                            {new Date(
-                              delayPrediction.currentEstimatedArrivalTime
-                            ).toLocaleTimeString([], {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
-                          </p>
+                  <div className="rounded-lg bg-slate-50 p-3">
 
-                        </div>
-                      )}
+                    <p className="text-xs font-medium text-slate-400">
+                      Distance Left
+                    </p>
 
-                    </div>
-                  )}
+                    <p className="mt-1 text-base font-bold text-slate-800">
+
+                      {remainingDistance !==
+                        null &&
+                      remainingDistance !==
+                        undefined
+                        ? `${(
+                            remainingDistance /
+                            1000
+                          ).toFixed(1)} km`
+                        : "Not available"}
+
+                    </p>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+              {/* ================= JOURNEY SUMMARY ================= */}
+
+              <div className="border-t border-slate-200 px-4 py-3">
+
+                <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
+
+                  <span className="text-slate-500">
+
+                    <span className="font-semibold text-slate-700">
+                      Journey:
+                    </span>{" "}
+
+                    {route
+                      ? `${(
+                          route.distanceMeters /
+                          1000
+                        ).toFixed(1)} km`
+                      : "Not available"}
+
+                  </span>
+
+                  <span className="text-slate-500">
+
+                    <span className="font-semibold text-slate-700">
+                      Estimated travel time:
+                    </span>{" "}
+
+                    {route
+                      ? formatDuration(
+                          route.duration
+                        )
+                      : "Not available"}
+
+                  </span>
+
+                </div>
+
+              </div>
+
+              {/* ================= DELIVERY EXPECTATION ================= */}
+
+              <div className="border-t border-slate-200 px-4 py-3">
+
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+
+                  <div>
+
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                      Delivery Expectation
+                    </p>
+
+                    <p
+                      className={`mt-1 text-sm font-semibold ${
+                        isDelayed
+                          ? "text-red-600"
+                          : isOnTime
+                          ? "text-emerald-600"
+                          : "text-slate-700"
+                      }`}
+                    >
+
+                      {isDelayed
+                        ? "Shipment may arrive late"
+                        : isOnTime
+                        ? "Shipment is on schedule"
+                        : deliveryForecast?.forecast ===
+                          "DELIVERED"
+                        ? "Shipment has been delivered"
+                        : deliveryForecast?.forecast ===
+                          "EXPECTED"
+                        ? "Shipment is expected to arrive"
+                        : "Delivery prediction unavailable"}
+
+                    </p>
+
+                  </div>
 
                   {/* Delay */}
 
-                  {delayPrediction.prediction ===
-                    "DELAYED" &&
-                    delayPrediction.delayMinutes !==
-                      null && (
-                      <div className="rounded-lg bg-red-50 p-4">
+                  {isDelayed &&
+                    delayPrediction?.delayMinutes !==
+                      null &&
+                    delayPrediction?.delayMinutes !==
+                      undefined && (
 
-                        <p className="text-sm text-red-600">
-                          Estimated Delay
-                        </p>
+                      <div className="rounded-lg bg-red-50 px-3 py-2">
 
-                        <p className="mt-1 text-xl font-semibold text-red-700">
-                          {delayPrediction.delayMinutes} minutes
-                        </p>
+                        <span className="text-xs text-red-500">
+                          Estimated delay
+                        </span>
+
+                        <span className="ml-2 text-sm font-bold text-red-600">
+                          {delayPrediction.delayMinutes} min
+                        </span>
 
                       </div>
+
                     )}
 
-                  {/* Message */}
-
-                  {delayPrediction.message && (
-                    <p className="text-sm text-slate-600">
-                      {delayPrediction.message}
-                    </p>
-                  )}
-
                 </div>
 
-              ) : (
+                {/* Simple explanation */}
 
-                <div className="rounded-lg bg-slate-50 p-4">
+                <p className="mt-2 text-xs text-slate-500">
 
-                  <p className="text-sm text-slate-500">
-                    Delay prediction is currently unavailable.
-                  </p>
+                  {isDelayed
+                    ? "The current delivery estimate is later than the original expected time."
+                    : isOnTime
+                    ? "Based on the current location and route, the shipment is expected to arrive on schedule."
+                    : deliveryForecast?.message ||
+                      "Delivery information is currently being calculated."}
 
-                </div>
-
-              )}
-
-            </div>
-
-            {/* ================= DELIVERY FORECAST ================= */}
-
-            <div className="mt-4 rounded-lg border border-slate-200 bg-white p-4">
-
-              <div className="mb-3">
-
-                <h3 className="font-semibold text-slate-800">
-                  Delivery Forecast
-                </h3>
-
-                <p className="mt-1 text-sm text-slate-500">
-                  Forecasted delivery based on the current shipment location and route.
                 </p>
 
               </div>
 
-              {deliveryForecast ? (
-
-                <div className="space-y-4">
-
-                  {/* Forecast Status */}
-
-                  <div
-                    className={`rounded-lg p-4 ${
-                      deliveryForecast.forecast ===
-                      "DELIVERED"
-                        ? "bg-green-50"
-                        : deliveryForecast.forecast ===
-                          "EXPECTED"
-                        ? "bg-emerald-50"
-                        : "bg-slate-50"
-                    }`}
-                  >
-
-                    <p className="text-sm text-slate-500">
-                      Forecast
-                    </p>
-
-                    <p
-                      className={`mt-1 text-lg font-semibold ${
-                        deliveryForecast.forecast ===
-                        "DELIVERED"
-                          ? "text-green-700"
-                          : deliveryForecast.forecast ===
-                            "EXPECTED"
-                          ? "text-emerald-700"
-                          : "text-slate-700"
-                      }`}
-                    >
-                      {deliveryForecast.forecast ===
-                      "DELIVERED"
-                        ? "Delivered"
-                        : deliveryForecast.forecast ===
-                          "EXPECTED"
-                        ? "Expected"
-                        : deliveryForecast.forecast ===
-                          "NOT_STARTED"
-                        ? "Not Started"
-                        : deliveryForecast.forecast}
-                    </p>
-
-                  </div>
-
-                  {/* Forecast Information */}
-
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-
-                    {/* Forecasted Delivery */}
-
-                    <div className="rounded-lg bg-slate-50 p-4">
-
-                      <p className="text-sm text-slate-500">
-                        Forecasted Delivery
-                      </p>
-
-                      <p className="mt-1 font-semibold text-slate-800">
-                        {deliveryForecast.forecastedDeliveryTime
-                          ? new Date(
-                              deliveryForecast.forecastedDeliveryTime
-                            ).toLocaleString([], {
-                              dateStyle: "medium",
-                              timeStyle: "short",
-                            })
-                          : "N/A"}
-                      </p>
-
-                    </div>
-
-                    {/* Travel Time */}
-
-                    <div className="rounded-lg bg-slate-50 p-4">
-
-                      <p className="text-sm text-slate-500">
-                        Estimated Travel Time
-                      </p>
-
-                      <p className="mt-1 font-semibold text-slate-800">
-                        {deliveryForecast.estimatedTravelTimeMinutes !==
-                        null &&
-                        deliveryForecast.estimatedTravelTimeMinutes !==
-                        undefined
-                          ? `${deliveryForecast.estimatedTravelTimeMinutes} minutes`
-                          : "N/A"}
-                      </p>
-
-                    </div>
-
-                    {/* Distance */}
-
-                    <div className="rounded-lg bg-slate-50 p-4">
-
-                      <p className="text-sm text-slate-500">
-                        Remaining Distance
-                      </p>
-
-                      <p className="mt-1 font-semibold text-slate-800">
-                        {deliveryForecast.estimatedDistanceMeters !==
-                        null &&
-                        deliveryForecast.estimatedDistanceMeters !==
-                        undefined
-                          ? `${(
-                              deliveryForecast.estimatedDistanceMeters /
-                              1000
-                            ).toFixed(1)} km`
-                          : "N/A"}
-                      </p>
-
-                    </div>
-
-                    {/* Current Status */}
-
-                    <div className="rounded-lg bg-slate-50 p-4">
-
-                      <p className="text-sm text-slate-500">
-                        Current Shipment Status
-                      </p>
-
-                      <p className="mt-1 font-semibold text-slate-800">
-                        {formatStatus(
-                          deliveryForecast.currentStatus
-                        )}
-                      </p>
-
-                    </div>
-
-                  </div>
-
-                  {/* Forecast Message */}
-
-                  {deliveryForecast.message && (
-                    <p className="text-sm text-slate-600">
-                      {deliveryForecast.message}
-                    </p>
-                  )}
-
-                </div>
-
-              ) : (
-
-                <div className="rounded-lg bg-slate-50 p-4">
-
-                  <p className="text-sm text-slate-500">
-                    Delivery forecast is currently unavailable.
-                  </p>
-
-                </div>
-
-              )}
-
             </div>
 
-          </>
+          </div>
 
         ) : (
 
@@ -1331,7 +1213,7 @@ const OperatorShipmentDetails = () => {
 
         </div>
 
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
 
           {/* Description */}
 

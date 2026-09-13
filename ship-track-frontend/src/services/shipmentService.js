@@ -51,3 +51,24 @@ export const supportShipmentLookupApi = async (
     `${API_END_POINTS.SUPPORT_SHIPMENT_LOOKUP}/${trackingNumber}`
   );
 };
+
+// export const getLatestShipmentLocationApi = async (  trackingNumber) => {
+//   return await axiosInstance.get(
+//     `${API_END_POINTS.GET_SHIPMENT_LOCATION}/${trackingNumber}/location/latest`
+//   );
+// };
+
+// export const getShipmentRouteApi = async (
+//   origin,
+//   destination
+// ) => {
+//   return await axiosInstance.get( "/api/routes/calculate",
+//     {
+//       params: {
+//         origin,
+//         destination,
+//       },
+//     }
+//   );
+// };
+

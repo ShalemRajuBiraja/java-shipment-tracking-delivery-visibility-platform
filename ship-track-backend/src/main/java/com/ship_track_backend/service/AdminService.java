@@ -254,39 +254,7 @@ public class AdminService {
 		adminRepository.save(admin);
 	}
     
- // ================= ASSIGN LOGISTICS OPERATOR =================
 
-    public void assignOperator(Long shipmentId) {
-
-        // Find shipment
-        ShipmentEntity shipment = shipmentRepository
-                .findById(shipmentId)
-                .orElseThrow(() ->
-                        new ResponseStatusException(
-                                HttpStatus.NOT_FOUND,
-                                "Shipment not found"
-                        )
-                );
-
-        // Find a Logistics Operator
-        UserEntity operator = userRepository
-                .findByRole(Role.LOGISTICS_OPERATOR)
-                .orElseThrow(() ->
-                        new ResponseStatusException(
-                                HttpStatus.NOT_FOUND,
-                                "No logistics operator found"
-                        )
-                );
-
-        // Assign operator
-        shipment.setAssignedOperator(operator);
-
-        // Update timestamp
-        shipment.setUpdatedAt(LocalDateTime.now());
-
-        // Save shipment
-        shipmentRepository.save(shipment);
-    }
 
 		
 }

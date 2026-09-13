@@ -1,28 +1,20 @@
 
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-
 import DashboardHeader from "./DashboardHeader";
-import ShipmentDetails from "./ShipmentDetails";
-import TrackingProgress from "./TrackingProgress";
 import RecentShipments from "./RecentShipments";
-
-import { trackShipmentApi } from "../../services/shipmentService";
-
+import { trackShipmentApi} from "../../services/shipmentService";
+import GoogleShipmentMap from "../../components/GoogleShipmentMap";
+import { getLatestShipmentLocation } from "../../services/operatorService";
 
 const CustomerDashboard = () => {
 
-  // Tracking input
   const [trackingNumber, setTrackingNumber] = useState("");
-
-  // Recent shipments
+  const [shipmentLocation, setShipmentLocation] = useState(null);
   const [recentShipments, setRecentShipments] = useState([]);
-
-  // Selected shipment details
   const [shipment, setShipment] = useState(null);
-
-  // API loading state
   const [loading, setLoading] = useState(false);
+  const [route, setRoute] = useState(null);
 
 
   // Load recent shipments and remove expired records
@@ -36,11 +28,8 @@ const CustomerDashboard = () => {
     // Keep only shipments tracked within last 24 hours
     const validShipments = storedShipments.filter((item) => {
 
-      const trackedTime =
-        new Date(item.trackedAt).getTime();
-
-      const timeDifference =
-        now - trackedTime;
+      const trackedTime =  new Date(item.trackedAt).getTime();
+      const timeDifference =  now - trackedTime;
 
       return timeDifference < 24 * 60 * 60 * 1000;
 
@@ -117,33 +106,54 @@ const CustomerDashboard = () => {
 
 
     try {
-
       setLoading(true);
 
-
       // Call tracking API
-      const response = await trackShipmentApi(
-        trimmedTrackingNumber
-      );
+      const response = await trackShipmentApi(  trimmedTrackingNumber );
 
+     if (response.data.success === true) {
+  const shipmentData = response.data.data;
 
-      if (response.data.success === true) {
+  setShipment(shipmentData);
+  saveRecentShipment(shipmentData);
 
-        // Set shipment details
-        setShipment(response.data.data);
+  // Fetch latest shipment location
+  try {
+    const locationResponse = await getLatestShipmentLocation( shipmentData.trackingNumber );
+    console.log("CUSTOMER SHIPMENT LOCATION:", locationResponse.data);
 
+    setShipmentLocation(locationResponse.data);
+  } catch (locationError) {
+    console.error(
+      "Error fetching shipment location:",
+      locationError
+    );
 
-        // Save successful shipment to recent list
-        saveRecentShipment(response.data.data);
+    setShipmentLocation(null);
+  }
 
+  // Fetch planned shipment route
+  try {
+    const routeResponse = await getShipmentRouteApi(
+      shipmentData.pickupAddress,
+      shipmentData.deliveryAddress
+    );
 
-        toast.success(
-          "Shipment found successfully!"
-        );
+    setRoute(routeResponse.data);
+  } catch (routeError) {
+    console.error(
+      "Error fetching shipment route:",
+      routeError
+    );
 
-      } else {
+    setRoute(null);
+  }
+
+  toast.success("Shipment found successfully!");
+}else {
 
         setShipment(null);
+        setShipmentLocation(null);
 
         toast.error(
           response.data.message ||
@@ -154,35 +164,18 @@ const CustomerDashboard = () => {
 
     } catch (error) {
 
-      console.error(
-        "Error tracking shipment:",
-        error
-      );
+      console.error( "Error tracking shipment:", error );
 
       setShipment(null);
+      setShipmentLocation(null);
 
-      toast.error(
-        error.response?.data?.message ||
-        "Shipment not found. Please check the tracking number."
-      );
+      toast.error(  error.response?.data?.message || "Shipment not found. Please check the tracking number." );
 
     } finally {
 
       setLoading(false);
 
     }
-
-  };
-
-
-  // Click recent shipment
-  const handleSelectRecentShipment = (trackingNo) => {
-
-    // Put tracking number in input
-    setTrackingNumber(trackingNo);
-
-    // Fetch latest shipment details
-    handleTrackShipment(trackingNo);
 
   };
 
@@ -236,26 +229,7 @@ const CustomerDashboard = () => {
       {/* Recent Shipments */}
       <RecentShipments
         recentShipments={recentShipments}
-        onSelectShipment={handleSelectRecentShipment}
       />
-
-
-      {/* Shipment Details */}
-      {shipment && (
-
-        <>
-
-          <TrackingProgress
-            shipment={shipment}
-          />
-
-          <ShipmentDetails
-            shipment={shipment}
-          />
-
-        </>
-
-      )}
 
 
       {/* Footer */}

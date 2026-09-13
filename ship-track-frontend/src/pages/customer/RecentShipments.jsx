@@ -4,11 +4,12 @@ import {
   ArrowRight,
   CircleCheck,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
-const RecentShipments = ({
-  recentShipments,
-  onSelectShipment,
-}) => {
+
+const RecentShipments = ({ recentShipments,}) => {
+
+ const navigate = useNavigate();
 
   // Convert status like IN_TRANSIT → In Transit
   const formatStatus = (status) => {
@@ -156,13 +157,15 @@ const RecentShipments = ({
 
                 {/* View Button */}
                 <button
-                  onClick={() =>
-                    onSelectShipment(item.trackingNumber)
+                 onClick={() =>
+                    navigate(
+                      `/customer/shipment/${item.trackingNumber}`
+                    )
                   }
-                  className="flex items-center gap-1 text-sm font-semibold text-emerald-600 hover:text-emerald-700 transition"
+                className="flex items-center gap-1 text-sm font-semibold text-emerald-600 hover:text-emerald-700 transition"
                 >
 
-                  View
+                  View Details
 
                   <ArrowRight size={16} />
 

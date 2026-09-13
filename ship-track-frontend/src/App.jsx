@@ -51,6 +51,8 @@ import BusinessSettings from "./pages/Business/BusinessSettings";
 import BusinessSupport from "./pages/Business/BusinessSupport";
 import BusinessShipmentDetails from "./pages/Business/BusinessShipmentDetails";
 import CustomerSupport from "./pages/Customer/CustomerSupport";
+import ShipmentTracking from "./pages/Customer/ShipmentTracking";
+import AdminShipmentDetails from "./pages/Admin/AdminShipmentDetails";
 
 function App() {
   return (
@@ -70,6 +72,7 @@ function App() {
         <Route path="shipment-history" element={<ShipmentHistory />} />
         <Route path="settings"element={<CustomerSettings />}/>
         <Route path="support" element={<CustomerSupport />}/>
+          <Route path="shipment/:trackingNumber" element={<ShipmentTracking />} />
         </Route>
 
 
@@ -80,6 +83,7 @@ function App() {
         <Route path="users" element={<Users />} />
         <Route path="create-shipment"  element={<CreateShipment />} />
         <Route path="shipments"  element={<Shipments />}/>
+        <Route path="/admin/shipments/:id" element={<AdminShipmentDetails />}/>
         </Route>
 
         {/* LOGISTICS OPERATOR ROUTES */}
@@ -87,7 +91,7 @@ function App() {
         <Route path="shipments" element={<OperatorShipments />} />
         <Route path="settings" element={<OperatorSettings />} />
         <Route path="shipments/:id" element={<OperatorShipmentDetails />}/>
-        <Route path="support" element={<OperatorSupport />}/>``
+        <Route path="support" element={<OperatorSupport />}/>
         </Route>
 
         {/* SUPPORT AGENT ROUTES */}

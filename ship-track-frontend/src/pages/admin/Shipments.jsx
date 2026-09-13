@@ -8,6 +8,7 @@ import {
   Truck,
   CheckCircle2,
   Clock,
+  Eye,
 } from "lucide-react";
 
 import { useNavigate } from "react-router-dom";
@@ -23,7 +24,8 @@ const Shipments = () => {
 
   const navigate = useNavigate();
 
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] =
+    useState("");
 
   const [statusFilter, setStatusFilter] =
     useState("ALL");
@@ -40,6 +42,8 @@ const Shipments = () => {
   const [selectedShipmentId, setSelectedShipmentId] =
     useState(null);
 
+
+  // ================= FETCH SHIPMENTS =================
 
   useEffect(() => {
 
@@ -94,6 +98,8 @@ const Shipments = () => {
   }, []);
 
 
+  // ================= STATUS LABEL =================
+
   const getStatusLabel = (status) => {
 
     const labels = {
@@ -116,6 +122,8 @@ const Shipments = () => {
 
   };
 
+
+  // ================= STATUS STYLE =================
 
   const getStatusStyle = (status) => {
 
@@ -149,6 +157,8 @@ const Shipments = () => {
   };
 
 
+  // ================= FILTER =================
+
   const filteredShipments =
     shipments.filter((shipment) => {
 
@@ -158,15 +168,15 @@ const Shipments = () => {
       const matchesSearch =
 
         shipment.trackingNumber
-          .toLowerCase()
+          ?.toLowerCase()
           .includes(search) ||
 
         shipment.senderName
-          .toLowerCase()
+          ?.toLowerCase()
           .includes(search) ||
 
         shipment.receiverName
-          .toLowerCase()
+          ?.toLowerCase()
           .includes(search);
 
 
@@ -186,6 +196,8 @@ const Shipments = () => {
     });
 
 
+  // ================= SUMMARY =================
+
   const totalShipments =
     shipments.length;
 
@@ -196,7 +208,7 @@ const Shipments = () => {
       (shipment) =>
 
         shipment.status ===
-        "ON_GOING" ||
+        "IN_TRANSIT" ||
 
         shipment.status ===
         "OUT_FOR_DELIVERY"
@@ -221,19 +233,29 @@ const Shipments = () => {
       (shipment) =>
 
         shipment.status ===
-        "ORDER_PLACED" ||
-
-        shipment.status ===
-        "PACKED"
+        "CREATED"
 
     ).length;
 
 
-  // ================= DELETE SHIPMENT =================
+  // ================= VIEW DETAILS =================
+
+  const handleViewDetails = (id) => {
+
+    navigate(
+      `/admin/shipments/${id}`
+    );
+
+  };
+
+
+  // ================= DELETE =================
 
   const handleDelete = async () => {
 
-    if (!selectedShipmentId) return;
+    if (!selectedShipmentId) {
+      return;
+    }
 
 
     try {
@@ -256,12 +278,9 @@ const Shipments = () => {
         setShipments((previous) =>
 
           previous.filter(
-
             (shipment) =>
-
               shipment.id !==
               selectedShipmentId
-
           )
 
         );
@@ -274,11 +293,8 @@ const Shipments = () => {
       } else {
 
         toast.error(
-
           response.data.message ||
-
           "Failed to delete shipment"
-
         );
 
       }
@@ -292,11 +308,8 @@ const Shipments = () => {
 
 
       toast.error(
-
         error.response?.data?.message ||
-
         "Failed to delete shipment"
-
       );
 
     }
@@ -334,11 +347,9 @@ const Shipments = () => {
         <button
 
           onClick={() =>
-
             navigate(
               "/admin/create-shipment"
             )
-
           }
 
           className="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-lg text-sm font-semibold transition"
@@ -359,7 +370,7 @@ const Shipments = () => {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
 
 
-        {/* Total */}
+        {/* TOTAL */}
 
         <div className="bg-white border border-slate-200 rounded-lg p-4">
 
@@ -368,16 +379,11 @@ const Shipments = () => {
             <div>
 
               <p className="text-xs text-slate-500">
-
                 Total
-
               </p>
 
-
               <h3 className="text-xl font-bold text-slate-800 mt-1">
-
                 {totalShipments}
-
               </h3>
 
             </div>
@@ -397,7 +403,7 @@ const Shipments = () => {
         </div>
 
 
-        {/* Active */}
+        {/* ACTIVE */}
 
         <div className="bg-white border border-slate-200 rounded-lg p-4">
 
@@ -406,16 +412,11 @@ const Shipments = () => {
             <div>
 
               <p className="text-xs text-slate-500">
-
                 Active
-
               </p>
 
-
               <h3 className="text-xl font-bold text-blue-600 mt-1">
-
                 {activeShipments}
-
               </h3>
 
             </div>
@@ -435,7 +436,7 @@ const Shipments = () => {
         </div>
 
 
-        {/* Delivered */}
+        {/* DELIVERED */}
 
         <div className="bg-white border border-slate-200 rounded-lg p-4">
 
@@ -444,16 +445,11 @@ const Shipments = () => {
             <div>
 
               <p className="text-xs text-slate-500">
-
                 Delivered
-
               </p>
 
-
               <h3 className="text-xl font-bold text-emerald-600 mt-1">
-
                 {deliveredShipments}
-
               </h3>
 
             </div>
@@ -473,7 +469,7 @@ const Shipments = () => {
         </div>
 
 
-        {/* Pending */}
+        {/* PENDING */}
 
         <div className="bg-white border border-slate-200 rounded-lg p-4">
 
@@ -482,16 +478,11 @@ const Shipments = () => {
             <div>
 
               <p className="text-xs text-slate-500">
-
                 Pending
-
               </p>
 
-
               <h3 className="text-xl font-bold text-orange-600 mt-1">
-
                 {pendingShipments}
-
               </h3>
 
             </div>
@@ -518,7 +509,7 @@ const Shipments = () => {
       <section className="bg-white border border-slate-200 rounded-xl shadow-sm">
 
 
-        {/* Search and Filter */}
+        {/* SEARCH + FILTER */}
 
         <div className="p-4 border-b border-slate-200 flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
 
@@ -603,7 +594,7 @@ const Shipments = () => {
 
         <div className="overflow-x-auto">
 
-          <table className="w-full min-w-[1100px]">
+          <table className="w-full min-w-[950px]">
 
 
             <thead className="bg-slate-50 border-b border-slate-200">
@@ -614,38 +605,21 @@ const Shipments = () => {
                   Tracking Number
                 </th>
 
-
                 <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500">
                   Sender
                 </th>
-
 
                 <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500">
                   Receiver
                 </th>
 
-
                 <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500">
                   Package
                 </th>
 
-
-                {/* ADDED PICKUP ADDRESS */}
-
-                <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500">
-                  Pickup Address
-                </th>
-
-
-                <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500">
-                  Delivery Address
-                </th>
-
-
                 <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500">
                   Status
                 </th>
-
 
                 <th className="text-center px-5 py-3 text-xs font-semibold text-slate-500">
                   Actions
@@ -658,19 +632,33 @@ const Shipments = () => {
 
             <tbody>
 
-              {filteredShipments.length > 0 ? (
+              {loading ? (
+
+                <tr>
+
+                  <td
+                    colSpan="6"
+                    className="py-10 text-center text-sm text-slate-500"
+                  >
+
+                    Loading shipments...
+
+                  </td>
+
+                </tr>
+
+              ) : filteredShipments.length > 0 ? (
 
                 filteredShipments.map(
                   (shipment) => (
 
                     <tr
-
                       key={shipment.id}
-
                       className="border-b border-slate-100 hover:bg-slate-50 transition"
-
                     >
 
+
+                      {/* TRACKING */}
 
                       <td className="px-5 py-4 text-sm font-semibold text-emerald-600">
 
@@ -679,12 +667,16 @@ const Shipments = () => {
                       </td>
 
 
+                      {/* SENDER */}
+
                       <td className="px-5 py-4 text-sm text-slate-700">
 
                         {shipment.senderName}
 
                       </td>
 
+
+                      {/* RECEIVER */}
 
                       <td className="px-5 py-4 text-sm text-slate-700">
 
@@ -693,37 +685,27 @@ const Shipments = () => {
                       </td>
 
 
-                      <td className="px-5 py-4 text-sm text-slate-600">
+                      {/* PACKAGE */}
 
-                        {shipment.packageDescription}
+                      <td className="px-5 py-4 text-sm text-slate-600 max-w-xs">
 
-                      </td>
+                        <p className="truncate">
 
+                          {shipment.packageDescription}
 
-                      {/* ADDED PICKUP ADDRESS */}
-
-                      <td className="px-5 py-4 text-sm text-slate-600">
-
-                        {shipment.pickupAddress}
+                        </p>
 
                       </td>
 
 
-                      <td className="px-5 py-4 text-sm text-slate-600">
-
-                        {shipment.deliveryAddress}
-
-                      </td>
-
+                      {/* STATUS */}
 
                       <td className="px-5 py-4">
 
                         <span
-
                           className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${getStatusStyle(
                             shipment.status
                           )}`}
-
                         >
 
                           {getStatusLabel(
@@ -735,9 +717,35 @@ const Shipments = () => {
                       </td>
 
 
+                      {/* ACTIONS */}
+
                       <td className="px-5 py-4">
 
                         <div className="flex items-center justify-center gap-2">
+
+
+                          {/* VIEW DETAILS */}
+
+                          <button
+
+                            onClick={() =>
+                              handleViewDetails(
+                                shipment.id
+                              )
+                            }
+
+                            className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 transition"
+
+                          >
+
+                            <Eye size={16} />
+
+                            View Details
+
+                          </button>
+
+
+                          {/* DELETE */}
 
                           <button
 
@@ -747,7 +755,9 @@ const Shipments = () => {
                                 shipment.id
                               );
 
-                              setShowDeleteModal(true);
+                              setShowDeleteModal(
+                                true
+                              );
 
                             }}
 
@@ -768,6 +778,7 @@ const Shipments = () => {
                     </tr>
 
                   )
+
                 )
 
               ) : (
@@ -775,11 +786,8 @@ const Shipments = () => {
                 <tr>
 
                   <td
-
-                    colSpan="8"
-
+                    colSpan="6"
                     className="py-10 text-center text-sm text-slate-500"
-
                   >
 
                     No shipments found.
@@ -797,7 +805,7 @@ const Shipments = () => {
         </div>
 
 
-        {/* Footer */}
+        {/* FOOTER */}
 
         <div className="px-5 py-3 border-t border-slate-200 text-sm text-slate-500">
 
@@ -809,7 +817,7 @@ const Shipments = () => {
       </section>
 
 
-      {/* ================= DELETE CONFIRMATION MODAL ================= */}
+      {/* ================= DELETE MODAL ================= */}
 
       {showDeleteModal && (
 
@@ -817,8 +825,6 @@ const Shipments = () => {
 
           <div className="w-full max-w-md bg-white rounded-xl shadow-xl">
 
-
-            {/* Modal Header */}
 
             <div className="flex items-center gap-3 px-6 py-5 border-b border-slate-200">
 
@@ -835,24 +841,17 @@ const Shipments = () => {
               <div>
 
                 <h2 className="text-lg font-bold text-slate-800">
-
                   Delete Shipment
-
                 </h2>
 
-
                 <p className="text-sm text-slate-500 mt-1">
-
                   This action cannot be undone.
-
                 </p>
 
               </div>
 
             </div>
 
-
-            {/* Modal Content */}
 
             <div className="px-6 py-5">
 
@@ -866,10 +865,7 @@ const Shipments = () => {
             </div>
 
 
-            {/* Modal Actions */}
-
             <div className="flex justify-end gap-3 px-6 py-4 border-t border-slate-200">
-
 
               <button
 
@@ -919,5 +915,6 @@ const Shipments = () => {
   );
 
 };
+
 
 export default Shipments;

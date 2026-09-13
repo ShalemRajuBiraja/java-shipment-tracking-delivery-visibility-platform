@@ -43,12 +43,9 @@ public class ShipmentLocationController {
     // ================= GET LATEST LOCATION =================
 
     @GetMapping("/{trackingNumber}/location/latest")
-    public ShipmentLocationResponseDto getLatestLocation(
-            @PathVariable String trackingNumber) {
+    public ShipmentLocationResponseDto getLatestLocation( @PathVariable String trackingNumber) {
 
-        return shipmentLocationService.getLatestLocation(
-                trackingNumber
-        );
+        return shipmentLocationService.getLatestLocation( trackingNumber );
     }
 
 

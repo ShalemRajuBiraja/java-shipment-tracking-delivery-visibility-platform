@@ -12,13 +12,11 @@ import com.ship_track_backend.entity.ShipmentLocationEntity;
 public interface ShipmentLocationRepository
         extends JpaRepository<ShipmentLocationEntity, Long> {
 
-    List<ShipmentLocationEntity>
-    findByShipmentTrackingNumberOrderByRecordedAtAsc(
+    List<ShipmentLocationEntity> findByShipmentTrackingNumberOrderByRecordedAtAsc(
             String trackingNumber
     );
 
-    Optional<ShipmentLocationEntity>
-    findTopByShipmentTrackingNumberOrderByRecordedAtDesc(
+    Optional<ShipmentLocationEntity>findTopByShipmentTrackingNumberOrderByRecordedAtDesc(
             String trackingNumber
     );
 }

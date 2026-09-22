@@ -182,6 +182,7 @@ public class ShipmentService {
                 .collect(Collectors.toList());
     }
     
+    
     public TrackingResponseDto getTrackingDetails(String trackingNumber) {
 
         // Find shipment
@@ -191,6 +192,25 @@ public class ShipmentService {
                         HttpStatus.NOT_FOUND,
                         "Tracking number not found"
                 ));
+        
+     // ================= ASSIGN CUSTOMER =================
+
+        String email = SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getName();
+
+        UserEntity customer = userRepository
+                .findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Customer not found"
+                ));
+
+        if (shipment.getReceiver() == null) {
+            shipment.setReceiver(customer);
+            shipmentRepository.save(shipment);
+        }
 
         // Find tracking history
         List<ShipmentTrackingEntity> trackingRecords =
@@ -198,6 +218,9 @@ public class ShipmentService {
                         .findByShipmentTrackingNumberOrderByCreatedAtAsc(
                                 trackingNumber
                         );
+        
+        
+        
 
         // Create response
         TrackingResponseDto response = new TrackingResponseDto();

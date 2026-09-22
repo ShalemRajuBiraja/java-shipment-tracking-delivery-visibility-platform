@@ -27,4 +27,10 @@ export const API_END_POINTS = {
     GET_OPERATOR_SHIPMENT_BY_ID: (id) =>`/api/operator/shipments/${id}`,
     UPDATE_OPERATOR_SHIPMENT_STATUS: (id) =>`/api/operator/shipments/${id}/status`,
     GET_SHIPMENT_LOCATION: "/api/shipments",
+    UPDATE_SHIPMENT_LIVE_LOCATION : "/api/shipments",
+    GET_SHIPMENT_LATEST_LOCATION : "/api/shipments",
+    GET_CURRENT_LOCATION_TO_DELIVERY_ROUTE : "/api/shipments",
+    GET_MY_NOTIFICATIONS : "/api/notifications",
+    GET_UNREAD_NOTIFICATIONS : "/api/notifications/unread",
+    CONFIRM_DELIVERY: "/delivery-confirmations/confirm",
 }

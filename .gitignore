@@ -24,7 +24,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-.env
+.env.local
 
 
 # BACK-END

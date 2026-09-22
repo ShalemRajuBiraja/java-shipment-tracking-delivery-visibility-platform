@@ -5,7 +5,7 @@ import DashboardHeader from "./DashboardHeader";
 import RecentShipments from "./RecentShipments";
 import { trackShipmentApi} from "../../services/shipmentService";
 import GoogleShipmentMap from "../../components/GoogleShipmentMap";
-import { getLatestShipmentLocation } from "../../services/operatorService";
+import { getShipmentLocation, getShipmentRoute } from "../../services/operatorService";
 
 const CustomerDashboard = () => {
 
@@ -119,7 +119,7 @@ const CustomerDashboard = () => {
 
   // Fetch latest shipment location
   try {
-    const locationResponse = await getLatestShipmentLocation( shipmentData.trackingNumber );
+    const locationResponse = await getShipmentLocation( shipmentData.trackingNumber );
     console.log("CUSTOMER SHIPMENT LOCATION:", locationResponse.data);
 
     setShipmentLocation(locationResponse.data);
@@ -134,7 +134,7 @@ const CustomerDashboard = () => {
 
   // Fetch planned shipment route
   try {
-    const routeResponse = await getShipmentRouteApi(
+    const routeResponse = await getShipmentRoute(
       shipmentData.pickupAddress,
       shipmentData.deliveryAddress
     );

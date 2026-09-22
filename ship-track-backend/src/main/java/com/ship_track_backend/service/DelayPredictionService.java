@@ -2,6 +2,7 @@ package com.ship_track_backend.service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -103,27 +104,15 @@ public class DelayPredictionService {
 
         // ================= DELIVERY ADDRESS =================
 
-        String destination =
-                shipment.getDeliveryAddress()
-                + ", "
-                + shipment.getDeliveryCity()
-                + ", "
-                + shipment.getDeliveryState()
-                + ", "
-                + shipment.getDeliveryPincode();
-
-
-        // ================= ORIGINAL ROUTE =================
-
         String origin =
-                shipment.getPickupAddress()
-                + ", "
-                + shipment.getPickupCity()
-                + ", "
-                + shipment.getPickupState()
-                + ", "
-                + shipment.getPickupPincode();
+                shipment.getPickupLatitude()
+                + ","
+                + shipment.getPickupLongitude();
 
+        String destination =
+                shipment.getDeliveryLatitude()
+                + ","
+                + shipment.getDeliveryLongitude();
 
         Map<String, Object> originalRoute =
                 googleRoutesService.calculateRoute(
@@ -143,10 +132,10 @@ public class DelayPredictionService {
         }
 
 
-        var originalRoutes =
-                (java.util.List<Map<String, Object>>)
+        @SuppressWarnings("unchecked")
+		var originalRoutes =
+                (List<Map<String, Object>>)
                         originalRoute.get("routes");
-
 
         if (originalRoutes.isEmpty()) {
             throw new ResponseStatusException(

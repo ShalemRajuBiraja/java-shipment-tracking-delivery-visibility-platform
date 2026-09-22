@@ -9,1130 +9,1192 @@ import {
   Truck,
   Weight,
   Calendar,
+  Navigation,
+  Route,
+  Clock,
+  TrendingUp,
+  ShieldAlert,
+  X,
 } from "lucide-react";
-import { useNavigate, useParams,} from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
+
 import GoogleShipmentMap from "../../components/GoogleShipmentMap";
 import { getShipmentByIdApi } from "../../services/shipmentService";
+
 import {
-  getLatestShipmentLocation,
+  getShipmentLocation,
   getShipmentRoute,
 } from "../../services/operatorService";
 
-
 const AdminShipmentDetails = () => {
-
   const { id } = useParams();
   const navigate = useNavigate();
-  const [shipment, setShipment] =  useState(null);
+
+  const [shipment, setShipment] = useState(null);
   const [loading, setLoading] = useState(true);
+
   const [shipmentLocation, setShipmentLocation] = useState(null);
-  const [locationLoading, setLocationLoading] =  useState(true);
-  const [route, setRoute] =  useState(null);
-  const [routeLoading, setRouteLoading] =  useState(true);
+  const [locationLoading, setLocationLoading] = useState(true);
+
+  const [route, setRoute] = useState(null);
+  const [routeLoading, setRouteLoading] = useState(true);
+
+  // Google's encoded road route
+  const [encodedPolyline, setEncodedPolyline] = useState("");
+
+  // =========================================================
+  // FETCH SHIPMENT DETAILS
+  // =========================================================
 
   useEffect(() => {
-
     const fetchShipmentDetails = async () => {
       try {
         const response = await getShipmentByIdApi(id);
 
-        if ( response.data.success === true ) {
-          const shipmentData =  response.data.data; 
-          setShipment( shipmentData );
+        if (response.data.success === true) {
+          const shipmentData = response.data.data;
 
-          fetchShipmentLocation( shipmentData.trackingNumber );
+          setShipment(shipmentData);
 
-          // Fetch complete route
-          fetchShipmentRoute(  shipmentData );
-
+          /*
+           * Pickup/delivery coordinates are obtained from
+           * getShipmentLocation().
+           *
+           * So we must wait for that API first.
+           */
+          await fetchShipmentLocationAndRoute(
+            shipmentData.trackingNumber
+          );
         } else {
-          toast.error( response.data.message ||  "Failed to fetch shipment details" );
+          toast.error(
+            response.data.message ||
+              "Failed to fetch shipment details"
+          );
         }
-
       } catch (error) {
-        console.error( "Error fetching shipment details:", error );
-        toast.error(  error.response?.data?.message ||  "Failed to fetch shipment details" );
-      
-      }  finally {
+        console.error(
+          "Error fetching shipment details:",
+          error
+        );
+
+        toast.error(
+          error.response?.data?.message ||
+            "Failed to fetch shipment details"
+        );
+      } finally {
         setLoading(false);
       }
-
     };
 
-
     fetchShipmentDetails();
-
   }, [id]);
 
+  // =========================================================
+  // LIVE LOCATION POLLING
+  // =========================================================
 
-  // ================= LIVE LOCATION POLLING =================
   useEffect(() => {
-
     if (!shipment?.trackingNumber) {
       return;
     }
-    const interval = setInterval(() => { fetchShipmentLocation( shipment.trackingNumber  ); }, 900000);
+
+    const interval = setInterval(() => {
+      fetchShipmentLocationAndRoute(
+        shipment.trackingNumber
+      );
+    }, 900000);
 
     return () => {
       clearInterval(interval);
     };
   }, [shipment?.trackingNumber]);
 
+  // =========================================================
+  // FETCH LOCATION + ROUTE
+  // =========================================================
 
-  // ================= FETCH LIVE LOCATION =================
-  const fetchShipmentLocation = async ( trackingNumber ) => {
-
+  const fetchShipmentLocationAndRoute = async (
+    trackingNumber
+  ) => {
     try {
       setLocationLoading(true);
-
-      const response =  await getLatestShipmentLocation( trackingNumber  );
-
-      if (response.data) {
-        setShipmentLocation(  response.data );
-
-      } else {
-        setShipmentLocation( null );
-      }
-
-    } catch (error) {
-      console.error( "Error fetching shipment location:", error );
-      setShipmentLocation( null );
-
-    } finally {
-      setLocationLoading(false);
-
-    }
-
-  };
-
-
-  // ================= FETCH ROUTE =================
-
-  const fetchShipmentRoute = async (
-    shipmentData
-  ) => {
-
-    try {
-
       setRouteLoading(true);
 
+      // Clear old route while loading new data
+      setRoute(null);
+      setEncodedPolyline("");
 
-      const origin = [
+      // =====================================================
+      // STEP 1: GET SHIPMENT LOCATION / COORDINATES
+      // =====================================================
 
-        shipmentData.pickupAddress,
+      console.log(
+        "Fetching shipment location:",
+        trackingNumber
+      );
 
-        shipmentData.pickupCity,
+      const locationResponse =
+        await getShipmentLocation(
+          trackingNumber
+        );
 
-        shipmentData.pickupState,
+      const locationData =
+        locationResponse.data?.data;
 
-        shipmentData.pickupPincode,
+      console.log(
+        "SHIPMENT LOCATION DATA:",
+        locationData
+      );
 
-      ]
+      if (!locationData) {
+        console.warn(
+          "No shipment location data returned."
+        );
 
-        .filter(Boolean)
+        setShipmentLocation(null);
 
-        .join(", ");
+        return;
+      }
 
+      setShipmentLocation(locationData);
 
-      const destination = [
+      // =====================================================
+      // STEP 2: GET PICKUP / DELIVERY COORDINATES
+      // =====================================================
 
-        shipmentData.deliveryAddress,
+      const pickupLatitude =
+        locationData.pickupLatitude;
 
-        shipmentData.deliveryCity,
+      const pickupLongitude =
+        locationData.pickupLongitude;
 
-        shipmentData.deliveryState,
+      const deliveryLatitude =
+        locationData.deliveryLatitude;
 
-        shipmentData.deliveryPincode,
+      const deliveryLongitude =
+        locationData.deliveryLongitude;
 
-      ]
+      console.log(
+        "PICKUP LATITUDE:",
+        pickupLatitude
+      );
 
-        .filter(Boolean)
+      console.log(
+        "PICKUP LONGITUDE:",
+        pickupLongitude
+      );
 
-        .join(", ");
+      console.log(
+        "DELIVERY LATITUDE:",
+        deliveryLatitude
+      );
 
+      console.log(
+        "DELIVERY LONGITUDE:",
+        deliveryLongitude
+      );
 
-      const response =
+      // =====================================================
+      // STEP 3: CHECK COORDINATES
+      // =====================================================
+
+      if (
+        pickupLatitude == null ||
+        pickupLongitude == null ||
+        deliveryLatitude == null ||
+        deliveryLongitude == null
+      ) {
+        console.warn(
+          "Shipment coordinates are missing."
+        );
+
+        return;
+      }
+
+      // =====================================================
+      // STEP 4: CREATE COORDINATE STRINGS
+      // =====================================================
+
+      const origin =
+        `${pickupLatitude},${pickupLongitude}`;
+
+      const destination =
+        `${deliveryLatitude},${deliveryLongitude}`;
+
+      console.log(
+        "ROUTE ORIGIN:",
+        origin
+      );
+
+      console.log(
+        "ROUTE DESTINATION:",
+        destination
+      );
+
+      // =====================================================
+      // STEP 5: CALL GOOGLE ROUTES BACKEND
+      // =====================================================
+
+      const routeResponse =
         await getShipmentRoute(
           origin,
           destination
         );
 
+      console.log(
+        "FULL ROUTE RESPONSE:",
+        routeResponse.data
+      );
+
+      // =====================================================
+      // STEP 6: GET ROUTES ARRAY
+      // =====================================================
+
+      const routes =
+        routeResponse.data?.data?.routes;
 
       if (
-
-        response.data &&
-
-        response.data.routes &&
-
-        response.data.routes.length > 0
-
+        !routes ||
+        routes.length === 0
       ) {
-
-        setRoute(
-          response.data.routes[0]
+        console.warn(
+          "No route returned from backend."
         );
 
-      } else {
-
-        setRoute(null);
-
+        return;
       }
 
-    } catch (error) {
+      // =====================================================
+      // STEP 7: GET FIRST ROUTE
+      // =====================================================
 
+      const routeData = routes[0];
+
+      console.log(
+        "ROUTE DATA:",
+        routeData
+      );
+
+      setRoute(routeData);
+
+      // =====================================================
+      // STEP 8: GET ENCODED POLYLINE
+      // =====================================================
+
+      const polyline =
+        routeData?.polyline?.encodedPolyline;
+
+      console.log(
+        "ENCODED POLYLINE:",
+        polyline
+      );
+
+      if (!polyline) {
+        console.warn(
+          "Google route returned without encoded polyline."
+        );
+
+        setEncodedPolyline("");
+
+        return;
+      }
+
+      // =====================================================
+      // STEP 9: STORE POLYLINE
+      // =====================================================
+
+      setEncodedPolyline(polyline);
+
+      console.log(
+        "BLUE ROUTE POLYLINE STORED SUCCESSFULLY"
+      );
+    } catch (error) {
       console.error(
-        "Error fetching shipment route:",
+        "Error fetching shipment location/route:",
         error
       );
 
       setRoute(null);
-
+      setEncodedPolyline("");
     } finally {
-
+      setLocationLoading(false);
       setRouteLoading(false);
-
     }
-
   };
 
-
-  // ================= STATUS =================
+  // =========================================================
+  // STATUS
+  // =========================================================
 
   const formatStatus = (status) => {
-
     if (!status) {
       return "-";
     }
 
-
     return status
-
       .replaceAll("_", " ")
-
       .toLowerCase()
-
       .replace(
         /\b\w/g,
-        (char) =>
-          char.toUpperCase()
+        (char) => char.toUpperCase()
       );
-
   };
 
-
-  // ================= STATUS STYLE =================
+  // =========================================================
+  // STATUS STYLE
+  // =========================================================
 
   const getStatusStyle = (status) => {
-
-    switch (
-      status?.toUpperCase()
-    ) {
-
+    switch (status?.toUpperCase()) {
       case "CREATED":
-
         return "bg-purple-100 text-purple-700";
 
-
       case "PICKED_UP":
-
         return "bg-orange-100 text-orange-700";
 
-
       case "IN_TRANSIT":
-
         return "bg-blue-100 text-blue-700";
 
-
       case "OUT_FOR_DELIVERY":
-
         return "bg-yellow-100 text-yellow-700";
 
-
       case "DELIVERED":
-
         return "bg-green-100 text-green-700";
 
-
       case "CANCELLED":
-
         return "bg-red-100 text-red-700";
 
-
       default:
-
         return "bg-slate-100 text-slate-600";
-
     }
-
   };
 
-
-  // ================= DATE =================
+  // =========================================================
+  // DATE
+  // =========================================================
 
   const formatDate = (date) => {
-
     if (!date) {
       return "-";
     }
 
-
-    return new Date(
-      date
-    ).toLocaleString();
-
+    return new Date(date).toLocaleString();
   };
 
-
-  // ================= LOADING =================
+  // =========================================================
+  // LOADING
+  // =========================================================
 
   if (loading) {
-
     return (
+      <div className="mx-auto max-w-7xl p-5 md:p-7">
+        <div className="flex min-h-[300px] items-center justify-center">
+          <div className="text-center">
+            <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-emerald-600" />
 
-      <div className="p-5 md:p-7">
-
-        <p className="text-sm text-slate-500">
-
-          Loading shipment details...
-
-        </p>
-
+            <p className="text-sm text-slate-500">
+              Loading shipment details...
+            </p>
+          </div>
+        </div>
       </div>
-
     );
-
   }
 
-
-  // ================= NOT FOUND =================
+  // =========================================================
+  // NOT FOUND
+  // =========================================================
 
   if (!shipment) {
-
     return (
-
-      <div className="p-5 md:p-7">
-
+      <div className="mx-auto max-w-7xl px-4 pb-8 pt-5 sm:px-5 md:px-7">
         <button
-
           onClick={() =>
-            navigate(
-              "/admin/shipments"
-            )
+            navigate("/admin/shipments")
           }
-
-          className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-emerald-600 mb-5"
-
+          className="mb-5 inline-flex items-center gap-2 text-sm font-medium text-slate-600 transition hover:text-emerald-600"
         >
-
           <ArrowLeft size={18} />
-
           Back to Shipments
-
         </button>
 
-
-        <div className="bg-white border border-slate-200 rounded-xl p-8 text-center">
-
+        <div className="rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm">
           <Package
-            size={40}
-            className="mx-auto text-slate-300 mb-3"
+            size={38}
+            className="mx-auto mb-3 text-slate-300"
           />
 
-
           <h2 className="font-semibold text-slate-700">
-
             Shipment not found
-
           </h2>
-
         </div>
-
       </div>
-
     );
-
   }
 
+  // =========================================================
+  // STATUS STEPS
+  // =========================================================
+
+  const steps = [
+    "CREATED",
+    "PICKED_UP",
+    "IN_TRANSIT",
+    "OUT_FOR_DELIVERY",
+    "DELIVERED",
+  ];
+
+  const currentIndex =
+    steps.indexOf(shipment.status);
+
+  const isCancelled =
+    shipment.status?.toUpperCase() === "CANCELLED";
+
+  // =========================================================
+  // RETURN
+  // =========================================================
 
   return (
+    <div className="mx-auto max-w-7xl space-y-5 px-4 pb-10 pt-5 sm:px-5 md:px-7">
 
-    <div className="p-5 md:p-7 max-w-7xl mx-auto">
+      {/* ===================================================== */}
+      {/* HEADER / TRACKING */}
+      {/* ===================================================== */}
 
-
-      {/* ================= BACK ================= */}
-
-      <button
-
-        onClick={() =>
-          navigate(
-            "/admin/shipments"
-          )
-        }
-
-        className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-emerald-600 mb-6"
-
-      >
-
-        <ArrowLeft size={18} />
-
-        Back to Shipments
-
-      </button>
-
-
-      {/* ================= PAGE HEADER ================= */}
-
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-
-
-        <div>
-
-          <h1 className="text-2xl font-bold text-slate-800">
-
-            Shipment Details
-
-          </h1>
-
-
-          <p className="text-sm text-slate-500 mt-1">
-
-            Tracking Number:{" "}
-
-            <span className="font-semibold text-emerald-600">
-
-              {shipment.trackingNumber}
-
-            </span>
-
-          </p>
-
-        </div>
-
-
-        <span
-
-          className={`w-fit px-4 py-2 rounded-full text-sm font-medium ${getStatusStyle(
-            shipment.status
-          )}`}
-
+      <section className="border-b border-slate-200 pb-4">
+        <button
+          onClick={() =>
+            navigate("/admin/shipments")
+          }
+          className="mb-4 inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-3.5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700"
         >
+          <ArrowLeft size={17} />
+          Back to Shipments
+        </button>
 
-          {formatStatus(
-            shipment.status
-          )}
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="text-xl font-bold text-slate-800 sm:text-2xl">
+                Shipment Details
+              </h1>
 
-        </span>
+              <span className="rounded-md border border-slate-200 bg-slate-100 px-2 py-0.5 font-mono text-xs font-medium text-slate-600">
+                #{shipment.trackingNumber}
+              </span>
+            </div>
 
-      </div>
-
-
-      {/* ================= SHIPMENT PROGRESS ================= */}
-
-      <section className="bg-white border border-slate-200 rounded-xl shadow-sm p-6 mb-6">
-
-        <div className="mb-8">
-
-          <h2 className="text-lg font-semibold text-slate-800">
-
-            Shipment Progress
-
-          </h2>
-
-
-          <p className="text-sm text-slate-500 mt-1">
-
-            Current Status:{" "}
-
-            <span className="font-medium text-emerald-600">
-
-              {formatStatus(
-                shipment.status
-              )}
-
-            </span>
-
-          </p>
-
-        </div>
-
-
-        <div className="overflow-x-auto">
-
-          <div className="flex items-start min-w-[650px]">
-
-
-            {[
-              "CREATED",
-              "PICKED_UP",
-              "IN_TRANSIT",
-              "OUT_FOR_DELIVERY",
-              "DELIVERED",
-            ].map(
-              (step, index) => {
-
-                const steps = [
-                  "CREATED",
-                  "PICKED_UP",
-                  "IN_TRANSIT",
-                  "OUT_FOR_DELIVERY",
-                  "DELIVERED",
-                ];
-
-
-                const currentIndex =
-                  steps.indexOf(
-                    shipment.status
-                  );
-
-
-                const completed =
-                  index <= currentIndex;
-
-
-                return (
-
-                  <div
-                    key={step}
-                    className="flex-1 flex items-start"
-                  >
-
-                    <div className="flex flex-col items-center w-full">
-
-                      <div
-
-                        className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold ${
-                          completed
-                            ? "bg-emerald-600 text-white"
-                            : "bg-slate-200 text-slate-500"
-                        }`}
-
-                      >
-
-                        {index + 1}
-
-                      </div>
-
-
-                      <p
-
-                        className={`text-xs text-center mt-3 font-medium ${
-                          completed
-                            ? "text-emerald-700"
-                            : "text-slate-400"
-                        }`}
-
-                      >
-
-                        {formatStatus(
-                          step
-                        )}
-
-                      </p>
-
-                    </div>
-
-
-                    {index < 4 && (
-
-                      <div
-
-                        className={`h-1 flex-1 mt-4 ${
-                          index < currentIndex
-                            ? "bg-emerald-600"
-                            : "bg-slate-200"
-                        }`}
-
-                      />
-
-                    )}
-
-                  </div>
-
-                );
-
-              }
-            )}
-
+            <p className="mt-1 text-xs text-slate-500 sm:text-sm">
+              Shipment information, live route and tracking progress
+            </p>
           </div>
 
+          <span
+            className={`w-fit rounded-full px-3 py-1 text-xs font-semibold ${getStatusStyle(
+              shipment.status
+            )}`}
+          >
+            {formatStatus(shipment.status)}
+          </span>
         </div>
-
       </section>
 
+      {/* ===================================================== */}
+      {/* SHIPMENT DETAILS — ONE COMPACT FULL-WIDTH CARD */}
+      {/* ===================================================== */}
 
-      {/* ================= SHIPMENT DETAILS ================= */}
+      <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        {/* Header */}
 
-
-        {/* ================= SENDER & RECEIVER ================= */}
-
-        <section className="bg-white border border-slate-200 rounded-xl shadow-sm">
-
-          <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-200">
-
-            <div className="p-2 bg-emerald-50 rounded-lg">
-
-              <User
-                size={20}
-                className="text-emerald-600"
-              />
-
-            </div>
-
-
-            <div>
-
-              <h2 className="font-semibold text-slate-800">
-
-                Sender & Receiver
-
-              </h2>
-
-              <p className="text-xs text-slate-500 mt-0.5">
-
-                Shipment contact information
-
-              </p>
-
-            </div>
-
+        <div className="flex items-center gap-2 border-b border-slate-100 bg-slate-50/50 px-4 py-3">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50">
+            <Package
+              size={17}
+              className="text-emerald-600"
+            />
           </div>
 
+          <div>
+            <h2 className="text-sm font-semibold text-slate-800">
+              Shipment Information
+            </h2>
 
-          <div className="p-5 space-y-5">
+            <p className="text-[11px] text-slate-400">
+              Sender, receiver, package and route details
+            </p>
+          </div>
+        </div>
 
+        {/* Main Information */}
+
+        <div className="p-4">
+
+          {/* =================================================
+              SENDER / RECEIVER / PACKAGE
+          ================================================= */}
+
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
 
             {/* SENDER */}
 
-            <div>
+            <div className="min-w-0">
+              <div className="mb-2 flex items-center gap-1.5">
+                <User
+                  size={15}
+                  className="text-emerald-600"
+                />
 
-              <p className="text-xs text-slate-500">
-                Sender Name
-              </p>
+                <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                  Sender
+                </p>
+              </div>
 
-              <p className="text-sm font-medium text-slate-800 mt-1">
+              <p className="text-sm font-semibold text-slate-800">
                 {shipment.senderName || "-"}
               </p>
 
-            </div>
-
-
-            <div>
-
-              <p className="text-xs text-slate-500">
-                Sender Email
-              </p>
-
-              <div className="flex items-center gap-2 mt-1">
-
+              <div className="mt-1 flex items-start gap-1.5">
                 <Mail
-                  size={15}
-                  className="text-slate-400"
+                  size={13}
+                  className="mt-0.5 shrink-0 text-slate-400"
                 />
 
-                <p className="text-sm font-medium text-slate-800 break-all">
+                <p className="break-all text-xs text-slate-500">
                   {shipment.senderEmail || "-"}
                 </p>
-
               </div>
-
             </div>
-
 
             {/* RECEIVER */}
 
-            <div>
+            <div className="min-w-0 md:border-l md:border-slate-100 md:pl-4">
+              <div className="mb-2 flex items-center gap-1.5">
+                <User
+                  size={15}
+                  className="text-emerald-600"
+                />
 
-              <p className="text-xs text-slate-500">
-                Receiver Name
-              </p>
+                <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                  Receiver
+                </p>
+              </div>
 
-              <p className="text-sm font-medium text-slate-800 mt-1">
+              <p className="text-sm font-semibold text-slate-800">
                 {shipment.receiverName || "-"}
               </p>
 
-            </div>
-
-
-            <div>
-
-              <p className="text-xs text-slate-500">
-                Receiver Phone
-              </p>
-
-              <div className="flex items-center gap-2 mt-1">
-
+              <div className="mt-1 flex items-center gap-1.5">
                 <Phone
-                  size={15}
-                  className="text-slate-400"
-                />
-
-                <p className="text-sm font-medium text-slate-800">
-                  {shipment.receiverPhone || "-"}
-                </p>
-
-              </div>
-
-            </div>
-
-          </div>
-
-        </section>
-
-
-        {/* ================= PACKAGE ================= */}
-
-        <section className="bg-white border border-slate-200 rounded-xl shadow-sm">
-
-          <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-200">
-
-            <div className="p-2 bg-emerald-50 rounded-lg">
-
-              <Package
-                size={20}
-                className="text-emerald-600"
-              />
-
-            </div>
-
-
-            <div>
-
-              <h2 className="font-semibold text-slate-800">
-
-                Package Information
-
-              </h2>
-
-              <p className="text-xs text-slate-500 mt-0.5">
-
-                Package details
-
-              </p>
-
-            </div>
-
-          </div>
-
-
-          <div className="p-5 space-y-5">
-
-
-            <div>
-
-              <p className="text-xs text-slate-500">
-                Package Description
-              </p>
-
-              <p className="text-sm font-medium text-slate-800 mt-1">
-                {shipment.packageDescription || "-"}
-              </p>
-
-            </div>
-
-
-            <div>
-
-              <div className="flex items-center gap-2">
-
-                <Weight
-                  size={15}
+                  size={13}
                   className="text-slate-400"
                 />
 
                 <p className="text-xs text-slate-500">
-                  Weight
+                  {shipment.receiverPhone || "-"}
                 </p>
-
               </div>
-
-              <p className="text-sm font-medium text-slate-800 mt-1">
-                {shipment.weight
-                  ? `${shipment.weight} kg`
-                  : "-"}
-              </p>
-
             </div>
 
-
-            <div>
-
-              <p className="text-xs text-slate-500">
-                Tracking Number
-              </p>
-
-              <p className="text-sm font-semibold text-emerald-600 mt-1">
-                {shipment.trackingNumber || "-"}
-              </p>
-
-            </div>
-
-          </div>
-
-        </section>
-
-
-        {/* ================= PICKUP ================= */}
-
-        <section className="bg-white border border-slate-200 rounded-xl shadow-sm">
-
-          <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-200">
-
-            <div className="p-2 bg-emerald-50 rounded-lg">
-
-              <MapPin
-                size={20}
-                className="text-emerald-600"
-              />
-
-            </div>
-
-
-            <h2 className="font-semibold text-slate-800">
-
-              Pickup Location
-
-            </h2>
-
-          </div>
-
-
-          <div className="p-5 space-y-2 text-sm text-slate-700">
-
-            <p>
-              {shipment.pickupAddress || "-"}
-            </p>
-
-            <p>
-              {shipment.pickupCity || "-"},{" "}
-              {shipment.pickupState || "-"}
-            </p>
-
-            <p className="text-slate-500">
-              PIN: {shipment.pickupPincode || "-"}
-            </p>
-
-          </div>
-
-        </section>
-
-
-        {/* ================= DELIVERY ================= */}
-
-        <section className="bg-white border border-slate-200 rounded-xl shadow-sm">
-
-          <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-200">
-
-            <div className="p-2 bg-orange-50 rounded-lg">
-
-              <Truck
-                size={20}
-                className="text-orange-600"
-              />
-
-            </div>
-
-
-            <h2 className="font-semibold text-slate-800">
-
-              Delivery Location
-
-            </h2>
-
-          </div>
-
-
-          <div className="p-5 space-y-2 text-sm text-slate-700">
-
-            <p>
-              {shipment.deliveryAddress || "-"}
-            </p>
-
-            <p>
-              {shipment.deliveryCity || "-"},{" "}
-              {shipment.deliveryState || "-"}
-            </p>
-
-            <p className="text-slate-500">
-              PIN: {shipment.deliveryPincode || "-"}
-            </p>
-
-          </div>
-
-        </section>
-
-
-        {/* ================= TIMELINE ================= */}
-
-        <section className="bg-white border border-slate-200 rounded-xl shadow-sm lg:col-span-2">
-
-          <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-200">
-
-            <div className="p-2 bg-emerald-50 rounded-lg">
-
-              <Calendar
-                size={20}
-                className="text-emerald-600"
-              />
-
-            </div>
-
-
-            <h2 className="font-semibold text-slate-800">
-
-              Shipment Information
-
-            </h2>
-
-          </div>
-
-
-          <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-5">
-
-
-            <div>
-
-              <p className="text-xs text-slate-500">
-                Created At
-              </p>
-
-              <p className="text-sm font-medium text-slate-800 mt-1">
-                {formatDate(
-                  shipment.createdAt
-                )}
-              </p>
-
-            </div>
-
-
-            <div>
-
-              <p className="text-xs text-slate-500">
-                Last Updated
-              </p>
-
-              <p className="text-sm font-medium text-slate-800 mt-1">
-                {formatDate(
-                  shipment.updatedAt
-                )}
-              </p>
-
-            </div>
-
-          </div>
-
-        </section>
-
-      </div>
-
-
-      {/* ====================================================== */}
-      {/* ===================== MAP LAST ======================= */}
-      {/* ====================================================== */}
-
-      <section className="bg-white border border-slate-200 rounded-xl shadow-sm">
-
-        {/* MAP HEADER */}
-
-        <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-200">
-
-          <div className="p-2 bg-emerald-50 rounded-lg">
-
-            <MapPin
-              size={20}
-              className="text-emerald-600"
-            />
-
-          </div>
-
-
-          <div>
-
-            <h2 className="font-semibold text-slate-800">
-
-              Shipment Location
-
-            </h2>
-
-            <p className="text-sm text-slate-500">
-
-              Live shipment location and planned route
-
-            </p>
-
-          </div>
-
-        </div>
-
-
-        <div className="p-5">
-
-
-          {/* MAP LOADING */}
-
-          {locationLoading || routeLoading ? (
-
-            <div className="flex h-[400px] items-center justify-center rounded-xl bg-slate-50">
-
-              <p className="text-sm text-slate-500">
-
-                Loading shipment map...
-
-              </p>
-
-            </div>
-
-          ) : shipmentLocation ? (
-
-            <div className="space-y-4">
-
-
-              {/* GOOGLE SHIPMENT MAP */}
-
-              <GoogleShipmentMap
-
-                latitude={
-                  shipmentLocation.latitude
-                }
-
-                longitude={
-                  shipmentLocation.longitude
-                }
-
-                encodedPolyline={
-                  route?.polyline
-                    ?.encodedPolyline
-                }
-
-              />
-
-
-              {/* CURRENT LOCATION INFORMATION */}
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-
-                <div className="rounded-lg bg-slate-50 p-4">
-
-                  <p className="text-xs text-slate-500">
-
-                    Current Latitude
-
-                  </p>
-
-                  <p className="text-sm font-semibold text-slate-800 mt-1">
-
-                    {shipmentLocation.latitude}
-
-                  </p>
-
-                </div>
-
-
-                <div className="rounded-lg bg-slate-50 p-4">
-
-                  <p className="text-xs text-slate-500">
-
-                    Current Longitude
-
-                  </p>
-
-                  <p className="text-sm font-semibold text-slate-800 mt-1">
-
-                    {shipmentLocation.longitude}
-
-                  </p>
-
-                </div>
-
-              </div>
-
-
-              {/* ROUTE INFORMATION */}
-
-              {route && (
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-
-                  <div className="rounded-lg bg-slate-50 p-4">
-
-                    <p className="text-sm text-slate-500">
-
-                      Route Distance
-
-                    </p>
-
-                    <p className="text-lg font-semibold text-slate-800 mt-1">
-
-                      {(
-                        route.distanceMeters /
-                        1000
-                      ).toFixed(1)}{" "}
-
-                      km
-
-                    </p>
-
-                  </div>
-
-
-                  <div className="rounded-lg bg-slate-50 p-4">
-
-                    <p className="text-sm text-slate-500">
-
-                      Planned Route
-
-                    </p>
-
-                    <p className="text-sm font-semibold text-slate-800 mt-1">
-
-                      Pickup → Delivery
-
-                    </p>
-
-                  </div>
-
-                </div>
-
-              )}
-
-            </div>
-
-          ) : (
-
-            <div className="flex h-[400px] items-center justify-center rounded-xl bg-slate-50">
-
-              <div className="text-center">
-
-                <MapPin
-                  size={35}
-                  className="mx-auto text-slate-300 mb-3"
+            {/* PACKAGE */}
+
+            <div className="min-w-0 md:border-l md:border-slate-100 md:pl-4">
+              <div className="mb-2 flex items-center gap-1.5">
+                <Package
+                  size={15}
+                  className="text-emerald-600"
                 />
 
-                <p className="text-sm text-slate-500">
-
-                  No live location data available for this shipment.
-
+                <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                  Package
                 </p>
-
               </div>
 
+              <p className="text-sm font-semibold text-slate-800">
+                {shipment.packageDescription || "-"}
+              </p>
+
+              <div className="mt-1 flex flex-wrap items-center gap-3">
+                <div className="flex items-center gap-1">
+                  <Weight
+                    size={13}
+                    className="text-slate-400"
+                  />
+
+                  <span className="text-xs text-slate-500">
+                    {shipment.weight
+                      ? `${shipment.weight} kg`
+                      : "-"}
+                  </span>
+                </div>
+
+                <span className="text-xs text-slate-300">
+                  |
+                </span>
+
+                <span className="text-xs font-medium text-emerald-600">
+                  {shipment.trackingNumber || "-"}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* DIVIDER */}
+
+          <div className="my-4 border-t border-slate-100" />
+
+          {/* =================================================
+              PICKUP + DELIVERY
+          ================================================= */}
+
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+
+            {/* PICKUP */}
+
+            <div className="min-w-0">
+              <div className="mb-2 flex items-center gap-1.5">
+                <MapPin
+                  size={15}
+                  className="text-emerald-600"
+                />
+
+                <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                  Pickup Location
+                </p>
+              </div>
+
+              <p className="text-sm font-medium leading-relaxed text-slate-700">
+                {shipment.pickupAddress || "-"}
+              </p>
+
+              <p className="mt-0.5 text-xs text-slate-500">
+                {shipment.pickupCity || "-"},{" "}
+                {shipment.pickupState || "-"}
+                {" · "}
+                PIN: {shipment.pickupPincode || "-"}
+              </p>
             </div>
 
-          )}
+            {/* DELIVERY */}
 
+            <div className="min-w-0 md:border-l md:border-slate-100 md:pl-4">
+              <div className="mb-2 flex items-center gap-1.5">
+                <Truck
+                  size={15}
+                  className="text-orange-500"
+                />
+
+                <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                  Delivery Location
+                </p>
+              </div>
+
+              <p className="text-sm font-medium leading-relaxed text-slate-700">
+                {shipment.deliveryAddress || "-"}
+              </p>
+
+              <p className="mt-0.5 text-xs text-slate-500">
+                {shipment.deliveryCity || "-"},{" "}
+                {shipment.deliveryState || "-"}
+                {" · "}
+                PIN: {shipment.deliveryPincode || "-"}
+              </p>
+            </div>
+          </div>
+
+          {/* CREATED / UPDATED */}
+
+          <div className="mt-4 flex flex-wrap gap-x-6 gap-y-1 border-t border-slate-100 pt-3">
+            <div className="flex items-center gap-1.5">
+              <Calendar
+                size={13}
+                className="text-slate-400"
+              />
+
+              <span className="text-[11px] text-slate-400">
+                Created:
+              </span>
+
+              <span className="text-[11px] font-medium text-slate-600">
+                {formatDate(shipment.createdAt)}
+              </span>
+            </div>
+
+          </div>
         </div>
-
       </section>
 
+      {/* ===================================================== */}
+      {/* MAIN TRACKING STRUCTURE
+          LEFT 2/3  = MAP + LOWER INFORMATION
+          RIGHT 1/3 = PROGRESSION LOG
+      ===================================================== */}
+
+      <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-3">
+
+        {/* ===================================================
+            LEFT 2/3
+        =================================================== */}
+
+        <div className="space-y-5 lg:col-span-2">
+
+          {/* =================================================
+              LIVE ROUTE MAP
+          ================================================= */}
+
+          <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+
+            {/* MAP HEADER */}
+
+            <div className="flex flex-col gap-2 border-b border-slate-100 bg-slate-50/50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+
+              <div className="flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50">
+                  <Navigation
+                    size={17}
+                    className="text-emerald-600"
+                  />
+                </div>
+
+                <div>
+                  <h2 className="text-sm font-semibold text-slate-800">
+                    Live Route Map
+                  </h2>
+
+                  <p className="text-[11px] text-slate-400">
+                    Pickup to delivery route with current location
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-1.5 text-[11px]">
+                <span
+                  className={`h-2 w-2 rounded-full ${
+                    shipmentLocation
+                      ? "bg-emerald-500"
+                      : "bg-slate-300"
+                  }`}
+                />
+
+                <span className="text-slate-500">
+                  {shipmentLocation
+                    ? "Location Available"
+                    : "Location Unavailable"}
+                </span>
+              </div>
+            </div>
+
+            {/* =================================================
+                DISTANCE / TRAVEL TIME / ETA
+                Only real data already available in this file.
+            ================================================= */}
+
+            {shipmentLocation && (
+              <div className="grid grid-cols-1 divide-y divide-slate-100 border-b border-slate-100 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+
+                {/* DISTANCE */}
+
+                <div className="flex items-center gap-3 px-4 py-3">
+                  <div className="rounded-lg bg-slate-100 p-2 text-slate-600">
+                    <Route size={16} />
+                  </div>
+
+                  <div>
+                    <span className="block text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                      Distance
+                    </span>
+
+                    <span className="text-sm font-bold text-slate-900">
+                      {routeLoading
+                        ? "Loading..."
+                        : route?.distanceMeters
+                        ? `${(
+                            route.distanceMeters / 1000
+                          ).toFixed(1)} km`
+                        : "-"}
+                    </span>
+                  </div>
+                </div>
+
+                {/* TRAVEL TIME */}
+
+                <div className="flex items-center gap-3 px-4 py-3">
+                  <div className="rounded-lg bg-slate-100 p-2 text-slate-600">
+                    <Clock size={16} />
+                  </div>
+
+                  <div>
+                    <span className="block text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                      Travel Time
+                    </span>
+
+                    <span className="text-sm font-bold text-slate-900">
+                      {routeLoading
+                        ? "Loading..."
+                        : route?.duration
+                        ? formatRouteDuration(route.duration)
+                        : "-"}
+                    </span>
+                  </div>
+                </div>
+
+                {/* ETA */}
+
+                <div className="flex items-center gap-3 bg-emerald-50/40 px-4 py-3">
+                  <div className="rounded-lg bg-emerald-100 p-2 text-emerald-700">
+                    <TrendingUp size={16} />
+                  </div>
+
+                  <div>
+                    <span className="block text-[10px] font-semibold uppercase tracking-wider text-emerald-700">
+                      Route Status
+                    </span>
+
+                    <span className="text-sm font-bold text-emerald-700">
+                      {encodedPolyline
+                        ? "Route Available"
+                        : "Route Pending"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* =================================================
+                GOOGLE MAP
+            ================================================= */}
+
+            <div className="bg-slate-50 p-3">
+              {locationLoading ? (
+                <div className="flex h-[360px] items-center justify-center rounded-lg border border-dashed border-slate-300 bg-white">
+                  <div className="text-center">
+                    <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-emerald-600" />
+
+                    <p className="text-xs text-slate-500">
+                      Loading shipment map...
+                    </p>
+                  </div>
+                </div>
+              ) : shipmentLocation ? (
+                <div className="overflow-hidden rounded-lg border border-slate-200">
+                  <GoogleShipmentMap
+                    pickupLatitude={
+                      shipmentLocation.pickupLatitude
+                    }
+                    pickupLongitude={
+                      shipmentLocation.pickupLongitude
+                    }
+                    deliveryLatitude={
+                      shipmentLocation.deliveryLatitude
+                    }
+                    deliveryLongitude={
+                      shipmentLocation.deliveryLongitude
+                    }
+                    encodedPolyline={
+                      encodedPolyline
+                    }
+                  />
+                </div>
+              ) : (
+                <div className="flex h-[360px] items-center justify-center rounded-lg bg-white">
+                  <div className="text-center">
+                    <MapPin
+                      size={32}
+                      className="mx-auto mb-2 text-slate-300"
+                    />
+
+                    <p className="text-xs font-medium text-slate-600">
+                      No live location data available
+                    </p>
+
+                    <p className="mt-1 text-[11px] text-slate-400">
+                      Location information has not been received
+                      for this shipment.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </section>
+
+          {/* =================================================
+              DELIVERY FORECAST + DELAY ASSESSMENT
+              
+              IMPORTANT:
+              This Admin page does not currently call the
+              forecast or delay-prediction APIs.
+              
+              Therefore no fake prediction values are shown.
+          ================================================= */}
+
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+
+            {/* DELIVERY FORECAST */}
+
+            <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+              <div className="flex items-center gap-2 border-b border-slate-100 bg-slate-50/50 px-4 py-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50">
+                  <TrendingUp
+                    size={16}
+                    className="text-emerald-600"
+                  />
+                </div>
+
+                <div>
+                  <h2 className="text-sm font-semibold text-slate-800">
+                    Delivery Forecast
+                  </h2>
+
+                  <p className="text-[11px] text-slate-400">
+                    Route-based delivery information
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-4">
+                <div className="grid grid-cols-2 gap-3">
+
+                  <div className="rounded-lg bg-slate-50 px-3 py-2.5">
+                    <p className="text-[10px] uppercase tracking-wide text-slate-400">
+                      Route Distance
+                    </p>
+
+                    <p className="mt-1 text-sm font-bold text-slate-800">
+                      {routeLoading
+                        ? "Loading..."
+                        : route?.distanceMeters
+                        ? `${(
+                            route.distanceMeters / 1000
+                          ).toFixed(1)} km`
+                        : "-"}
+                    </p>
+                  </div>
+
+                  <div className="rounded-lg bg-slate-50 px-3 py-2.5">
+                    <p className="text-[10px] uppercase tracking-wide text-slate-400">
+                      Route Time
+                    </p>
+
+                    <p className="mt-1 text-sm font-bold text-slate-800">
+                      {routeLoading
+                        ? "Loading..."
+                        : route?.duration
+                        ? formatRouteDuration(
+                            route.duration
+                          )
+                        : "-"}
+                    </p>
+                  </div>
+
+                </div>
+
+                <p className="mt-3 text-[11px] leading-relaxed text-slate-400">
+                  This page currently provides route information only.
+                  Delivery forecasting is not requested by this component.
+                </p>
+              </div>
+            </section>
+
+            {/* DELAY ASSESSMENT */}
+
+            <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+              <div className="flex items-center gap-2 border-b border-slate-100 bg-slate-50/50 px-4 py-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100">
+                  <ShieldAlert
+                    size={16}
+                    className="text-slate-600"
+                  />
+                </div>
+
+                <div>
+                  <h2 className="text-sm font-semibold text-slate-800">
+                    Delay Assessment
+                  </h2>
+
+                  <p className="text-[11px] text-slate-400">
+                    Prediction status
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex min-h-[132px] items-center justify-center p-4 text-center">
+                <div>
+                  <ShieldAlert
+                    size={27}
+                    className="mx-auto text-slate-300"
+                  />
+
+                  <p className="mt-2 text-xs font-semibold text-slate-600">
+                    Delay prediction unavailable
+                  </p>
+
+                  <p className="mt-1 text-[10px] leading-relaxed text-slate-400">
+                    This Admin Shipment Details page does not currently
+                    request delay prediction data.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+          </div>
+        </div>
+
+        {/* ===================================================
+            RIGHT 1/3 — PROGRESSION LOG
+            Spans beside both map and lower cards.
+        =================================================== */}
+
+        <aside className="lg:col-span-1">
+          <div className="sticky top-5 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+
+            {/* HEADER */}
+
+            <div className="border-b border-slate-100 bg-slate-50/50 px-4 py-3">
+              <h2 className="text-sm font-semibold text-slate-800">
+                Progression Log
+              </h2>
+
+              <p className="text-[11px] text-slate-400">
+                Current shipment stage
+              </p>
+            </div>
+
+            {/* TIMELINE */}
+
+            <div className="p-4">
+              {isCancelled ? (
+                <div className="flex items-center gap-3 rounded-lg border border-red-100 bg-red-50 px-3 py-3">
+                  <div className="rounded-lg bg-red-100 p-1.5 text-red-600">
+                    <X
+                      size={15}
+                      className="stroke-[3]"
+                    />
+                  </div>
+
+                  <div>
+                    <p className="text-xs font-semibold text-red-700">
+                      Shipment Cancelled
+                    </p>
+
+                    <p className="mt-1 text-[11px] text-red-500">
+                      This shipment has been cancelled.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="relative">
+
+                  {/* VERTICAL LINE */}
+
+                  <div className="absolute bottom-5 left-[11px] top-5 w-px bg-slate-200" />
+
+                  <div className="space-y-4">
+                    {steps.map((step, index) => {
+                      const completed =
+                        index <= currentIndex;
+
+                      const current =
+                        index === currentIndex;
+
+                      return (
+                        <div
+                          key={step}
+                          className="relative flex items-center gap-3"
+                        >
+
+                          {/* CIRCLE */}
+
+                          <div
+                            className={`relative z-10 flex h-[23px] w-[23px] shrink-0 items-center justify-center rounded-full text-[10px] font-bold ${
+                              completed
+                                ? "bg-emerald-600 text-white ring-4 ring-emerald-50"
+                                : "bg-slate-100 text-slate-400 ring-4 ring-white"
+                            }`}
+                          >
+                            {index + 1}
+                          </div>
+
+                          {/* TEXT */}
+
+                          <div
+                            className={`flex flex-1 items-center justify-between rounded-lg px-2.5 py-2 ${
+                              current
+                                ? "bg-emerald-50"
+                                : ""
+                            }`}
+                          >
+                            <span
+                              className={`text-xs ${
+                                current
+                                  ? "font-semibold text-emerald-700"
+                                  : completed
+                                  ? "font-medium text-slate-700"
+                                  : "font-medium text-slate-400"
+                              }`}
+                            >
+                              {formatStatus(step)}
+                            </span>
+
+                            {current && (
+                              <span className="rounded bg-emerald-100 px-1.5 py-0.5 text-[9px] font-bold text-emerald-700">
+                                CURRENT
+                              </span>
+                            )}
+                          </div>
+
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </aside>
+      </div>
     </div>
-
   );
-
 };
 
+// =========================================================
+// ROUTE DURATION FORMATTER
+// =========================================================
+
+const formatRouteDuration = (duration) => {
+  if (!duration) {
+    return "-";
+  }
+
+  /*
+   * Google Routes API duration can arrive as:
+   * "1234s"
+   */
+
+  if (typeof duration === "string" && duration.endsWith("s")) {
+    const totalSeconds = parseInt(
+      duration.replace("s", ""),
+      10
+    );
+
+    if (!Number.isNaN(totalSeconds)) {
+      const hours = Math.floor(
+        totalSeconds / 3600
+      );
+
+      const minutes = Math.floor(
+        (totalSeconds % 3600) / 60
+      );
+
+      if (hours > 0) {
+        return `${hours}h ${minutes}m`;
+      }
+
+      return `${minutes} min`;
+    }
+  }
+
+  return duration;
+};
 
 export default AdminShipmentDetails;

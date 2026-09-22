@@ -6,20 +6,16 @@ import {
   Polyline,
 } from "@vis.gl/react-google-maps";
 
-// ==========================================
-// DECODE GOOGLE ENCODED POLYLINE
-// ==========================================
-
+// ======================================
+// UTILS: GOOGLE POLYLINE DECODER
+// ======================================
 const decodePolyline = (encoded) => {
-  if (!encoded) {
-    return [];
-  }
-
-  const points = [];
+  if (!encoded) return [];
 
   let index = 0;
-  let latitude = 0;
-  let longitude = 0;
+  let lat = 0;
+  let lng = 0;
+  const coordinates = [];
 
   while (index < encoded.length) {
     let shift = 0;
@@ -32,12 +28,8 @@ const decodePolyline = (encoded) => {
       shift += 5;
     } while (byte >= 0x20);
 
-    const latitudeChange =
-      result & 1
-        ? ~(result >> 1)
-        : result >> 1;
-
-    latitude += latitudeChange;
+    const deltaLat = result & 1 ? ~(result >> 1) : result >> 1;
+    lat += deltaLat;
 
     shift = 0;
     result = 0;
@@ -48,187 +40,156 @@ const decodePolyline = (encoded) => {
       shift += 5;
     } while (byte >= 0x20);
 
-    const longitudeChange =
-      result & 1
-        ? ~(result >> 1)
-        : result >> 1;
+    const deltaLng = result & 1 ? ~(result >> 1) : result >> 1;
+    lng += deltaLng;
 
-    longitude += longitudeChange;
-
-    points.push({
-      lat: latitude / 100000,
-      lng: longitude / 100000,
+    coordinates.push({
+      lat: lat / 1e5,
+      lng: lng / 1e5,
     });
   }
 
-  return points;
+  return coordinates;
 };
 
-// ==========================================
-// DISTANCE BETWEEN TWO POINTS
-// ==========================================
-
-const calculateDistance = (point1, point2) => {
-  const latitudeDifference =
-    point1.lat - point2.lat;
-
-  const longitudeDifference =
-    point1.lng - point2.lng;
-
-  return Math.sqrt(
-    latitudeDifference * latitudeDifference +
-      longitudeDifference * longitudeDifference
-  );
-};
-
-// ==========================================
-// SPLIT ROUTE AT CURRENT LOCATION
-// ==========================================
-
-const splitRouteAtCurrentLocation = (
-  routePoints,
-  currentPosition
-) => {
-  if (
-    !routePoints ||
-    routePoints.length < 2 ||
-    !currentPosition
-  ) {
-    return {
-      travelledRoute: [],
-      remainingRoute: routePoints || [],
-    };
-  }
-
-  let nearestPointIndex = 0;
-  let nearestDistance = Infinity;
-
-  routePoints.forEach((routePoint, index) => {
-    const distance = calculateDistance(
-      routePoint,
-      currentPosition
-    );
-
-    if (distance < nearestDistance) {
-      nearestDistance = distance;
-      nearestPointIndex = index;
-    }
-  });
-
-  // Pickup → Current Location
-  const travelledRoute = [
-    ...routePoints.slice(
-      0,
-      nearestPointIndex + 1
-    ),
-    currentPosition,
-  ];
-
-  // Current Location → Delivery
-  const remainingRoute = [
-    currentPosition,
-    ...routePoints.slice(
-      nearestPointIndex
-    ),
-  ];
-
-  return {
-    travelledRoute,
-    remainingRoute,
-  };
-};
-
-// ==========================================
-// MAIN MAP COMPONENT
-// ==========================================
-
+// ======================================
+// COMPONENT: GOOGLE SHIPMENT MAP
+// ======================================
 const GoogleShipmentMap = ({
-  latitude,
-  longitude,
+  pickupLatitude,
+  pickupLongitude,
+  deliveryLatitude,
+  deliveryLongitude,
+  currentLatitude,
+  currentLongitude,
   encodedPolyline,
+  currentRoutePolyline,
 }) => {
-  const position = {
-    lat: Number(latitude),
-    lng: Number(longitude),
+  // Pickup Location
+  const pickupPosition = {
+    lat: Number(pickupLatitude),
+    lng: Number(pickupLongitude),
   };
 
-  const routePoints =
-    decodePolyline(encodedPolyline);
+  // Delivery Location
+  const deliveryPosition = {
+    lat: Number(deliveryLatitude),
+    lng: Number(deliveryLongitude),
+  };
 
-  const {
-    travelledRoute,
-    remainingRoute,
-  } = splitRouteAtCurrentLocation(
-    routePoints,
-    position
-  );
+  // Current Shipment Location
+  const currentPosition =
+    currentLatitude != null && currentLongitude != null
+      ? {
+          lat: Number(currentLatitude),
+          lng: Number(currentLongitude),
+        }
+      : null;
+
+  // Planned Route
+  const routePoints = decodePolyline(encodedPolyline);
+
+  // Current Location → Delivery Route
+  const currentRoutePoints = decodePolyline(currentRoutePolyline);
 
   return (
-    <div className="h-[400px] w-full overflow-hidden rounded-xl">
-      <APIProvider
-        apiKey={
-          import.meta.env
-            .VITE_GOOGLE_MAPS_API_KEY
-        }
-      >
+    <div className="relative h-[300px] w-full overflow-hidden rounded-xl">
+      {/* MAP LEGEND */}
+      <div className="absolute left-3 top-3 z-10 rounded-xl border border-slate-200 bg-white/95 px-3 py-2.5 shadow-md backdrop-blur-sm">
+        <p className="mb-2 text-xs font-bold text-slate-800">
+          Shipment Route
+        </p>
+
+        <div className="space-y-1.5 text-[11px] font-medium text-slate-700">
+          {/* Pickup */}
+          <div className="flex items-center gap-2">
+            <span className="h-3 w-3 rounded-full border-2 border-green-700 bg-green-600" />
+            <span>Pickup Location</span>
+          </div>
+
+          {/* Current Location */}
+          <div className="flex items-center gap-2">
+            <span className="h-3 w-3 rounded-full border-2 border-amber-700 bg-amber-500" />
+            <span>Current Shipment Location</span>
+          </div>
+
+          {/* Delivery */}
+          <div className="flex items-center gap-2">
+            <span className="h-3 w-3 rounded-full border-2 border-red-700 bg-red-600" />
+            <span>Delivery Location</span>
+          </div>
+
+          {/* Planned Route */}
+          <div className="flex items-center gap-2">
+            <span className="h-[3px] w-5 rounded bg-blue-600" />
+            <span>Planned Route</span>
+          </div>
+
+          {/* Current Route */}
+          <div className="flex items-center gap-2">
+            <span className="h-[3px] w-5 rounded bg-amber-500" />
+            <span>Current Route to Delivery</span>
+          </div>
+        </div>
+      </div>
+
+      {/* GOOGLE MAP */}
+      <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
         <Map
-          defaultCenter={position}
+          defaultCenter={pickupPosition}
           defaultZoom={7}
           mapId="SHIPMENT_TRACKING_MAP"
           gestureHandling="greedy"
           disableDefaultUI={false}
         >
-
-          {/* ======================================
-              PICKUP → CURRENT LOCATION
-              DOTTED / DASHED ROUTE
-          ====================================== */}
-
-          {travelledRoute.length >= 2 && (
-            <Polyline
-              path={travelledRoute}
-              strokeOpacity={0}
-              strokeWeight={5}
-              icons={[
-                {
-                  icon: {
-                    path: "M 0,-1 0,1",
-                    strokeOpacity: 1,
-                    scale: 3,
-                  },
-                  offset: "0",
-                  repeat: "12px",
-                },
-              ]}
+          {/* PICKUP MARKER */}
+          <AdvancedMarker position={pickupPosition}>
+            <Pin
+              background="#16a34a"
+              borderColor="#15803d"
+              glyphColor="#ffffff"
             />
+          </AdvancedMarker>
+
+          {/* DELIVERY MARKER */}
+          <AdvancedMarker position={deliveryPosition}>
+            <Pin
+              background="#dc2626"
+              borderColor="#b91c1c"
+              glyphColor="#ffffff"
+            />
+          </AdvancedMarker>
+
+          {/* CURRENT SHIPMENT LOCATION MARKER */}
+          {currentPosition && (
+            <AdvancedMarker position={currentPosition}>
+              <Pin
+                background="#f59e0b"
+                borderColor="#d97706"
+                glyphColor="#ffffff"
+              />
+            </AdvancedMarker>
           )}
 
-          {/* ======================================
-              CURRENT LOCATION → DELIVERY
-              BLUE SOLID ROUTE
-          ====================================== */}
-
-          {remainingRoute.length >= 2 && (
+          {/* PLANNED ROUTE POLYLINE */}
+          {routePoints.length >= 2 && (
             <Polyline
-              path={remainingRoute}
+              path={routePoints}
               strokeColor="#2563eb"
               strokeOpacity={1}
               strokeWeight={5}
             />
           )}
 
-          {/* ======================================
-              CURRENT SHIPMENT LOCATION
-          ====================================== */}
-
-          <AdvancedMarker position={position}>
-            <Pin
-              background="#2563eb"
-              borderColor="#1d4ed8"
-              glyphColor="#ffffff"
+          {/* CURRENT LOCATION → DELIVERY ROUTE POLYLINE */}
+          {currentRoutePoints.length >= 2 && (
+            <Polyline
+              path={currentRoutePoints}
+              strokeColor="#f59e0b"
+              strokeOpacity={0.9}
+              strokeWeight={5}
             />
-          </AdvancedMarker>
-
+          )}
         </Map>
       </APIProvider>
     </div>

@@ -1,7 +1,6 @@
-import { Check, Info, X } from "lucide-react";
+import { Check, Info, X, MapPin, Clock } from "lucide-react";
 
 const TrackingProgress = ({ shipment }) => {
-
   const steps = [
     {
       status: "CREATED",
@@ -25,136 +24,107 @@ const TrackingProgress = ({ shipment }) => {
     },
   ];
 
-
-  // Find current shipment status position
+  // =========================================================
+  // FIND CURRENT SHIPMENT STATUS POSITION
+  // =========================================================
   const currentIndex = steps.findIndex(
-    (step) => step.status === shipment.currentStatus
+    (step) => step.status === shipment?.currentStatus
   );
 
+  // =========================================================
+  // CHECK IF SHIPMENT IS CANCELLED
+  // =========================================================
+  const isCancelled = shipment?.currentStatus === "CANCELLED";
 
-  // Check if shipment is cancelled
-  const isCancelled =
-    shipment.currentStatus === "CANCELLED";
-
-
-  // Find tracking record for each status
+  // =========================================================
+  // FIND TRACKING RECORD FOR EACH STATUS
+  // =========================================================
   const getTrackingRecord = (status) => {
-
-    return shipment.trackingHistory?.find(
+    return shipment?.trackingHistory?.find(
       (history) => history.status === status
     );
-
   };
 
-
-  // Format date and time
+  // =========================================================
+  // FORMAT DATE AND TIME
+  // =========================================================
   const formatDateTime = (dateTime) => {
+    if (!dateTime) return null;
 
-    if (!dateTime) return "Pending";
-
-    return new Date(dateTime).toLocaleString(
-      "en-IN",
-      {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      }
-    );
-
+    return new Date(dateTime).toLocaleString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   };
-
 
   return (
-    <section className="bg-white border border-slate-200 rounded-xl shadow-sm p-5 md:p-6 mb-4">
-
-      {/* Header */}
-      <div className="mb-10">
-
-        <h2 className="text-lg font-bold text-slate-800">
-          Shipment Progress
-        </h2>
-
-        <p className="text-sm text-slate-500 mt-1">
-
-          Tracking Number:
-
-          <span className="font-semibold text-emerald-600 ml-2">
-            {shipment.trackingNumber}
+    <div className="space-y-6">
+      {/* HEADER INFO */}
+      <div className="border-b border-slate-100 pb-4">
+        <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+          Tracking ID
+        </span>
+        <div className="mt-0.5 flex items-center justify-between">
+          <p className="font-mono text-base font-bold text-emerald-600">
+            {shipment?.trackingNumber || "N/A"}
+          </p>
+          <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-medium text-slate-600">
+            {steps.length} Milestones
           </span>
-
-        </p>
-
+        </div>
       </div>
 
+      {/* TIMELINE PROGRESS */}
+      <div className="relative pl-2">
+        {steps.map((step, index) => {
+          const isCompleted = !isCancelled && index <= currentIndex;
+          const isCurrent = !isCancelled && index === currentIndex;
+          const trackingRecord = getTrackingRecord(step.status);
+          const isLastStep = index === steps.length - 1;
+          const formattedDate = formatDateTime(trackingRecord?.createdAt);
 
-      {/* Progress Line */}
-      <div className="relative">
-
-        {/* Background Line */}
-        <div className="absolute top-3 left-[10%] right-[10%] h-[3px] bg-slate-200 hidden md:block" />
-
-
-        {/* Completed Line */}
-        {!isCancelled && currentIndex >= 0 && (
-
-          <div
-            className="absolute top-3 left-[10%] h-[3px] bg-emerald-600 transition-all duration-500 hidden md:block"
-            style={{
-              width: `${(currentIndex / (steps.length - 1)) * 80}%`,
-            }}
-          />
-
-        )}
-
-
-        {/* Steps */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 relative">
-
-          {steps.map((step, index) => {
-
-            const isCompleted =
-              !isCancelled && index <= currentIndex;
-
-            const isCurrent =
-              !isCancelled && index === currentIndex;
-
-            const trackingRecord =
-              getTrackingRecord(step.status);
-
-
-            return (
-
-              <div
-                key={step.status}
-                className="flex md:flex-col items-center md:text-center gap-3 md:gap-0"
-              >
-
-                {/* Circle */}
+          return (
+            <div key={step.status} className="relative flex items-start group">
+              {/* CONNECTING LINE */}
+              {!isLastStep && (
                 <div
-                  className={`w-6 h-6 rounded-full flex items-center justify-center relative z-10 shrink-0 ${
-                    isCompleted
+                  className={`absolute left-[15px] top-[30px] h-[calc(100%-12px)] w-[2px] transition-colors ${
+                    !isCancelled && index < currentIndex
+                      ? "bg-emerald-500"
+                      : "bg-slate-200"
+                  }`}
+                />
+              )}
+
+              {/* NODE CIRCLE */}
+              <div className="relative flex h-8 w-8 shrink-0 items-center justify-center">
+                <div
+                  className={`flex h-7 w-7 items-center justify-center rounded-full transition-all ${
+                    isCurrent
+                      ? "bg-emerald-600 ring-4 ring-emerald-100 shadow-sm"
+                      : isCompleted
                       ? "bg-emerald-600"
-                      : "bg-white border-2 border-slate-300"
+                      : "border-2 border-slate-300 bg-white"
                   }`}
                 >
-
-                  {isCompleted && (
-                    <Check
-                      size={14}
-                      className="text-white"
-                    />
+                  {isCompleted ? (
+                    <Check className="h-4 w-4 text-white stroke-[3]" />
+                  ) : isCurrent ? (
+                    <span className="h-2 w-2 rounded-full bg-white animate-pulse" />
+                  ) : (
+                    <span className="h-1.5 w-1.5 rounded-full bg-slate-300" />
                   )}
-
                 </div>
+              </div>
 
-
-                {/* Status */}
-                <div className="md:mt-3">
-
+              {/* STEP DETAILS */}
+              <div className="ml-4 pb-7 min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-2">
                   <h3
-                    className={`text-sm font-semibold ${
+                    className={`text-sm font-bold ${
                       isCurrent
                         ? "text-emerald-700"
                         : isCompleted
@@ -165,86 +135,73 @@ const TrackingProgress = ({ shipment }) => {
                     {step.label}
                   </h3>
 
-
-                  {/* Date */}
-                  <p className="text-xs text-slate-500 mt-1">
-
-                    {trackingRecord
-                      ? formatDateTime(
-                          trackingRecord.createdAt
-                        )
-                      : "Pending"}
-
-                  </p>
-
-
-                  {/* Location */}
-                  {trackingRecord?.location && (
-
-                    <p className="text-xs text-slate-400 mt-1">
-
-                      {trackingRecord.location}
-
-                    </p>
-
+                  {isCurrent && (
+                    <span className="rounded-md bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200">
+                      Active
+                    </span>
                   )}
-
                 </div>
 
+                {/* DATE & TIME STAMP */}
+                <div className="mt-1 flex items-center gap-1.5">
+                  <Clock className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                  <span
+                    className={`text-xs ${
+                      formattedDate
+                        ? "font-medium text-slate-600"
+                        : "text-slate-400 italic"
+                    }`}
+                  >
+                    {formattedDate || "Pending update"}
+                  </span>
+                </div>
+
+                {/* LOCATION LOG */}
+                {trackingRecord?.location && (
+                  <div className="mt-1.5 flex items-center gap-1.5 rounded-lg bg-slate-50 px-2.5 py-1 w-fit border border-slate-100">
+                    <MapPin className="h-3 w-3 text-slate-400 shrink-0" />
+                    <span className="text-xs font-medium text-slate-600">
+                      {trackingRecord.location}
+                    </span>
+                  </div>
+                )}
               </div>
-
-            );
-
-          })}
-
-        </div>
-
+            </div>
+          );
+        })}
       </div>
 
-
-      {/* Current Status Message */}
-
+      {/* FOOTER STATUS BANNER */}
       {isCancelled ? (
-
-        <div className="mt-8 border-l-4 border-red-500 bg-red-50 rounded-md px-4 py-3 flex items-center gap-3">
-
-          <X
-            size={19}
-            className="text-red-600 shrink-0"
-          />
-
-          <p className="text-sm font-semibold text-red-700">
-            This shipment has been cancelled.
-          </p>
-
+        <div className="flex items-center gap-3 rounded-xl border border-red-200 bg-red-50/80 p-3.5 text-red-700">
+          <div className="rounded-lg bg-red-100 p-1.5 text-red-600 shrink-0">
+            <X className="h-4 w-4 stroke-[3]" />
+          </div>
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wider text-red-800">
+              Shipment Cancelled
+            </p>
+            <p className="text-xs text-red-600 mt-0.5">
+              This order was terminated before completion.
+            </p>
+          </div>
         </div>
-
       ) : (
-
-        <div className="mt-8 border-l-4 border-emerald-600 bg-emerald-50 rounded-md px-4 py-3 flex items-center gap-3">
-
-          <Info
-            size={19}
-            className="text-emerald-700 shrink-0"
-          />
-
-          <p className="text-sm text-slate-700">
-
-            Current Status:
-
-            <span className="font-semibold text-emerald-700 ml-2">
-
-              {shipment.currentStatus?.replaceAll("_", " ")}
-
+        <div className="flex items-center gap-3 rounded-xl border border-emerald-100 bg-emerald-50/60 p-3.5 text-slate-700">
+          <div className="rounded-lg bg-emerald-100 p-1.5 text-emerald-700 shrink-0">
+            <Info className="h-4 w-4" />
+          </div>
+          <div className="min-w-0">
+            <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              Current Stage
             </span>
-
-          </p>
-
+            <p className="text-xs font-bold text-slate-800 capitalize truncate">
+              {shipment?.currentStatus?.replaceAll("_", " ")?.toLowerCase()}
+            </p>
+          </div>
         </div>
-
       )}
-
-    </section>
+    </div>
   );
 };
 

@@ -53,6 +53,7 @@ import BusinessShipmentDetails from "./pages/Business/BusinessShipmentDetails";
 import CustomerSupport from "./pages/Customer/CustomerSupport";
 import ShipmentTracking from "./pages/Customer/ShipmentTracking";
 import AdminShipmentDetails from "./pages/Admin/AdminShipmentDetails";
+import DeliveryConfirmation from "./pages/Customer/DeliveryConfirmation";
 
 function App() {
   return (
@@ -72,7 +73,8 @@ function App() {
         <Route path="shipment-history" element={<ShipmentHistory />} />
         <Route path="settings"element={<CustomerSettings />}/>
         <Route path="support" element={<CustomerSupport />}/>
-          <Route path="shipment/:trackingNumber" element={<ShipmentTracking />} />
+        <Route path="shipment/:trackingNumber" element={<ShipmentTracking />} />
+        <Route path="delivery-confirmation/:trackingNumber"  element={<DeliveryConfirmation />}/>
         </Route>
 
 

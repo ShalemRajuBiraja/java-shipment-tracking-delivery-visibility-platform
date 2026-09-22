@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ship_track_backend.dto.DelayPredictionResponseDto;
 import com.ship_track_backend.dto.DeliveryForecastResponseDto;
+import com.ship_track_backend.payload.ApiResponse;
 import com.ship_track_backend.service.DelayPredictionService;
 import com.ship_track_backend.service.DeliveryForecastingService;
 import com.ship_track_backend.service.GoogleRoutesService;
@@ -29,28 +30,25 @@ public class RouteController {
     private DeliveryForecastingService deliveryForecastingService;
 
 
-    // ================= CALCULATE SHIPMENT ROUTE =================
-
+    // ================= CALCULATE SHIPMENT FULL ROUTE (Get:ShipmentRoute) =================
     @GetMapping("/calculate")
-    public ResponseEntity<Map<String, Object>> calculateRoute(
+    public ResponseEntity<ApiResponse<Map<String, Object>>> calculateRoute(
 
             @RequestParam String origin,
-
             @RequestParam String destination) {
 
-        Map<String, Object> routeResponse =
-                googleRoutesService.calculateRoute(
+        Map<String, Object> routeResponse =   googleRoutesService.calculateRoute(
                         origin,
                         destination
                 );
+        
+        ApiResponse<Map<String, Object>> apiResponse = new ApiResponse<>(true, "Route calculated successfully", routeResponse);
 
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(routeResponse);
+        return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
     }
     
+    
  // ================= CALCULATE SHIPMENT ETA =================
-
     @GetMapping("/eta")
     public ResponseEntity<Map<String, Object>> calculateEta(
             @RequestParam Double latitude,
@@ -72,11 +70,13 @@ public class RouteController {
     
  // ================= PREDICT SHIPMENT DELAY =================
     @GetMapping("/delay-prediction/{trackingNumber}")
-    public ResponseEntity<DelayPredictionResponseDto> predictDelay( @PathVariable String trackingNumber) {
+    public ResponseEntity<ApiResponse<DelayPredictionResponseDto>> predictDelay( @PathVariable String trackingNumber) {
 
         DelayPredictionResponseDto response = DelayPredictionService.predictDelay( trackingNumber );
+        
+        ApiResponse<DelayPredictionResponseDto> apiResponse = new ApiResponse<>(true, "Delay prediction fetched successfully", response);
 
-        return ResponseEntity .status(HttpStatus.OK).body(response);
+        return ResponseEntity .status(HttpStatus.OK).body(apiResponse);
     }
     
  // ================= DELIVERY FORECAST =================

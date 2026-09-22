@@ -12,6 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.ship_track_backend.dto.ShipmentLatitudeResponse;
 import com.ship_track_backend.dto.ShipmentLocationResponseDto;
 import com.ship_track_backend.entity.ShipmentEntity;
 import com.ship_track_backend.entity.ShipmentLocationEntity;
@@ -24,19 +25,16 @@ public class ShipmentLocationService {
 
     @Autowired
     private ShipmentLocationRepository shipmentLocationRepository;
-
     @Autowired
     private ShipmentRepository shipmentRepository;
     @Autowired
     private GoogleRoutesService googleRoutesService;
+    @Autowired
+    private NewLocationService newLocationService;
 
 
  // ================= SAVE SHIPMENT LOCATION =================
-
-    public ShipmentLocationResponseDto saveLocation(
-            String trackingNumber,
-            Double latitude,
-            Double longitude) {
+    public ShipmentLocationResponseDto saveLocation(   String trackingNumber,   String newLocation) {
 
         // ================= GET LOGGED-IN USER =================
     	String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -49,12 +47,10 @@ public class ShipmentLocationService {
                                         "Shipment not found"
                                 )
                         );
-
+    	    	
 
         // ================= CHECK ASSIGNED OPERATOR =================
-
-        UserEntity assignedOperator =
-                shipment.getAssignedOperator();
+        UserEntity assignedOperator =  shipment.getAssignedOperator();
 
         if (assignedOperator == null) {
 
@@ -63,8 +59,8 @@ public class ShipmentLocationService {
                     "Shipment is not assigned to any logistics operator"
             );
         }
+        
         // ================= VERIFY OPERATOR =================
-
         if (!assignedOperator.getEmail().equalsIgnoreCase(email)) {
 
             throw new ResponseStatusException(
@@ -73,11 +69,21 @@ public class ShipmentLocationService {
             );
         }
 
+     // ================= CONVERT LOCATION TO COORDINATES =================
+
+        Map<String, Double> coordinates =
+                newLocationService.convertLocationToCoordinates(
+                        newLocation
+                );
+
+        Double latitude =
+                coordinates.get("latitude");
+
+        Double longitude =
+                coordinates.get("longitude");        
 
         // ================= CREATE LOCATION =================
-
-        ShipmentLocationEntity location =
-                new ShipmentLocationEntity();
+        ShipmentLocationEntity location = new ShipmentLocationEntity();
 
         location.setShipment(shipment);
 
@@ -89,54 +95,55 @@ public class ShipmentLocationService {
 
 
         // ================= SAVE LOCATION =================
-
-        ShipmentLocationEntity savedLocation =
-                shipmentLocationRepository.save(location);
+        ShipmentLocationEntity savedLocation =  shipmentLocationRepository.save(location);
 
 
         // ================= RETURN CLEAN DTO =================
-
         return convertToDto(savedLocation);
     }
 
 
-    // ================= GET LATEST LOCATION =================
-    public ShipmentLocationResponseDto getLatestLocation( String trackingNumber) {
+    
+// ================= GET LOCATION Pickup to delivery  =================
+public ShipmentLatitudeResponse getLocation(String trackingNumber) {
+    	
+		ShipmentEntity shipment = shipmentRepository
+				.findByTrackingNumber(trackingNumber)
+				.orElseThrow(() ->
+						new ResponseStatusException(
+								HttpStatus.NOT_FOUND,
+								"Shipment not found"
+						)
+				);
+		
+		ShipmentLatitudeResponse shipmentLatitudeResponse= new ShipmentLatitudeResponse();
+		shipmentLatitudeResponse.setPickupLatitude(shipment.getPickupLatitude());
+		shipmentLatitudeResponse.setPickupLongitude(shipment.getPickupLongitude());
+		shipmentLatitudeResponse.setDeliveryLatitude(shipment.getDeliveryLatitude());
+		shipmentLatitudeResponse.setDeliveryLongitude(shipment.getDeliveryLongitude());
+		
+		return shipmentLatitudeResponse;		
+	}
+    
 
-        // ================= GET LOGGED-IN USER =================
-        String email =  SecurityContextHolder.getContext().getAuthentication().getName();
-
-
-        // ================= FIND SHIPMENT =================
-        ShipmentEntity shipment = shipmentRepository
-                        .findByTrackingNumber(trackingNumber)
-                        .orElseThrow(() ->
-                                new ResponseStatusException(
-                                        HttpStatus.NOT_FOUND,
-                                        "Shipment not found"
-                                )
-                        );
-
-
-        ShipmentLocationEntity location =
-                shipmentLocationRepository
-                        .findTopByShipmentTrackingNumberOrderByRecordedAtDesc(
-                                trackingNumber
-                        )
-                        .orElseThrow(() ->
-                                new ResponseStatusException(
-                                        HttpStatus.NOT_FOUND,
-                                        "No location found for this shipment"
-                                )
-                        );
-
-
-        return convertToDto(location);
-    }
+		public ShipmentLocationResponseDto getLatestLocation(   String trackingNumber) {
+		
+		    ShipmentLocationEntity location =  shipmentLocationRepository
+		                    .findTopByShipmentTrackingNumberOrderByRecordedAtDesc(
+		                            trackingNumber
+		                    )
+		                    .orElseThrow(() ->
+		                            new ResponseStatusException(
+		                                    HttpStatus.NOT_FOUND,
+		                                    "No location found for shipment"
+		                            )
+		                    );
+		
+		    return convertToDto(location);
+		}
 
 
     // ================= GET LOCATION HISTORY =================
-
     public List<ShipmentLocationResponseDto> getLocationHistory(
             String trackingNumber) {
 
@@ -162,6 +169,63 @@ public class ShipmentLocationService {
         return locations.stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
+    }
+    
+ // ================= GET CURRENT LOCATION → DELIVERY ROUTE =================
+    public Map<String, Object> getCurrentLocationToDeliveryRoute(
+            String trackingNumber) {
+
+        // ================= FIND SHIPMENT =================
+        ShipmentEntity shipment =
+                shipmentRepository
+                        .findByTrackingNumber(trackingNumber)
+                        .orElseThrow(() ->
+                                new ResponseStatusException(
+                                        HttpStatus.NOT_FOUND,
+                                        "Shipment not found"
+                                )
+                        );
+
+        // ================= GET LATEST LIVE LOCATION =================
+        ShipmentLocationEntity currentLocation =
+                shipmentLocationRepository
+                        .findTopByShipmentTrackingNumberOrderByRecordedAtDesc(
+                                trackingNumber
+                        )
+                        .orElseThrow(() ->
+                                new ResponseStatusException(
+                                        HttpStatus.NOT_FOUND,
+                                        "No live location found for shipment"
+                                )
+                        );
+
+        // ================= CHECK DELIVERY COORDINATES =================
+        if (shipment.getDeliveryLatitude() == null
+                || shipment.getDeliveryLongitude() == null) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Delivery coordinates are not available"
+            );
+        }
+
+        // ================= CURRENT LIVE LOCATION =================
+        String origin =
+                currentLocation.getLatitude()
+                        + ","
+                        + currentLocation.getLongitude();
+
+        // ================= DELIVERY LOCATION =================
+        String destination =
+                shipment.getDeliveryLatitude()
+                        + ","
+                        + shipment.getDeliveryLongitude();
+
+        // ================= CALCULATE CURRENT ROUTE =================
+        return googleRoutesService.calculateRoute(
+                origin,
+                destination
+        );
     }
     
     // ================= GET ROAD-FOLLOWING ROUTE HISTORY =================

@@ -51,6 +51,7 @@ import BusinessSettings from "./pages/Business/BusinessSettings";
 import BusinessSupport from "./pages/Business/BusinessSupport";
 import BusinessShipmentDetails from "./pages/Business/BusinessShipmentDetails";
 import CustomerSupport from "./pages/Customer/CustomerSupport";
+import ShipmentAnalytics from "./pages/admin/ShipmentAnalyticsDashboard/ShipmentAnalytics";
 
 function App() {
   return (
@@ -80,6 +81,7 @@ function App() {
         <Route path="users" element={<Users />} />
         <Route path="create-shipment"  element={<CreateShipment />} />
         <Route path="shipments"  element={<Shipments />}/>
+        <Route path="/admin/shipment-analytics" element={<ShipmentAnalytics />}/>
         </Route>
 
         {/* LOGISTICS OPERATOR ROUTES */}

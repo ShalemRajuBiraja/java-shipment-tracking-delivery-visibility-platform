@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 
 import { trackShipmentApi } from "../../services/shipmentService";
 import { confirmDeliveryApi } from "../../services/deliveryConfirmationService";
+import SignaturePad from "../../components/shipments/SignaturePad";
 
 
 const DeliveryConfirmation = () => {
@@ -14,6 +15,7 @@ const DeliveryConfirmation = () => {
   const [loading, setLoading] = useState(true);
   const [confirming, setConfirming] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
+  const [hasSignature, setHasSignature] = useState(false);
 
 
   // =========================================================
@@ -514,10 +516,16 @@ const DeliveryConfirmation = () => {
 
           {!confirmed && (
 
+            <SignaturePad onSignatureChange={setHasSignature} />
+
+          )}
+
+          {!confirmed && (
+
             <button
               type="button"
               onClick={handleConfirmDelivery}
-              disabled={confirming}
+              disabled={confirming || !hasSignature}
               className="mt-5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 text-white font-semibold px-6 py-2.5 rounded-lg transition"
             >
 

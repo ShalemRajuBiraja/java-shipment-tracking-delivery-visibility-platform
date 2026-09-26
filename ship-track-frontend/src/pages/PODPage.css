@@ -1,0 +1,124 @@
+.pod-page {
+  min-height: 100vh;
+  padding: 30px;
+  background: #f5f7fb;
+}
+
+.pod-container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.pod-header {
+  margin-bottom: 25px;
+}
+
+.pod-header h1 {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 700;
+}
+
+.pod-header p {
+  margin-top: 8px;
+  color: #666;
+}
+
+.pod-card {
+  background: white;
+  padding: 25px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.pod-card h2 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-size: 20px;
+}
+
+.pod-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.pod-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.pod-field label {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.pod-field input,
+.pod-field select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 11px 12px;
+  border: 1px solid #d5d9e2;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+}
+
+.pod-field input:focus,
+.pod-field select:focus {
+  border-color: #2563eb;
+}
+
+.pod-field input[readonly] {
+  background: #f1f3f6;
+}
+
+.pod-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.save-pod-button {
+  padding: 12px 22px;
+  border: none;
+  border-radius: 6px;
+  background: #2563eb;
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.save-pod-button:hover {
+  background: #1d4ed8;
+}
+
+.pod-message {
+  margin-top: 15px;
+  padding: 12px;
+  border-radius: 6px;
+  background: #e8f5e9;
+  color: #2e7d32;
+  font-weight: 600;
+}
+
+@media (max-width: 700px) {
+  .pod-page {
+    padding: 15px;
+  }
+
+  .pod-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pod-actions {
+    justify-content: stretch;
+  }
+
+  .save-pod-button {
+    width: 100%;
+  }
+}

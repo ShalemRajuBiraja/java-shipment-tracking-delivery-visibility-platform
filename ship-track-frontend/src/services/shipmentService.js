@@ -40,3 +40,12 @@ export const updateShipmentLocation = async (  trackingNumber, newLocation) => {
     }
   );
 };
+
+export const calculateEtaApi = async (distanceKm, speedKmph) => {
+  return await axiosInstance.get("/api/eta/calculate", {
+    params: {
+      distanceKm,
+      speedKmph,
+    },
+  });
+};

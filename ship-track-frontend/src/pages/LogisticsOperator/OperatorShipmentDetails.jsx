@@ -367,9 +367,13 @@ const OperatorShipmentDetails = () => {
           trackingNumber
         );
 
-      setLocationHistory(
-        response.data || []
-      );
+     setLocationHistory(
+  Array.isArray(response.data?.data)
+    ? response.data.data
+    : Array.isArray(response.data)
+      ? response.data
+      : []
+);
     } catch (error) {
       console.error(
         "Error fetching shipment route history:",
@@ -1666,6 +1670,67 @@ const OperatorShipmentDetails = () => {
           </div>
         </div>
       </div>
+      {/* ROUTE HISTORY */}
+<div className="mt-6 bg-white border border-slate-200 rounded-xl shadow-sm p-5">
+
+  <h2 className="text-lg font-semibold text-slate-800 mb-5">
+    Route History
+  </h2>
+
+  {historyLoading ? (
+    <p className="text-sm text-slate-500">
+      Loading route history...
+    </p>
+  ) : locationHistory.length === 0 ? (
+    <p className="text-sm text-slate-500">
+      No route history available.
+    </p>
+  ) : (
+    <div className="space-y-5">
+      {locationHistory.map((location, index) => (
+        <div
+          key={location.id || index}
+          className="relative flex gap-4"
+        >
+
+          <div className="flex flex-col items-center">
+
+            <div className="w-3 h-3 rounded-full bg-emerald-500 mt-1"></div>
+
+            {index !== locationHistory.length - 1 && (
+              <div className="w-px h-full bg-slate-200 mt-1"></div>
+            )}
+
+          </div>
+
+          <div className="pb-4">
+
+            <p className="font-medium text-slate-800">
+              Location Update
+            </p>
+
+            <p className="text-sm text-slate-600 mt-1">
+              Latitude: {location.latitude}
+            </p>
+
+            <p className="text-sm text-slate-600">
+              Longitude: {location.longitude}
+            </p>
+
+            <p className="text-xs text-slate-400 mt-2">
+              {location.recordedAt
+                ? new Date(location.recordedAt).toLocaleString()
+                : "Date not available"}
+            </p>
+
+          </div>
+
+        </div>
+      ))}
+    </div>
+  )}
+
+</div>
     </div>
   );
 };

@@ -1,0 +1,3 @@
+ALTER TABLE shipments
+ADD COLUMN IF NOT EXISTS distance_km NUMERIC(10,2),
+ADD COLUMN IF NOT EXISTS average_speed_kmph NUMERIC(10,2);

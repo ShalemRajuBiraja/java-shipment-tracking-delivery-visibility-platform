@@ -7,6 +7,7 @@ import com.ship_track_backend.entity.AdminEntity;
 import com.ship_track_backend.entity.ShipmentEntity;
 import com.ship_track_backend.entity.UserEntity;
 import com.ship_track_backend.enums.Role;
+import com.ship_track_backend.enums.ShipmentStatus;
 import com.ship_track_backend.pojo.AdminLoginRequest;
 import com.ship_track_backend.pojo.AdminPasswordUpdateRequest;
 import com.ship_track_backend.repository.AdminRepository;
@@ -87,6 +88,14 @@ public class AdminService {
 
         Long totalUsers = userRepository.count();
 
+        Long deliveredShipments =
+        shipmentRepository.countByStatus(ShipmentStatus.DELIVERED);
+
+Long inTransitShipments =
+        shipmentRepository.countByStatus(ShipmentStatus.IN_TRANSIT);
+
+Long delayedShipments =
+        shipmentRepository.countByStatus(ShipmentStatus.DELAYED);
 
         AdminDashboardResponse dashboardDto = new AdminDashboardResponse();
 
@@ -94,6 +103,9 @@ public class AdminService {
 
         dashboardDto.setTotalUsers(totalUsers);
 
+        dashboardDto.setDeliveredShipments(deliveredShipments);
+        dashboardDto.setInTransitShipments(inTransitShipments);
+        dashboardDto.setDelayedShipments(delayedShipments);
 
         return dashboardDto;
     }

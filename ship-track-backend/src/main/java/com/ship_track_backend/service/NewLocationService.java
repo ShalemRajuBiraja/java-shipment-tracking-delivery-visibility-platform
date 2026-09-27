@@ -17,6 +17,12 @@ import org.springframework.http.HttpStatus;
 @Service
 public class NewLocationService {
 
+    private final GeocodeService geocodeService;
+
+    public NewLocationService(GeocodeService geocodeService) {
+        this.geocodeService = geocodeService;
+    }
+
     @Value("${locationiq.api-key}")
     private String locationIqApiKey;
 
@@ -26,69 +32,15 @@ public class NewLocationService {
     private final RestTemplate restTemplate = new RestTemplate();
 
     public Map<String, Double> convertLocationToCoordinates(
-            String newLocation) {
+        String newLocation) {
 
-        HttpHeaders headers = new HttpHeaders();
+   GeocodeService.GeoCodeResult result =
+        geocodeService.geocode(newLocation);
 
-        headers.setContentType(MediaType.APPLICATION_JSON);
+Map<String, Double> coordinates = new HashMap<>();
+coordinates.put("latitude", result.getLatitude());
+coordinates.put("longitude", result.getLongitude());
 
-        headers.set(
-                "User-Agent",
-                "ShipTrackPro/1.0"
-        );
-
-        Map<String, String> params = new HashMap<>();
-
-        params.put("key", locationIqApiKey);
-        params.put("q", newLocation);
-        params.put("format", "json");
-        params.put("countrycodes", "in");
-
-        HttpEntity<Void> request =
-                new HttpEntity<>(headers);
-
-        ResponseEntity<Object[]> response =
-                restTemplate.exchange(
-                        LOCATION_IQ_URL
-                                + "?key={key}"
-                                + "&q={q}"
-                                + "&format={format}"
-                                + "&countrycodes={countrycodes}",
-                        HttpMethod.GET,
-                        request,
-                        Object[].class,
-                        params
-                );
-
-        Object[] results = response.getBody();
-
-        if (results == null || results.length == 0) {
-
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND,
-                    "Unable to find location: " + newLocation
-            );
+return coordinates;
         }
-
-        Map<?, ?> firstResult =
-                (Map<?, ?>) results[0];
-
-        Double latitude =
-                Double.parseDouble(
-                        firstResult.get("lat").toString()
-                );
-
-        Double longitude =
-                Double.parseDouble(
-                        firstResult.get("lon").toString()
-                );
-
-        Map<String, Double> coordinates =
-                new HashMap<>();
-
-        coordinates.put("latitude", latitude);
-        coordinates.put("longitude", longitude);
-
-        return coordinates;
-    }
 }

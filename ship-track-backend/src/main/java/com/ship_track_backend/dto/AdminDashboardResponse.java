@@ -11,4 +11,9 @@ public class AdminDashboardResponse {
 
     private Long totalUsers;
 
+    private Long deliveredShipments;
+
+    private Long delayedShipments;
+
+    private Long inTransitShipments;
 }

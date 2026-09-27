@@ -7,7 +7,10 @@ import {
 } from "lucide-react";
 import { toast } from "react-toastify";
 
-import { trackShipmentApi } from "../../services/shipmentService";
+import {
+  trackShipmentApi,
+  calculateEtaApi
+} from "../../services/shipmentService";
 
 import {
   getShipmentLocation,

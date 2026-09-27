@@ -32,9 +32,16 @@ import com.ship_track_backend.dto.TrackingResponseDto;
 import com.ship_track_backend.enums.Role;
 import com.ship_track_backend.dto.ShipmentLookupResponse;
 
+import java.time.Duration;
+import com.ship_track_backend.dto.DeliveryForecastResponseDto;
+import com.ship_track_backend.entity.ShipmentLocationEntity;
+import com.ship_track_backend.repository.ShipmentLocationRepository;
+
 
 @Service
 public class ShipmentService {
+        @Autowired
+private ShipmentLocationRepository shipmentLocationRepository;
 
     @Autowired
     private ShipmentRepository shipmentRepository;

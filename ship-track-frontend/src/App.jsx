@@ -54,6 +54,7 @@ import CustomerSupport from "./pages/Customer/CustomerSupport";
 import ShipmentTracking from "./pages/Customer/ShipmentTracking";
 import AdminShipmentDetails from "./pages/Admin/AdminShipmentDetails";
 import DeliveryConfirmation from "./pages/Customer/DeliveryConfirmation";
+import ShipmentAnalytics from "./pages/admin/ShipmentAnalyticsDashboard/ShipmentAnalytics";
 
 function App() {
   return (
@@ -86,6 +87,7 @@ function App() {
         <Route path="create-shipment"  element={<CreateShipment />} />
         <Route path="shipments"  element={<Shipments />}/>
         <Route path="/admin/shipments/:id" element={<AdminShipmentDetails />}/>
+        <Route path="/admin/shipment-analytics" element={<ShipmentAnalytics />}/>
         </Route>
 
         {/* LOGISTICS OPERATOR ROUTES */}

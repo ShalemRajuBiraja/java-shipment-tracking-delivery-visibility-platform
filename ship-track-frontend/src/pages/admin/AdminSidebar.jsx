@@ -11,11 +11,13 @@ import {
   Headphones,
   Copy,
   Check,
+  BarChart3,
 } from "lucide-react";
 
 import { NavLink, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { toast } from "react-toastify";
+import {} from "react-router-dom";
 
 const AdminSidebar = () => {
 
@@ -34,6 +36,11 @@ const AdminSidebar = () => {
       name: "Shipments",
       icon: Package,
       path: "/admin/shipments",
+    },
+    {
+      name: "Shipment Analytics",
+      icon: BarChart3,
+      path: "/admin/shipment-analytics",
     },
     {
       name: "Create Shipment",

@@ -55,6 +55,7 @@ import ShipmentTracking from "./pages/Customer/ShipmentTracking";
 import AdminShipmentDetails from "./pages/Admin/AdminShipmentDetails";
 import DeliveryConfirmation from "./pages/Customer/DeliveryConfirmation";
 import ShipmentAnalytics from "./pages/admin/ShipmentAnalyticsDashboard/ShipmentAnalytics";
+import BusinessReports from "./pages/business/BusinessReports";
 
 function App() {
   return (
@@ -114,7 +115,8 @@ function App() {
       <Route path="create-shipment" element={<CreateBusinessShipment />} /> 
       <Route path="settings" element={<BusinessSettings />} />
       <Route path="support" element={<BusinessSupport />}/>
-      <Route path="/business/shipments/:id" element={<BusinessShipmentDetails />}/>
+      <Route path="shipments/:id" element={<BusinessShipmentDetails />}/>
+      <Route path="reports" element={<BusinessReports />}/>
       </Route>
 
       </Routes>

@@ -36,6 +36,11 @@ const BusinessSidebar = () => {
       path: "/business/create-shipment",
     },
     {
+      name: "Reports",
+      icon: BarChart3,
+      path: "/business/reports",
+    },
+    {
       name: "Settings",
       icon: Settings,
       path: "/business/settings",
@@ -143,7 +148,6 @@ const BusinessSidebar = () => {
 
         {/* Navigation */}
         <nav className="px-3 space-y-1">
-
           {menuItems.map((item) => {
             const Icon = item.icon;
 

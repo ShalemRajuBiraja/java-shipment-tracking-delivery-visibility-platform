@@ -61,3 +61,10 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Backend local config & uploaded files
+ship-track-backend/src/main/resources/application-local.properties
+uploads/
+
+# Local AI/spec tooling (optional per developer)
+.kiro/

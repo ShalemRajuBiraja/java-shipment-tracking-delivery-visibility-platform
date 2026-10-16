@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 import {
   Package,
   Search,
@@ -84,6 +86,16 @@ const ShipmentHistory = () => {
 
   };
 
+
+  const getShipmentDetailsPath = (shipment) => {
+    const trackingNumber = shipment?.trackingNumber?.trim();
+
+    if (!trackingNumber) {
+      return null;
+    }
+
+    return `/customer/shipment/${encodeURIComponent(trackingNumber)}`;
+  };
 
   // ================= DATE FORMAT =================
 
@@ -270,8 +282,10 @@ const ShipmentHistory = () => {
 
               ) : (
 
-                filteredShipments.map((shipment) => (
+                filteredShipments.map((shipment) => {
+                  const detailsPath = getShipmentDetailsPath(shipment);
 
+                  return (
                   <tr
                     key={shipment.id}
                     className="border-b border-slate-100 hover:bg-slate-50 transition"
@@ -354,21 +368,34 @@ const ShipmentHistory = () => {
 
                     <td className="px-4 py-4 text-center">
 
-                      <button
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-700 rounded-lg text-sm font-medium hover:bg-emerald-100 transition"
-                      >
-
-                        <Eye size={16} />
-
-                        View Details
-
-                      </button>
+                      {detailsPath ? (
+                        <Link
+                          to={detailsPath}
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-700 rounded-lg text-sm font-medium hover:bg-emerald-100 transition"
+                        >
+                          <Eye size={16} />
+                          View Details
+                        </Link>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            toast.error(
+                              "Tracking number is missing for this shipment."
+                            )
+                          }
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-500 rounded-lg text-sm font-medium cursor-not-allowed"
+                        >
+                          <Eye size={16} />
+                          View Details
+                        </button>
+                      )}
 
                     </td>
 
                   </tr>
-
-                ))
+                  );
+                })
 
               )}
 

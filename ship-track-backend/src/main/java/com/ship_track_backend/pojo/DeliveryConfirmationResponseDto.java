@@ -21,6 +21,10 @@ public class DeliveryConfirmationResponseDto {
 
     private String confirmedByName;
 
+    private String signaturePath;
+
+    private String podFilePath;
+
     private LocalDateTime requestedAt;
 
     private LocalDateTime confirmedAt;

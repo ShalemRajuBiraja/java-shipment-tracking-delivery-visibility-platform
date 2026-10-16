@@ -5,6 +5,7 @@ import {
   CircleCheck,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import ShipmentDeliveryActions from "../../components/shipments/ShipmentDeliveryActions";
 
 
 const RecentShipments = ({ recentShipments,}) => {
@@ -135,6 +136,14 @@ const RecentShipments = ({ recentShipments,}) => {
                     Tracked {getTrackedTime(item.trackedAt)}
                   </span>
 
+                </div>
+
+                <div className="mt-2">
+                  <ShipmentDeliveryActions
+                    trackingNumber={item.trackingNumber}
+                    status={item.currentStatus}
+                    variant="inline"
+                  />
                 </div>
 
               </div>

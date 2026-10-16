@@ -1,0 +1,7 @@
+# Copy to application-local.properties (gitignored) and set your PostgreSQL password.
+# Spring Boot loads application-local.properties automatically when present.
+
+spring.datasource.password=YOUR_POSTGRES_PASSWORD_HERE
+
+# Optional: use a local database name
+# spring.datasource.url=jdbc:postgresql://localhost:5432/shiptrack

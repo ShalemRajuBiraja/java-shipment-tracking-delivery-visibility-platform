@@ -66,7 +66,10 @@ const CreateShipment = () => {
       setLoading(true);
   console.log("Sending shipment data:", formData);
 
-      const response = await createShipmentApi(formData);
+      const response = await createShipmentApi({
+        ...formData,
+        weight: Number(formData.weight),
+      });
 console.log("Create shipment response:", response.data);
       if (response.data.success === true) {
         toast.success("Shipment created successfully!");

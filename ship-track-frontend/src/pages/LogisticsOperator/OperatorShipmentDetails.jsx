@@ -24,6 +24,7 @@ import {
   getLatestShipmentLocation,
   getCurrentLocationToDeliveryRoute,
 } from "../../services/LocationService";
+import { openDeliveryConfirmationApi } from "../../services/deliveryConfirmationService";
 
 const {
   getOperatorShipmentById,
@@ -591,22 +592,21 @@ const OperatorShipmentDetails = () => {
   // =========================================================
   const handleOpenDeliveryConfirmation = async () => {
     try {
-      /*
-       * Backend API will be connected here.
-       *
-       * Example future API:
-       *
-       * await openDeliveryConfirmation(
-       *   shipment.trackingNumber
-       * );
-       *
-       * For now, we only confirm that the
-       * button is working.
-       */
-
-      toast.info(
-        "Delivery Confirmation API is not connected yet."
+      const response = await openDeliveryConfirmationApi(
+        shipment.trackingNumber
       );
+
+      if (response.data.success === true) {
+        toast.success(
+          response.data.message ||
+            "Delivery confirmation opened for the customer."
+        );
+      } else {
+        toast.error(
+          response.data.message ||
+            "Unable to open delivery confirmation."
+        );
+      }
     } catch (error) {
       console.error(
         "Error opening delivery confirmation:",

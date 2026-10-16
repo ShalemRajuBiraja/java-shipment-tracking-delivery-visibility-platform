@@ -10,10 +10,10 @@ import AdminLogin from "./pages/Auth/AdminLogin";
 import ForgotPassword from "./pages/Auth/ForgotPassword";
 
 // Customer Pages
-import CustomerDashboard from "./pages/Customer/CustomerDashboard";
-import CustomerLayout from "./pages/Customer/CustomerLayout";
-import ShipmentHistory from "./pages/Customer/ShipmentHistory";
-import CustomerSettings from "./pages/Customer/Settings";
+import CustomerDashboard from "./pages/customer/CustomerDashboard";
+import CustomerLayout from "./pages/customer/CustomerLayout";
+import ShipmentHistory from "./pages/customer/ShipmentHistory";
+import CustomerSettings from "./pages/customer/Settings";
 
 // Admin Pages
 import AdminDashboard from "./pages/Admin/AdminDashboard";
@@ -50,10 +50,11 @@ import CreateBusinessShipment from "./pages/Business/CreateBusinessShipment";
 import BusinessSettings from "./pages/Business/BusinessSettings";
 import BusinessSupport from "./pages/Business/BusinessSupport";
 import BusinessShipmentDetails from "./pages/Business/BusinessShipmentDetails";
-import CustomerSupport from "./pages/Customer/CustomerSupport";
-import ShipmentTracking from "./pages/Customer/ShipmentTracking";
+import CustomerSupport from "./pages/customer/CustomerSupport";
+import ShipmentTracking from "./pages/customer/ShipmentTracking";
 import AdminShipmentDetails from "./pages/Admin/AdminShipmentDetails";
-import DeliveryConfirmation from "./pages/Customer/DeliveryConfirmation";
+import DeliveryConfirmation from "./pages/customer/DeliveryConfirmation";
+import ProofOfDelivery from "./pages/customer/ProofOfDelivery";
 import ShipmentAnalytics from "./pages/admin/ShipmentAnalyticsDashboard/ShipmentAnalytics";
 import BusinessReports from "./pages/business/BusinessReports";
 
@@ -77,6 +78,7 @@ function App() {
         <Route path="support" element={<CustomerSupport />}/>
         <Route path="shipment/:trackingNumber" element={<ShipmentTracking />} />
         <Route path="delivery-confirmation/:trackingNumber"  element={<DeliveryConfirmation />}/>
+        <Route path="proof-of-delivery/:trackingNumber" element={<ProofOfDelivery />} />
         </Route>
 
 

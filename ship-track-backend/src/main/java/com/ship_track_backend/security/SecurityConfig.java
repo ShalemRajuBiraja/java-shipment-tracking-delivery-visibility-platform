@@ -33,7 +33,8 @@ public class SecurityConfig {
     "/auth/login",
     "/auth/register",
     "/auth/admin/login",
-    "/api/eta/calculate"
+    "/api/eta/calculate",
+    "/api/dev/**"
 ).permitAll()				         
 				.anyRequest().authenticated() )
 		.sessionManagement( Session -> Session.sessionCreationPolicy(SessionCreationPolicy.STATELESS) );

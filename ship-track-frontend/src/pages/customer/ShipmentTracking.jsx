@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { 
   ArrowLeft, 
@@ -15,8 +15,9 @@ import {
 import TrackingProgress from "./TrackingProgress";
 import ShipmentDetails from "./ShipmentDetails";
 import GoogleShipmentMap from "../../components/GoogleShipmentMap";
+import ShipmentDeliveryActions from "../../components/shipments/ShipmentDeliveryActions";
 
-import { trackShipmentApi } from "../../services/shipmentService";
+import { trackShipmentApi, seedDemoShipmentsApi } from "../../services/shipmentService";
 
 import {
   getShipmentLocation,
@@ -336,6 +337,30 @@ const ShipmentTracking = () => {
         <p className="mt-2 text-sm text-slate-500">
           We could not locate tracking records for <span className="font-mono font-semibold text-slate-700">{trackingNumber}</span>.
         </p>
+        {import.meta.env.DEV && (
+          <p className="mt-3 text-xs text-slate-500">
+            Try demo numbers: <span className="font-mono">DEMO-SIGN-POD-001</span>,{" "}
+            <span className="font-mono">DEMO-SIGN-POD-002</span>,{" "}
+            <span className="font-mono">DEMO-TRACK-003</span>
+          </p>
+        )}
+        {import.meta.env.DEV && (
+          <button
+            type="button"
+            onClick={async () => {
+              try {
+                await seedDemoShipmentsApi();
+                toast.success("Demo shipments loaded. Reloading...");
+                window.location.reload();
+              } catch {
+                toast.error("Restart backend with start-backend-local.ps1, then try again.");
+              }
+            }}
+            className="mt-4 inline-flex items-center justify-center rounded-xl border border-indigo-300 bg-indigo-50 px-5 py-2.5 text-sm font-semibold text-indigo-700 hover:bg-indigo-100"
+          >
+            Load demo shipments
+          </button>
+        )}
         <button
           onClick={() => navigate(-1)}
           className="mt-6 inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-emerald-700 hover:shadow"
@@ -356,12 +381,14 @@ const ShipmentTracking = () => {
   };
 
   const isDelayed = delayPrediction?.delayMinutes > 0 || delayPrediction?.prediction?.toLowerCase().includes("delay");
+  const isDelivered =
+    (trackingShipment.currentStatus || "").toUpperCase() === "DELIVERED";
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 pb-12">
       {/* HEADER BAR (TOP-LEFT EMERALD BACK BUTTON) */}
       <div className="flex flex-col gap-4 border-b border-slate-200 pb-5">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center justify-between gap-3">
           <button
             onClick={() => navigate(-1)}
             className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all hover:bg-emerald-700 hover:shadow active:scale-[0.98]"
@@ -369,6 +396,15 @@ const ShipmentTracking = () => {
             <ArrowLeft className="h-4 w-4" />
             Back to Overview
           </button>
+
+          {isDelivered && (
+            <Link
+              to={`/customer/proof-of-delivery/${trackingNumber}`}
+              className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all hover:bg-indigo-700 hover:shadow active:scale-[0.98]"
+            >
+              Proof of delivery
+            </Link>
+          )}
         </div>
 
         <div>
@@ -390,6 +426,11 @@ const ShipmentTracking = () => {
       <div className="rounded-2xl border border-slate-200/80 bg-white shadow-sm">
         <ShipmentDetails shipment={shipment} />
       </div>
+
+      <ShipmentDeliveryActions
+        trackingNumber={trackingNumber}
+        status={trackingShipment.currentStatus}
+      />
 
       {/* MAIN TRACKING & MAP GRID (2:1 COLUMN LAYOUT) */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 items-start">

@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 
-const SignaturePad = ({ onSignatureChange }) => {
+const SignaturePad = forwardRef(({ onSignatureChange }, ref) => {
   const canvasRef = useRef(null);
   const drawingRef = useRef(false);
   const [hasSignature, setHasSignature] = useState(false);
@@ -18,13 +18,27 @@ const SignaturePad = ({ onSignatureChange }) => {
     context.strokeStyle = "#111827";
   }, []);
 
+  useImperativeHandle(ref, () => ({
+    getSignatureData: () => {
+      if (!hasSignature || !canvasRef.current) {
+        return null;
+      }
+
+      return canvasRef.current.toDataURL("image/png");
+    },
+    clear: () => clearSignature(),
+    isEmpty: () => !hasSignature,
+  }));
+
   const getPosition = (event) => {
     const canvas = canvasRef.current;
     const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
 
     return {
-      x: event.clientX - rect.left,
-      y: event.clientY - rect.top,
+      x: (event.clientX - rect.left) * scaleX,
+      y: (event.clientY - rect.top) * scaleY,
     };
   };
 
@@ -89,8 +103,14 @@ const SignaturePad = ({ onSignatureChange }) => {
       </div>
 
       <div className="flex items-center justify-between mt-2">
-        <p className="text-sm text-slate-500">
-          {hasSignature ? "Signature captured" : "Please sign inside the box."}
+        <p
+          className={`text-sm font-medium ${
+            hasSignature ? "text-emerald-600" : "text-slate-500"
+          }`}
+        >
+          {hasSignature
+            ? "Signature captured — ready to save"
+            : "Please sign inside the box."}
         </p>
 
         <button
@@ -104,6 +124,8 @@ const SignaturePad = ({ onSignatureChange }) => {
       </div>
     </div>
   );
-};
+});
+
+SignaturePad.displayName = "SignaturePad";
 
 export default SignaturePad;

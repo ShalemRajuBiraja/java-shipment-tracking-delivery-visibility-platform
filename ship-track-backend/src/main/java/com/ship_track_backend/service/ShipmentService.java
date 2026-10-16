@@ -192,9 +192,13 @@ private ShipmentLocationRepository shipmentLocationRepository;
     
     public TrackingResponseDto getTrackingDetails(String trackingNumber) {
 
+        String normalizedTrackingNumber = trackingNumber == null
+                ? ""
+                : trackingNumber.trim();
+
         // Find shipment
         ShipmentEntity shipment = shipmentRepository
-                .findByTrackingNumber(trackingNumber)
+                .findByTrackingNumberIgnoreCase(normalizedTrackingNumber)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
                         "Tracking number not found"
@@ -422,7 +426,7 @@ private ShipmentLocationRepository shipmentLocationRepository;
         );
 
         List<ShipmentEntity> shipments =
-                shipmentRepository.findByReceiverId_EmailAndStatusIn(
+                shipmentRepository.findByReceiver_EmailAndStatusIn(
                         email,
                         historyStatuses
                 );
@@ -436,6 +440,9 @@ private ShipmentLocationRepository shipmentLocationRepository;
 
                     dto.setId(shipment.getId());
                     dto.setTrackingNumber(shipment.getTrackingNumber());
+                    if (shipment.getSender() != null) {
+                        dto.setSenderName(shipment.getSender().getName());
+                    }
                     dto.setReceiverName(shipment.getReceiverName());
                     dto.setPickupCity(shipment.getPickupCity());
                     dto.setDeliveryCity(shipment.getDeliveryCity());

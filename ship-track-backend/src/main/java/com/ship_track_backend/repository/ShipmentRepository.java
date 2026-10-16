@@ -19,8 +19,10 @@ public interface ShipmentRepository extends JpaRepository<ShipmentEntity, Long> 
     List<ShipmentEntity> findBySenderId_Email(String email);
     
     Optional<ShipmentEntity> findByTrackingNumber(String trackingNumber);
+
+    Optional<ShipmentEntity> findByTrackingNumberIgnoreCase(String trackingNumber);
     
-    List<ShipmentEntity> findByReceiverId_EmailAndStatusIn(  String email, List<ShipmentStatus> statuses );
+    List<ShipmentEntity> findByReceiver_EmailAndStatusIn(String email, List<ShipmentStatus> statuses);
     
     long countByStatus(ShipmentStatus status);
 

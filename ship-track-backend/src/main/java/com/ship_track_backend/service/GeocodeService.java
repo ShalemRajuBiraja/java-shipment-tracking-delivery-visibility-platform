@@ -47,6 +47,10 @@ public class GeocodeService {
 
             String cleanAddress = address.trim();
 
+            if (shouldUseDevFallbackGeocode()) {
+                return buildDevFallbackResult(cleanAddress);
+            }
+
             System.out.println();
             System.out.println("======================================");
             System.out.println("GEOCODING ADDRESS");
@@ -634,6 +638,29 @@ public class GeocodeService {
                         " "
                 )
                 .trim();
+    }
+
+    private boolean shouldUseDevFallbackGeocode() {
+        if (apiKey == null || apiKey.isBlank()) {
+            return true;
+        }
+
+        String normalizedKey = apiKey.toLowerCase();
+        return normalizedKey.contains("placeholder")
+                || normalizedKey.startsWith("local-dev");
+    }
+
+    private GeoCodeResult buildDevFallbackResult(String address) {
+        int hash = Math.abs(address.hashCode());
+        double latitude = 12.9716 + ((hash % 50) * 0.01);
+        double longitude = 77.5946 + ((hash % 50) * 0.01);
+
+        System.out.println(
+                "DEV FALLBACK GEOCODE: " + address + " -> "
+                        + latitude + ", " + longitude
+        );
+
+        return new GeoCodeResult(latitude, longitude);
     }
 
     // =========================================================

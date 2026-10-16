@@ -20,7 +20,15 @@ export const supportRequestApi = async (formData) => {
 };
 
 export const trackShipmentApi = async (trackingNumber) => {
-  return await axiosInstance.get(`${API_END_POINTS.TRACK_SHIPMENT}/${trackingNumber}` );
+  const normalized = (trackingNumber || "").trim();
+  return await axiosInstance.get(
+    `${API_END_POINTS.TRACK_SHIPMENT}/${encodeURIComponent(normalized)}`
+  );
+};
+
+/** Local dev (dev-h2): creates missing demo shipments if tracking returns not found */
+export const seedDemoShipmentsApi = async () => {
+  return await axiosInstance.post("/api/dev/seed-demo-data");
 };
 
 export const getShipmentHistoryApi = async () => {

@@ -1,14 +1,16 @@
 
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import DashboardHeader from "./DashboardHeader";
 import RecentShipments from "./RecentShipments";
-import { trackShipmentApi} from "../../services/shipmentService";
+import { trackShipmentApi, seedDemoShipmentsApi } from "../../services/shipmentService";
 import GoogleShipmentMap from "../../components/GoogleShipmentMap";
 import { getShipmentLocation, getShipmentRoute } from "../../services/operatorService";
 
 const CustomerDashboard = () => {
 
+  const navigate = useNavigate();
   const [trackingNumber, setTrackingNumber] = useState("");
   const [shipmentLocation, setShipmentLocation] = useState(null);
   const [recentShipments, setRecentShipments] = useState([]);
@@ -87,7 +89,8 @@ const CustomerDashboard = () => {
 
   // Track shipment
   const handleTrackShipment = async (
-    trackingNo = trackingNumber
+    trackingNo = trackingNumber,
+    allowDemoSeedRetry = true
   ) => {
 
     const trimmedTrackingNumber =
@@ -150,6 +153,7 @@ const CustomerDashboard = () => {
   }
 
   toast.success("Shipment found successfully!");
+  navigate(`/customer/shipment/${trimmedTrackingNumber}`);
 }else {
 
         setShipment(null);
@@ -168,6 +172,20 @@ const CustomerDashboard = () => {
 
       setShipment(null);
       setShipmentLocation(null);
+
+      const notFound =
+        error.response?.status === 404
+        || error.response?.data?.message?.toLowerCase?.().includes("not found");
+
+      if (notFound && import.meta.env.DEV && allowDemoSeedRetry) {
+        try {
+          await seedDemoShipmentsApi();
+          toast.info("Demo shipments loaded. Retrying track...");
+          return handleTrackShipment(trimmedTrackingNumber, false);
+        } catch {
+          // fall through
+        }
+      }
 
       toast.error(  error.response?.data?.message || "Shipment not found. Please check the tracking number." );
 

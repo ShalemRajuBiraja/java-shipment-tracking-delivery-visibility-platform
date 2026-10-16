@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { Link, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
 import { trackShipmentApi } from "../../services/shipmentService";
@@ -16,6 +16,8 @@ const DeliveryConfirmation = () => {
   const [confirming, setConfirming] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
   const [hasSignature, setHasSignature] = useState(false);
+  const [confirmationResult, setConfirmationResult] = useState(null);
+  const signaturePadRef = useRef(null);
 
 
   // =========================================================
@@ -101,11 +103,18 @@ const DeliveryConfirmation = () => {
 
       setConfirming(true);
 
+      const signatureData = signaturePadRef.current?.getSignatureData();
+
+      if (!signatureData) {
+        toast.error("Please provide your signature before confirming.");
+        return;
+      }
 
       const response =
-        await confirmDeliveryApi(
-          trackingNumber
-        );
+        await confirmDeliveryApi(trackingNumber, {
+          confirmedByName: shipment.receiverName,
+          signatureData,
+        });
 
 
       if (response.data.success === true) {
@@ -117,6 +126,7 @@ const DeliveryConfirmation = () => {
 
 
         setConfirmed(true);
+        setConfirmationResult(response.data.data);
 
 
         // Update shipment status in the page
@@ -235,6 +245,13 @@ const DeliveryConfirmation = () => {
         ====================================================== */}
 
         <div className="mb-5">
+
+          <Link
+            to={`/customer/shipment/${trackingNumber}`}
+            className="inline-flex items-center text-sm font-semibold text-emerald-600 hover:text-emerald-800 mb-3"
+          >
+            ← Back to shipment tracking
+          </Link>
 
           <h1 className="text-2xl md:text-3xl font-bold text-slate-900">
 
@@ -516,7 +533,10 @@ const DeliveryConfirmation = () => {
 
           {!confirmed && (
 
-            <SignaturePad onSignatureChange={setHasSignature} />
+            <SignaturePad
+              ref={signaturePadRef}
+              onSignatureChange={setHasSignature}
+            />
 
           )}
 
@@ -540,10 +560,25 @@ const DeliveryConfirmation = () => {
 
           {confirmed && (
 
-            <div className="mt-5 inline-flex items-center bg-emerald-100 text-emerald-700 font-semibold px-4 py-2.5 rounded-lg">
+            <div className="mt-5 space-y-3">
+              <div className="inline-flex items-center bg-emerald-100 text-emerald-700 font-semibold px-4 py-2.5 rounded-lg">
+                ✓ Delivery Confirmed
+              </div>
 
-              ✓ Delivery Confirmed
+              {confirmationResult?.signaturePath && (
+                <p className="text-sm text-emerald-700 font-medium">
+                  Signature saved and linked to this shipment.
+                </p>
+              )}
 
+              {(confirmationResult?.podFilePath || confirmed) && (
+                <Link
+                  to={`/customer/proof-of-delivery/${trackingNumber}`}
+                  className="inline-block text-sm font-semibold text-indigo-600 hover:text-indigo-800"
+                >
+                  View Proof of Delivery →
+                </Link>
+              )}
             </div>
 
           )}
